@@ -675,9 +675,13 @@ public class MainService extends Service {
     				isAuthenticated = false;
     			}
     			
+    			MainActivity.prefs.edit().putBoolean("isConnected", false).commit();
+    			
     	    	Intent tmpIntent = new Intent();
     			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_LOST);
     			sendBroadcast(tmpIntent);
+    			
+    			
     	    }
     	}
     };

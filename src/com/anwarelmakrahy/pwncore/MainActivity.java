@@ -51,7 +51,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	private NotificationManager mNotificationManager;
 	private Notification noti;
 	
-	private SharedPreferences prefs;
+	public static SharedPreferences prefs;
 
 	private String 	con_txtUsername, 
 					con_txtPassword, 
@@ -155,8 +155,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         serviceIntent = new Intent(this, MainService.class);     
 		startService(serviceIntent);
 		
-		prepareSidebar(); 
+        pd = new ProgressDialog(this);
+        pd.setMessage("Connecting to Server, Please wait");
+        pd.setCancelable(false);
+        pd.setIndeterminate(true); 
 		
+		prepareSidebar(); 		
     } 
     
     private boolean titlesHas(String s) {
@@ -312,10 +316,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	        return super.onOptionsItemSelected(item);
 	    }
 	}
-    
-    
-   
-    
+        
 	@Override
 	protected void onPause() {
 		if (conStatusReceiverRegistered) {
@@ -363,6 +364,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		}
 			
 		isConnected = prefs.getBoolean("isConnected", false);
+		
+		if (!isConnected && ExploitItems != null) {
+			Disconnect();
+			checkConDlgBuilder.show();
+		}
+		
 		setNotification();
 		super.onResume();
 	}
@@ -407,10 +414,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	
 	private void Disconnect() {
 		isConnected = false;	
-		MenuItem tmpItem = main_menu.findItem(R.id.mnuConnectionAction);
-		tmpItem.setIcon(R.drawable.plug);
-		tmpItem.setTitle("Connect");
-    	invalidateOptionsMenu();
+		invalidateOptionsMenu();
+		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
+		main_menu.findItem(R.id.mnuConnectionAction).setTitle("Connect");
+    	
 	}
 	
 	public BroadcastReceiver conStatusReceiver = new BroadcastReceiver() {
@@ -419,12 +426,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		String action = intent.getAction();
     		
     		if (action == StaticsClass.PWNCORE_CONNECTION_TIMEOUT) {
+    			if (pd != null) pd.dismiss();
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
-    		}
-    		
+    		}    		
     		else if (action == StaticsClass.PWNCORE_CONNECTION_SUCCESS) {
     			isConnected = true;
     			
@@ -442,9 +449,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			Intent tmpIntent = new Intent();
     			tmpIntent.setAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
     			sendBroadcast(tmpIntent);	
-    		}
-    		
+    		}    		
     		else if (action == StaticsClass.PWNCORE_CONNECTION_FAILED) {
+    			pd.dismiss();
     			Disconnect();		
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionFailed: " + intent.getStringExtra("error"), 
@@ -452,14 +459,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			
     			setProgressBar(false);
     			setNotification();
-    		}
-    		
+    		}		
     		else if (action == StaticsClass.PWNCORE_CONNECTION_LOST) {
-    	    	if (isConnected) {   		
-        			Intent tmpIntent = new Intent();
-        			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_LOST);
-        			sendBroadcast(tmpIntent);	
-        			
+    	    	if (isConnected) {  
         			Disconnect();
         			setNotification();
     	    	}
@@ -698,15 +700,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		}
 	}
 	    
+	private ProgressDialog pd; ;
     private void connectDialog(final Context context) { 	
     	AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            private ProgressDialog pd;       
+                  
             @Override
-            protected void onPreExecute() {
-                     pd = new ProgressDialog(context);
-                     pd.setMessage("Connecting to Server, Please wait");
-                     pd.setCancelable(false);
-                     pd.setIndeterminate(true);           
+            protected void onPreExecute() {          
                      pd.show();
             }       
             @Override
@@ -722,7 +721,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
             } 
             @Override
             protected void onPostExecute(Void result) {    	
-                if (pd != null) { pd.dismiss();	pd = null; }	
+                if (pd != null) { pd.dismiss();	}	
             }
     	};
     	task.execute((Void[])null);
