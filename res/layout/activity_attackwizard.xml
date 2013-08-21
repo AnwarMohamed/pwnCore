@@ -1,0 +1,74 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    tools:context=".AttackWizardActivity" >
+
+     <ProgressBar
+         android:id="@+id/progress2"
+         style="?android:attr/progressBarStyleHorizontal"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignParentTop="true"
+         android:translationY="-7.5dp" />
+              	
+    <Button
+        android:id="@+id/cmdLaunchAttack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="5dp"
+        android:onClick="launchAttack"
+        android:text="Launch Attack" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="15dp"
+        android:text="Hello there! Before you launch your attack you have to choose your targets, so lets start importing hosts from file or by Nmap scan.\n\nTo add hosts select:  Menu -> Add Hosts"
+        android:textSize="15sp"
+        android:typeface="monospace" />
+
+    <ListView
+        android:id="@+id/targetsListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cmdLaunchAttack"
+        android:layout_below="@+id/textView1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp" >
+
+    </ListView>
+
+ 		    <TextView
+        android:id="@+id/textView2"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:layout_above="@+id/cmdLaunchAttack"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="15dp"
+        android:text="No Target Hosts"
+        android:textStyle="bold"
+        android:textSize="20sp"/>
+    
+    <TextView
+        android:id="@+id/targetsCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/cmdLaunchAttack"
+        android:layout_alignBottom="@+id/cmdLaunchAttack"
+        android:layout_alignLeft="@+id/textView1"
+        android:text="TextView" />
+
+</RelativeLayout>
+
+

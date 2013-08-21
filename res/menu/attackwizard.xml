@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+    <item android:id="@+id/mnuAddHosts" android:title="Add Hosts">
+        <menu>        
+            <item android:id="@+id/mnuImportHostsFile" android:title="Import from File"></item>
+          	<item android:id="@+id/mnuHostsManualFeed" android:title="Manual Feed"></item> 
+          	<item android:id="@+id/mnuNmapScan" android:title="Nmap Scan">
+		        <menu>
+		            <item android:id="@+id/mnuNmapIntense" android:title="Intense Scan"/>
+		            <item android:id="@+id/mnuNmapIntenseUDP" android:title="Intense Scan + UDP"/>
+		            <item android:id="@+id/mnuNmapIntenseTCP" android:title="Intense Scan, all TCP ports"/>
+		            <item android:id="@+id/mnuNmapIntenseNoPing" android:title="Intense Scan, no ping"/>
+		            <item android:id="@+id/mnuNmapPing" android:title="Ping Scan"/>
+		            <item android:id="@+id/mnuNmapQuick" android:title="Quick Scan"/>
+		            <item android:id="@+id/mnuNmapQuickOS" android:title="Quick Scan (OS detect)"/>
+		            <item android:id="@+id/mnuNmapComprehensive" android:title="Comprehensive"/>
+		        </menu>
+    		</item>		
+          	<item android:id="@+id/mnuMsfScan" android:title="Msf Scan"></item>
+        </menu>
+    </item>
+    <item android:id="@+id/mnuClearHosts" android:title="Clear Hosts Database"></item>
+</menu>
