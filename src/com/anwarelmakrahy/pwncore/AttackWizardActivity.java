@@ -100,11 +100,12 @@ public class AttackWizardActivity extends Activity {
 	}
 	
 	private void showNmapHostDlg(final String[] args) {
-    	AlertDialog.Builder alert = new AlertDialog.Builder(this);
-    	alert.setMessage("Enter scan range (eg. 10.0.0.0/24)");
     	final EditText input = new EditText(this);
-    	alert.setView(input);
-    	alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    	input.setSingleLine(true);
+    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
+    	.setMessage("Enter scan range (eg. 10.0.0.0/24)")
+    	.setView(input)
+    	.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 	    	public void onClick(DialogInterface dialog, int whichButton) {
 	    	  String host = input.getText().toString();
 	    	  
@@ -113,8 +114,8 @@ public class AttackWizardActivity extends Activity {
 	    	  else 
 	    		  showNmapHostDlg(args);
 	    	}
-    	});
-    	alert.setNegativeButton("Cancel", null);
+    	})
+    	.setNegativeButton("Cancel", null);
     	alert.show();
     }
 	
@@ -273,6 +274,7 @@ public class AttackWizardActivity extends Activity {
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
+			filter.addAction(StaticsClass.PWNCORE_CONSOLE_CREATED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -311,6 +313,12 @@ public class AttackWizardActivity extends Activity {
     					"ConnectionLost: Please check your network settings", 
     					Toast.LENGTH_SHORT).show();
     			finish();
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATED) {
+    			((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + 
+    						MainActivity.mTargetHostList.size());
+    			mTargetHostListAdapter.notifyDataSetChanged();
+    			setProgressBar(false);
     		}
     	}
     };

@@ -3,6 +3,7 @@ package com.anwarelmakrahy.pwncore;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -33,6 +34,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.widget.TextView;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -432,13 +434,29 @@ public class MainService extends Service {
     		String res = tmp.get("data").asRawValue().getString();
     		
     		while(!tmp.get("data").asRawValue().getString().trim().endsWith("</nmaprun>")) {
-    			Thread.sleep(500);
+    			Thread.sleep(5000);
     			tmp = readConsole(id);
     			res += tmp.get("data").asRawValue().getString();
     		}
     		
     		db.addNmapScan(id, cmd, res);
+    		
+    		InputStream in = new ByteArrayInputStream(res.getBytes());
+			NmapXmlParser parser = new NmapXmlParser(in);
+			
+			for (int i=0; i<parser.getHostItems().size(); i++)
+				for (int x=0; x<parser.getHostItems().get(i).mAddresses.size(); x++)
+					if (parser.getHostItems().get(i).mAddresses.get(x).AddressType.equals("ipv4"))
+						addHostToTargetList(new TargetHostItem(parser.getHostItems().get(i).mAddresses.get(x).Address));			
+			in.close(); 		
     	}
+    	
+    	private void addHostToTargetList(TargetHostItem item) {	
+    		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
+    			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
+    				return;	    	
+        	MainActivity.mTargetHostList.add(0,item);
+        }
     	
     	private byte[] connectToGetBytes(byte[] toBePostedBytes) throws IOException, KeyManagementException, NoSuchAlgorithmException {
 			

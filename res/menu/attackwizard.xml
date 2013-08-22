@@ -3,7 +3,7 @@
         <menu>        
             <item android:id="@+id/mnuImportHostsFile" android:title="Import from File"></item>
           	<item android:id="@+id/mnuHostsManualFeed" android:title="Manual Feed"></item> 
-          	<item android:id="@+id/mnuNmapScan" android:title="Nmap Scan">
+          	<item android:id="@+id/mnuNmapScan" android:title="Nmap Scan" android:visible="false">
 		        <menu>
 		            <item android:id="@+id/mnuNmapIntense" android:title="Intense Scan"/>
 		            <item android:id="@+id/mnuNmapIntenseUDP" android:title="Intense Scan + UDP"/>
@@ -15,7 +15,7 @@
 		            <item android:id="@+id/mnuNmapComprehensive" android:title="Comprehensive"/>
 		        </menu>
     		</item>		
-          	<item android:id="@+id/mnuMsfScan" android:title="Msf Scan"></item>
+          	<item android:id="@+id/mnuMsfScan" android:title="Msf Scan" android:visible="false"></item>
         </menu>
     </item>
     <item android:id="@+id/mnuClearHosts" android:title="Clear Hosts Database"></item>
