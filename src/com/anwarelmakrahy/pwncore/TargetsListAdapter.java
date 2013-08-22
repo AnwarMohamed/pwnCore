@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,17 @@ import android.widget.TextView;
 
 public class TargetsListAdapter extends BaseAdapter {
 
-	private static ArrayList<TargetHostItem> itemDetailsrrayList;
+	private static ArrayList<TargetItem> itemDetailsrrayList;
 	private LayoutInflater l_Inflater;
+	private int selectedIndex;
+	private int selectedColor = Color.TRANSPARENT;
+	private Context context;
 
-	public TargetsListAdapter(Context context, ArrayList<TargetHostItem> results) {
+	public TargetsListAdapter(Context context, ArrayList<TargetItem> results) {
 		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
+		selectedIndex = -1;
+		this.context = context;
 	}
 
 	public int getCount() {
@@ -29,6 +35,11 @@ public class TargetsListAdapter extends BaseAdapter {
 		return itemDetailsrrayList.get(position);
 	}
 
+	public void setSelectedIndex(int ind)
+    {
+        selectedIndex = ind;
+        notifyDataSetChanged();
+    }
 
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
@@ -49,8 +60,18 @@ public class TargetsListAdapter extends BaseAdapter {
 		
 			holder.txt_itemHost.setText(itemDetailsrrayList.get(position).getHost());	
 			holder.txt_itemOS.setText(itemDetailsrrayList.get(position).getOS());
-			holder.txt_itemImageBack.setImageResource(R.drawable.computer);
+			
+			if (itemDetailsrrayList.get(position).isPwned())
+				holder.txt_itemImageBack.setImageResource(R.drawable.hacked);
+			else
+				holder.txt_itemImageBack.setImageResource(R.drawable.computer);
+			
 			holder.txt_itemImage.setImageResource(getImageResFromOS(itemDetailsrrayList.get(position).getOS()));
+			
+			if(selectedIndex!= -1 && position == selectedIndex)
+				convertView.setBackgroundColor(context.getResources().getColor(17170450));
+			else
+				convertView.setBackgroundColor(selectedColor);
 
 		return convertView;
 	}

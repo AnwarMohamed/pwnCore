@@ -146,7 +146,7 @@ public class AttackWizardActivity extends Activity {
 	private boolean isConnected = true;
 	private SharedPreferences prefs;
 	
-	private void addHostToTargetList(TargetHostItem item) {	
+	private void addHostToTargetList(TargetItem item) {	
 		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
 			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
 				return;
@@ -175,7 +175,7 @@ public class AttackWizardActivity extends Activity {
 	    	  
     			for (int i=0; i<hosts.length; i++) {
     				if (StaticsClass.validateIPAddress(hosts[i], false)) {
-    					addHostToTargetList(new TargetHostItem(hosts[i]));				
+    					addHostToTargetList(new TargetItem(hosts[i]));				
     				}
     			}
     		}
@@ -211,7 +211,7 @@ public class AttackWizardActivity extends Activity {
 					String line;
 				    while ((line = br.readLine()) != null) {
 	    				if (StaticsClass.validateIPAddress(line, false)) {
-	    					addHostToTargetList(new TargetHostItem(line));				
+	    					addHostToTargetList(new TargetItem(line));				
 	    				}
 				    }				    
 				    br.close();
@@ -331,7 +331,10 @@ public class AttackWizardActivity extends Activity {
     public void launchAttack(View v) {
     	isConnected = prefs.getBoolean("isConnected", false);
     	
-    	if (isConnected) {
+    	if (MainActivity.mTargetHostList.size() == 0)
+			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
+    	
+    	else if (isConnected) {
     		startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));
     		finish();
     	}

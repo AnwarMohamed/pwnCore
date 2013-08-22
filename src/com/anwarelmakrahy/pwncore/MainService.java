@@ -447,11 +447,11 @@ public class MainService extends Service {
 			for (int i=0; i<parser.getHostItems().size(); i++)
 				for (int x=0; x<parser.getHostItems().get(i).mAddresses.size(); x++)
 					if (parser.getHostItems().get(i).mAddresses.get(x).AddressType.equals("ipv4"))
-						addHostToTargetList(new TargetHostItem(parser.getHostItems().get(i).mAddresses.get(x).Address));			
+						addHostToTargetList(new TargetItem(parser.getHostItems().get(i).mAddresses.get(x).Address));			
 			in.close(); 		
     	}
     	
-    	private void addHostToTargetList(TargetHostItem item) {	
+    	private void addHostToTargetList(TargetItem item) {	
     		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
     			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
     				return;	    	

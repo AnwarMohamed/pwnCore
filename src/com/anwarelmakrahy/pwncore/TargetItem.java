@@ -1,14 +1,15 @@
 package com.anwarelmakrahy.pwncore;
 
-public class TargetHostItem {
+public class TargetItem {
 	
 	private String host;
 	private String os = "Unknown";
+	private boolean isPwned = false;
 	
-	TargetHostItem() {		
+	TargetItem() {		
 	}
 	
-	TargetHostItem(String host) {
+	TargetItem(String host) {
 		this.host = host;
 	}
 	
@@ -26,5 +27,13 @@ public class TargetHostItem {
 	
 	public void setOS(String os) {
 		this.os = os;
+	}
+	
+	public void setPwned(boolean isPwned) {
+		this.isPwned  = isPwned;
+	}
+	
+	public boolean isPwned() {
+		return isPwned;
 	}
 }

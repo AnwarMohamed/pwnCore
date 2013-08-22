@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     private boolean[] ModulesLoaded = { false, false, false, false, false, false };
     
     
-    public static ArrayList<TargetHostItem> mTargetHostList = new ArrayList<TargetHostItem>();
+    public static ArrayList<TargetItem> mTargetHostList = new ArrayList<TargetItem>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,6 +390,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	public void launchAttackHall(View v) {
 		if (!isConnected)
 			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
+		else if (mTargetHostList.size() == 0)
+			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));
 	}
