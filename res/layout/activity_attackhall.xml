@@ -3,4 +3,79 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AttackHallActivity" >
+
+    <ListView
+        android:id="@+id/targetsListView2"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="#DDDDDD" >
+    </ListView>
+
+    <TabHost
+        android:id="@android:id/tabhost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="200dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+                
+	            <TextView
+					android:tag="tab0"
+					android:text="Tab 1"
+					android:layout_width="wrap_content"
+					android:layout_height="fill_parent"/>
+	                			
+				<TextView
+					android:tag="tab1"
+					android:text="Tab 2"
+					android:layout_width="wrap_content"
+					android:layout_height="fill_parent"/>
+				
+				<TextView
+					android:tag="tab2"
+					android:text="Tab 3"
+					android:layout_width="wrap_content"
+					android:layout_height="fill_parent"/>
+			
+            </TabWidget>
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <RelativeLayout
+                    android:id="@+id/tab1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/tab2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/tab3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </RelativeLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
+
 </RelativeLayout>

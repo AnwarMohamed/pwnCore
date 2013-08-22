@@ -41,8 +41,8 @@ public class AttackWizardActivity extends Activity {
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         
-		mTargetHostListView = (ListView)findViewById(R.id.targetsListView);	
-		mTargetHostListAdapter = new TargetHostListAdapter(this, MainActivity.mTargetHostList);
+		mTargetHostListView = (ListView)findViewById(R.id.targetsListView1);	
+		mTargetHostListAdapter = new TargetsListAdapter(this, MainActivity.mTargetHostList);
 		mTargetHostListView.setAdapter(mTargetHostListAdapter);
 		mTargetHostListView.setEmptyView(findViewById(R.id.textView2));
 		registerForContextMenu(mTargetHostListView);
@@ -94,6 +94,11 @@ public class AttackWizardActivity extends Activity {
 	    case R.id.mnuImportHostsFile:
 	    	showFileChooser();
 	    	return true;
+	    case R.id.mnuClearHosts:
+	    	MainActivity.mTargetHostList.clear();
+	    	mTargetHostListAdapter.notifyDataSetChanged();
+	    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: 0");
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -136,7 +141,7 @@ public class AttackWizardActivity extends Activity {
     }
 	
 	private ListView mTargetHostListView;
-	private TargetHostListAdapter mTargetHostListAdapter;
+	private TargetsListAdapter mTargetHostListAdapter;
 	private boolean conStatusReceiverRegistered = false;
 	private boolean isConnected = true;
 	private SharedPreferences prefs;
@@ -242,10 +247,10 @@ public class AttackWizardActivity extends Activity {
         }
         else if (item.getTitle().equals(target_contextmenu_titles[0])) {  	
         	AlertDialog builder = new AlertDialog.Builder(this)
-            .setSingleChoiceItems(TargetHostListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
+            .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
-	        		MainActivity.mTargetHostList.get(info.position).setOS(TargetHostListAdapter.osTitles[item]);
+	        		MainActivity.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
 	        		mTargetHostListAdapter.notifyDataSetChanged();	
                 }
             })

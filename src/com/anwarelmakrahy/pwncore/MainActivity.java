@@ -288,7 +288,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionDisconnected: Disconnected from server", 
-    					Toast.LENGTH_LONG).show();
+    					Toast.LENGTH_SHORT).show();
     			
     			setNotification();
 	    	}

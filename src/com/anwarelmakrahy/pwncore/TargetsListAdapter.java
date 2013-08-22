@@ -11,12 +11,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TargetHostListAdapter extends BaseAdapter {
+public class TargetsListAdapter extends BaseAdapter {
 
 	private static ArrayList<TargetHostItem> itemDetailsrrayList;
 	private LayoutInflater l_Inflater;
 
-	public TargetHostListAdapter(Context context, ArrayList<TargetHostItem> results) {
+	public TargetsListAdapter(Context context, ArrayList<TargetHostItem> results) {
 		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
 	}
@@ -48,7 +48,7 @@ public class TargetHostListAdapter extends BaseAdapter {
 		}
 		
 			holder.txt_itemHost.setText(itemDetailsrrayList.get(position).getHost());	
-			holder.txt_itemOS.setText("Target OS: " + itemDetailsrrayList.get(position).getOS());
+			holder.txt_itemOS.setText(itemDetailsrrayList.get(position).getOS());
 			holder.txt_itemImageBack.setImageResource(R.drawable.computer);
 			holder.txt_itemImage.setImageResource(getImageResFromOS(itemDetailsrrayList.get(position).getOS()));
 

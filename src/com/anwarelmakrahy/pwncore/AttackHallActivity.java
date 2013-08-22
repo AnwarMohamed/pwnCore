@@ -8,14 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class AttackHallActivity extends Activity {
 	
-	private ArrayList<TargetHostItem> mTargets = MainActivity.mTargetHostList;
+	private ListView mTargetsListView;
+	private TargetsListAdapter mTargetsListAdapter;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
@@ -24,9 +27,15 @@ public class AttackHallActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setContentView(R.layout.activity_attackhall);
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+        
+        mTargetsListView = (ListView)findViewById(R.id.targetsListView2);
+        mTargetsListAdapter =  new TargetsListAdapter(this, MainActivity.mTargetHostList);
+        mTargetsListView.setAdapter(mTargetsListAdapter);
+        registerForContextMenu(mTargetsListView);
 	}
 	
 	@Override
