@@ -43,7 +43,7 @@
             android:layout_above="@+id/imageView1" />
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/targetDetailsPwn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -58,7 +58,7 @@
             />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/consolePrompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -76,8 +76,8 @@
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/textView1"
-            android:layout_alignLeft="@+id/textView1"
+            android:layout_alignBottom="@+id/targetDetailsPwn"
+            android:layout_alignLeft="@+id/targetDetailsPwn"
             android:layout_marginLeft="-30dp"
             android:layout_marginTop="7dp"
             android:clickable="true"
@@ -89,8 +89,8 @@
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/textView2"
-            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignBottom="@+id/consolePrompt"
+            android:layout_alignLeft="@+id/consolePrompt"
             android:layout_marginLeft="-30dp"
             android:clickable="true"
             android:onClick="launchAttackHall"

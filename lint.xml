@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <issue id="DefaultLocale" severity="ignore" />
-    <issue id="NewApi">
+    <issue id="NewApi" severity="ignore">
         <ignore path="src/com/anwarelmakrahy/pwncore/MainActivity.java" />
     </issue>
     <issue id="SdCardPath" severity="ignore" />

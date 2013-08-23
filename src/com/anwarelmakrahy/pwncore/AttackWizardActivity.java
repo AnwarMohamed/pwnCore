@@ -44,7 +44,7 @@ public class AttackWizardActivity extends Activity {
 		mTargetHostListView = (ListView)findViewById(R.id.targetsListView1);	
 		mTargetHostListAdapter = new TargetsListAdapter(this, MainActivity.mTargetHostList);
 		mTargetHostListView.setAdapter(mTargetHostListAdapter);
-		mTargetHostListView.setEmptyView(findViewById(R.id.textView2));
+		mTargetHostListView.setEmptyView(findViewById(R.id.consolePrompt));
 		registerForContextMenu(mTargetHostListView);
 		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainActivity.mTargetHostList.size());
 		
@@ -228,7 +228,7 @@ public class AttackWizardActivity extends Activity {
     
     
     
- private static String[] target_contextmenu_titles = { "Change OS", "Remove Host" };
+    private static String[] target_contextmenu_titles = { "Change OS", "Remove Host" };
     
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);

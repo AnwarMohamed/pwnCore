@@ -39,15 +39,113 @@
                 android:layout_height="match_parent" >
 
                 <RelativeLayout
-                    android:id="@+id/tab1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
-                </RelativeLayout>
-
-                <RelativeLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
+
+                    <TextView
+                        android:id="@+id/targetDetailsHost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp"
+                        android:text="255.255.255.255"
+                        android:textColor="#555555"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:typeface="normal" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsOS"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/targetDetailsHost"
+                        android:layout_below="@+id/targetDetailsHost"
+                        android:text="OS: Windows"
+                        android:textColor="#777777"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsPwn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBaseline="@+id/targetDetailsHost"
+                        android:layout_alignBottom="@+id/targetDetailsHost"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf="@+id/targetDetailsHost"
+                        android:text="Not Pwned"
+                        android:textColor="#ff0000"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsUp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/targetDetailsOS"
+                        android:layout_below="@+id/targetDetailsOS"
+                        android:layout_marginTop="15dp"
+                        android:text="Availability: Up"
+                        android:typeface="monospace" />
+
+                    <Button
+                        android:id="@+id/button2"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:onClick="launchHead"
+                        android:text="Scan Target" />
+
+                    <Button
+                        android:id="@+id/button3"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toLeftOf="@+id/button2"
+                        android:onClick="launchHead"
+                        android:text="Find Attacks" />
+
+                    <Button
+                        android:id="@+id/button4"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toLeftOf="@+id/button3"
+                        android:onClick="launchHead"
+                        android:text="Login" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsPorts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/targetDetailsUp"
+                        android:layout_below="@+id/targetDetailsUp"
+                        android:text="Open Ports: None"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsServices"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/targetDetailsPorts"
+                        android:layout_below="@+id/targetDetailsPorts"
+                        android:text="Detected Services: None"
+                        android:typeface="monospace" />
+
+                    <TextView
+                        android:id="@+id/targetDetailsAttacks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@+id/targetDetailsServices"
+                        android:layout_below="@+id/targetDetailsServices"
+                        android:text="Suggested Attacks: None"
+                        android:typeface="monospace" />
+
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -55,6 +153,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
                 </RelativeLayout>
+
             </FrameLayout>
         </LinearLayout>
     </TabHost>

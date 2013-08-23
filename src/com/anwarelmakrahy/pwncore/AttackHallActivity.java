@@ -3,21 +3,44 @@ package com.anwarelmakrahy.pwncore;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.ContextMenu;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.SearchView;
 import android.widget.TabHost;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class AttackHallActivity extends Activity {
@@ -25,6 +48,8 @@ public class AttackHallActivity extends Activity {
 	private TabHost tabHost;
 	private ListView mTargetsListView;
 	private TargetsListAdapter mTargetsListAdapter;
+	private ListView modulesList;
+	private ModuleListAdapter modulesExpListAdapter, modulesAuxListAdapter;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
@@ -42,21 +67,21 @@ public class AttackHallActivity extends Activity {
         mTargetsListAdapter =  new TargetsListAdapter(this, MainActivity.mTargetHostList);
         mTargetsListView.setAdapter(mTargetsListAdapter);
         registerForContextMenu(mTargetsListView);
-        
+       
         setupTabHost();
         setupListViewListener();
+        
+    	prepareTargetDetails(0);	        	
+    	mTargetsListAdapter.setSelectedIndex(0);
 	}
 	
 	private void setupListViewListener() {
 		mTargetsListView.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
-	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 
-	        	
-	    		Object target = mTargetsListView.getItemAtPosition(position);
-	        	TargetItem targetDetails = (TargetItem)target;
-	        	
+	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
+	        	prepareTargetDetails(position);	        	
 	        	mTargetsListAdapter.setSelectedIndex(position);
-	        	tabHost.setCurrentTab(1);
+	        	tabHost.setCurrentTab(0);
 	    	}
 		});
     }
@@ -66,10 +91,7 @@ public class AttackHallActivity extends Activity {
         tabHost=(TabHost)findViewById(android.R.id.tabhost);
         tabHost.setup();
       
-        TabSpec spec1=tabHost.newTabSpec("Attacks");
-        spec1.setContent(R.id.tab1);
-        spec1.setIndicator("Attacks"); 
-      
+    
         TabSpec spec2=tabHost.newTabSpec("Target Details");
         spec2.setContent(R.id.tab2);
         spec2.setIndicator("Target Details");
@@ -78,7 +100,6 @@ public class AttackHallActivity extends Activity {
         spec3.setContent(R.id.tab3);
         spec3.setIndicator("Console Sessions");
         
-        tabHost.addTab(spec1);
         tabHost.addTab(spec2);
         tabHost.addTab(spec3);
 	}
@@ -135,4 +156,138 @@ public class AttackHallActivity extends Activity {
     		}
     	}
     };
+    
+    public void attack(View v) {
+    	TargetItem t = new TargetItem("10.0.0.20");
+    	t.setPwned(true);
+    	t.setOS("Linux");
+    	MainActivity.mTargetHostList.add(t);
+    	mTargetsListAdapter.notifyDataSetChanged();
+    	
+    }
+    
+    private void prepareTargetDetails(int position) {
+    	TargetItem t = MainActivity.mTargetHostList.get(position);
+    	
+    	((TextView)findViewById(R.id.targetDetailsHost)).setText(t.getHost());
+    	((TextView)findViewById(R.id.targetDetailsOS)).setText("OS: " + t.getOS());
+    	
+    	if (t.isPwned()) {
+    		((TextView)findViewById(R.id.targetDetailsPwn)).setText("Pwned");
+    		((TextView)findViewById(R.id.targetDetailsPwn)).setTextColor(Color.parseColor("#006400"));
+    	}
+    	else {
+    		((TextView)findViewById(R.id.targetDetailsPwn)).setText("Not Pwned");
+    		((TextView)findViewById(R.id.targetDetailsPwn)).setTextColor(Color.RED);
+    	}
+    	
+    	if (t.isUp())
+    		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Up");
+    	else
+    		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Down");
+    	
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.attackhall, menu);
+        return true;
+    }
+    
+    private static String[] target_contextmenu_titles = { "Change OS", "Remove Host" };
+    
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v == mTargetsListView) {
+            menu.add(0, v.getId(), 0, target_contextmenu_titles[0]);
+        	menu.add(0, v.getId(), 0, target_contextmenu_titles[1]);
+        }
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+
+        if (item.getTitle().equals(target_contextmenu_titles[1])) {
+        	removeHostFromTargetList(info.position);
+        }
+        else if (item.getTitle().equals(target_contextmenu_titles[0])) {  	
+        	AlertDialog builder = new AlertDialog.Builder(this)
+            .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
+            	public void onClick(DialogInterface dialog, int item) {
+	            	dialog.dismiss();
+	        		MainActivity.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
+	        		mTargetsListAdapter.notifyDataSetChanged();	
+                }
+            })
+            .create();
+            builder.show();     	
+        }
+        
+        return super.onContextItemSelected(item);   
+    }
+    
+    private void removeHostFromTargetList(int pos) {	
+		MainActivity.mTargetHostList.remove(pos);
+    	if (MainActivity.mTargetHostList.size() == 0)
+    		finish();	
+    	mTargetsListAdapter.notifyDataSetChanged();
+    }
+    
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+	    switch (item.getItemId()) {    
+	    case R.id.mnuAddHosts:
+	    	startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
+	    	finish();    	
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+    
+    public void launchHead(View v) {
+    	popupWindowHandler.postDelayed(popupWindowRunnable, 0);
+    	//runOnUiThread(popupWindowRunnable);
+    }
+    
+    final Runnable popupWindowRunnable = new Runnable()
+    {
+        public void run() 
+        {
+        	initiatePopupWindow();
+        }
+    };
+
+    private Handler popupWindowHandler = new Handler();
+    
+    private PopupWindow pwindo;
+    private void initiatePopupWindow() {
+	    try {
+	    	Display display = getWindowManager().getDefaultDisplay();
+	    	Point size = new Point();
+	    	display.getSize(size);
+	    	
+		    LayoutInflater inflater = (LayoutInflater)AttackHallActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		    
+		    View layout = inflater.inflate(R.layout.layout_console, (ViewGroup)findViewById(R.id.popup_element));
+		    pwindo = new PopupWindow(layout, size.x - 30, (int)(size.y * 0.75), true);
+		    
+		    pwindo.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#eeeeee")));
+		    pwindo.setOutsideTouchable(true);
+		    
+		    pwindo.setTouchable(true);
+		    pwindo.setFocusable(true);
+		    pwindo.showAtLocation(layout, Gravity.BOTTOM, 0, 15);
+		    
+		    ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(
+		    		this,
+		    		(TextView)layout.findViewById(R.id.consolePrompt), 
+		    		(TextView)layout.findViewById(R.id.consoleRead));
+		    
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
+    }
 }

@@ -1,0 +1,84 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_element"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#ff33b5e5"
+    android:padding="1dp" >
+
+ 	<TextView
+ 	    android:id="@+id/consoleTitle"
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignParentLeft="true"
+ 	    android:layout_alignParentRight="true"
+ 	    android:background="#000000"
+ 	    android:gravity="center"
+ 	    android:paddingBottom="2dp"
+ 	    android:paddingTop="2dp"
+ 	    android:text="New Console"
+ 	    android:textColor="#ffffff"
+ 	    android:textStyle="bold"
+ 	    android:typeface="monospace" />
+    
+	<RelativeLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_below="@+id/consoleTitle"
+	    android:background="#000000" >
+
+	    <TextView
+	        android:id="@+id/consolePrompt"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentLeft="true"
+	        android:paddingLeft="5dp"
+	        android:paddingBottom="3dp"
+	        android:text="msf > "
+	        android:textColor="#ffffff"
+	        android:textSize="14sp"
+	        android:typeface="monospace" />
+
+	    <EditText
+	        android:id="@+id/consoleWrite"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentBottom="true"
+	        android:layout_alignParentRight="true"
+	        android:layout_toRightOf="@+id/consolePrompt"
+	        android:background="#00000000"
+	        android:ems="10"
+	        android:imeOptions="actionNone|flagNoExtractUi"
+	        android:paddingBottom="3dp"
+	        android:paddingRight="5dp"
+	        android:singleLine="true"
+	        android:textColor="#ffffff"
+	        android:textSize="14sp"
+	        android:inputType="text"
+	        android:typeface="monospace" />
+
+
+	    <ScrollView
+	        android:id="@+id/textAreaScroller"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"
+	        android:layout_above="@+id/consolePrompt"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignParentRight="true"
+	        android:layout_alignParentTop="true"
+	        android:scrollbars="vertical" >
+	    
+		    <TextView
+		        android:id="@+id/consoleRead"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:paddingBottom="5dp"
+		        android:paddingLeft="5dp"
+		        android:paddingRight="5dp"
+		        android:textColor="#ffffff"
+		        android:textSize="14sp"
+		        android:typeface="monospace" />
+	    </ScrollView>
+
+	</RelativeLayout>
+</RelativeLayout>

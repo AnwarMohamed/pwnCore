@@ -33,6 +33,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.os.IBinder;
 import android.widget.TextView;
 
@@ -54,23 +56,12 @@ import org.msgpack.type.Value;
 
 public class MainService extends Service {
 
-	private SharedPreferences prefs;
-	private boolean con_useSSL;
-	private String con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
-	
-	private boolean isAuthenticated = false;	
-
-	private String CLIENT_TOKEN = "";
-	private boolean clientTokenSet = false;
-	
-	private ExecutorService executor;
-	
-	private DatabaseHandler db;
+	public static SessionManager sessionMgr;
 		
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		//Toast.makeText(getApplicationContext(), "pwnCore service started", Toast.LENGTH_SHORT).show();
 		prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+		sessionMgr = new SessionManager(getApplicationContext());
 
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(StaticsClass.PWNCORE_CONNECT);
@@ -101,9 +92,14 @@ public class MainService extends Service {
 			checkConReceiverRegistered = true;
 		}
 		
+		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		lock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "LockTag");
+		lock.acquire();
+		
 		return Service.START_NOT_STICKY;
 	}
 	
+	private WifiLock lock;
 	private String THREAD_METHOD;
 	private void startConnection() {
 			
@@ -143,6 +139,7 @@ public class MainService extends Service {
 		//		"pwnCore service stopped", 
 		//		Toast.LENGTH_SHORT).show();
 		
+		lock.release();
 		super.onDestroy();
 	}
 	
@@ -202,36 +199,33 @@ public class MainService extends Service {
     		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS) {
     			if (isAuthenticated) {   			
     		        THREAD_METHOD = "get_encoders";
+    		        CONSOLE_ID = intent.getStringExtra("id");
     		        executor.execute(thread);
     			}    			
     		}
     		
     		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATE) {
-    			THREAD_METHOD = StaticsClass.PWNCORE_CONSOLE_CREATE;
-    			CONSOLE_TYPE = intent.getStringExtra(StaticsClass.PWNCORE_CONSOLE_TYPE);
-    			
-    			if (CONSOLE_TYPE.equals(StaticsClass.PWNCORE_CONSOLE_TYPE_NMAP)) {
-    		        NMAP_SCAN_ARGS = intent.getStringArrayExtra(StaticsClass.PWNCORE_NMAP_SCAN_ARGS);
-    		        NMAP_SCAN_HOST = intent.getStringExtra(StaticsClass.PWNCORE_NMAP_SCAN_HOST);
-    			}
-    			else return;
-    			
+    			THREAD_METHOD = action;		
+    			CONSOLE_ID = intent.getStringExtra("id");
     			executor.execute(thread);
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
-    			THREAD_METHOD = StaticsClass.PWNCORE_CONSOLE_READ;
-    			CONSOLE_READ_ID = intent.getStringExtra("id");
+    			THREAD_METHOD = action;
+    			CONSOLE_READ_ID = intent.getStringExtra("msfId");
+    			CONSOLE_ID = intent.getStringExtra("id");
     			executor.execute(thread);
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
-    			THREAD_METHOD = StaticsClass.PWNCORE_CONSOLE_WRITE;
-    			CONSOLE_WRITE_ID = intent.getStringExtra("id");
+    			THREAD_METHOD = action;
+    			CONSOLE_WRITE_ID = intent.getStringExtra("msfId");
+    			CONSOLE_ID = intent.getStringExtra("id");
     			CONSOLE_WRITE_DATA = intent.getStringExtra("data");
     			executor.execute(thread);  			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
-    			THREAD_METHOD = StaticsClass.PWNCORE_CONSOLE_DESTROY;
-    			CONSOLE_DESTROY_ID = intent.getStringExtra("id");
+    			THREAD_METHOD = action;
+    			CONSOLE_DESTROY_ID = intent.getStringExtra("msfId");
+    			CONSOLE_ID = intent.getStringExtra("id");
     			executor.execute(thread);  			
     		}
     	}
@@ -240,7 +234,7 @@ public class MainService extends Service {
     private String[] 	NMAP_SCAN_ARGS;
     private String 		NMAP_SCAN_HOST = "127.0.0.1";
     private int 		NMAP_SCAN_COUNT = 0;
-    private String		CONSOLE_READ_ID, CONSOLE_WRITE_ID, CONSOLE_WRITE_DATA, CONSOLE_DESTROY_ID, CONSOLE_TYPE;
+    private String		CONSOLE_ID,CONSOLE_READ_ID, CONSOLE_WRITE_ID, CONSOLE_WRITE_DATA, CONSOLE_DESTROY_ID, CONSOLE_TYPE;
     
     Runnable thread = new Runnable()
     {
@@ -314,54 +308,35 @@ public class MainService extends Service {
 	            	}
 	            	
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_CREATE)) {
+	            		String id = CONSOLE_ID;  
+	            		
 	            		Map<String, Value> newConDes = newConsole();
 	            		
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_CREATED);
-	        			tmpIntent.putExtra("id", newConDes.get("id").asRawValue().getString());
-	        			tmpIntent.putExtra("prompt", newConDes.get("prompt").asRawValue().getString());
-	        			tmpIntent.putExtra("busy", newConDes.get("busy").asBooleanValue().getBoolean());
-	        			tmpIntent.putExtra(StaticsClass.PWNCORE_CONSOLE_TYPE, StaticsClass.PWNCORE_CONSOLE_TYPE_NONE);
-	        				   
-	        			
-	        			String id = newConDes.get("id").asRawValue().getString();
-	        			readConsole(id);
-	        			
-	        			if (CONSOLE_TYPE.equals(StaticsClass.PWNCORE_CONSOLE_TYPE_NMAP)) {
-	        				String cmd = "nmap " + StringUtils.join(NMAP_SCAN_ARGS, " ") + " " +  NMAP_SCAN_HOST + "\n";;
-	        				nmapScan(id, cmd);
-	        				
-	        				tmpIntent.putExtra(StaticsClass.PWNCORE_CONSOLE_TYPE, StaticsClass.PWNCORE_CONSOLE_TYPE_NMAP);
-	        			}
-
-	        			sendBroadcast(tmpIntent);
+	            		sessionMgr.notifyNewConsole(
+	            				id, 
+	            				newConDes.get("id").asRawValue().getString(), 
+	            				newConDes.get("prompt").asRawValue().getString());
 	            	}          	
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_READ)) {
+	            		String id = CONSOLE_ID; 
+	            		
 	            		Map<String, Value> newConDes = readConsole(CONSOLE_READ_ID);
 	            		
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_READ_COMPLETE);
-	        			tmpIntent.putExtra("id", CONSOLE_READ_ID);
-	        			tmpIntent.putExtra("data", newConDes.get("data").asRawValue().getString());
-	        			tmpIntent.putExtra("prompt", newConDes.get("prompt").asRawValue().getString());
-	        			tmpIntent.putExtra("busy", newConDes.get("busy").asBooleanValue().getBoolean());
-	        			sendBroadcast(tmpIntent);      			
+	            		sessionMgr.notifyConsoleNewRead(
+	            				id, 
+	            				newConDes.get("data").asRawValue().getString(), 
+	            				newConDes.get("prompt").asRawValue().getString(),
+	            				newConDes.get("busy").asBooleanValue().getBoolean());  			
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_WRITE)) {
-	            		Map<String, Value> newConDes = writeConsole(CONSOLE_WRITE_DATA, CONSOLE_WRITE_ID);
-	            		
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_WRITE_COMPLETE);
-	        			tmpIntent.putExtra("id", CONSOLE_WRITE_ID);
-	        			tmpIntent.putExtra("wrote", newConDes.get("wrote").asIntegerValue().getInt());
-	        			sendBroadcast(tmpIntent);      			
+
+	            		writeConsole(CONSOLE_WRITE_DATA, CONSOLE_WRITE_ID);	            		
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_DESTROY)) {
+	            		String id = CONSOLE_ID; 
+	            		
 	            		if (destroyConsole(CONSOLE_DESTROY_ID)) {	            		
-		        			Intent tmpIntent = new Intent();
-		        			tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROYED);
-		        			tmpIntent.putExtra("id", CONSOLE_DESTROY_ID);
-		        			sendBroadcast(tmpIntent); 
+		        			sessionMgr.notifyDestroyedConsole(id, CONSOLE_DESTROY_ID);
 	            		}
 	            	}	            	
 	            	
@@ -704,4 +679,13 @@ public class MainService extends Service {
     	}
     };
     
+	private SharedPreferences prefs;
+	private boolean con_useSSL;
+	private String con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
+	private boolean isAuthenticated = false;	
+	private String CLIENT_TOKEN = "";
+	private boolean clientTokenSet = false;
+
+	private ExecutorService executor;
+	private DatabaseHandler db;
 }

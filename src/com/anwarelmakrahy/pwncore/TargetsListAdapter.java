@@ -69,7 +69,7 @@ public class TargetsListAdapter extends BaseAdapter {
 			holder.txt_itemImage.setImageResource(getImageResFromOS(itemDetailsrrayList.get(position).getOS()));
 			
 			if(selectedIndex!= -1 && position == selectedIndex)
-				convertView.setBackgroundColor(context.getResources().getColor(17170450));
+				convertView.setBackgroundColor(Color.parseColor("#6633b5e5"));
 			else
 				convertView.setBackgroundColor(selectedColor);
 

@@ -4,7 +4,8 @@ public class TargetItem {
 	
 	private String host;
 	private String os = "Unknown";
-	private boolean isPwned = false;
+	private boolean isPwned = false,
+					isUp = false;
 	
 	TargetItem() {		
 	}
@@ -36,4 +37,13 @@ public class TargetItem {
 	public boolean isPwned() {
 		return isPwned;
 	}
+	
+	public void setUp(boolean isUp) {
+		this.isUp  = isUp;
+	}
+	
+	public boolean isUp() {
+		return isUp;
+	}
+	
 }

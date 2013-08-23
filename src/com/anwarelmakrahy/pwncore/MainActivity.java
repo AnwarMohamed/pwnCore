@@ -36,6 +36,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnQueryTextListener {
@@ -160,7 +161,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         pd.setCancelable(false);
         pd.setIndeterminate(true); 
 		
-		prepareSidebar(); 		
+		prepareSidebar(); 	
+		
+	   	TargetItem t = new TargetItem("10.0.0.20");
+    	t.setPwned(true);
+    	t.setOS("Linux");
+    	mTargetHostList.add(t);
     } 
     
     private boolean titlesHas(String s) {
@@ -800,6 +806,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	@Override
 	public boolean onQueryTextChange(String arg0) {
+		
+		TextView t;
 		return true;
 	}
 
