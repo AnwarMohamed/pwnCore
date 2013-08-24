@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.TextView;
 
 public class ConsoleSession {
@@ -86,6 +87,7 @@ public class ConsoleSession {
 		
 		if (data.trim().length() > 0) {
 			conversation.add(data);
+			processIncomingData(data);
 			if (!logoLoaded)
 				logoLoaded = true;	
 		
@@ -101,22 +103,54 @@ public class ConsoleSession {
 			}
 		}
 		
-		if (busy)
+		if (busy) {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			read();
+		}
+	}
+	
+	public void processIncomingData(final String data) {
+		new Thread(new Runnable() {
+			@Override public void run() {
+				String[] lines = data.split("\n");				
+				for (int i=0; i<lines.length; i++) {
+					if (lines[i].trim().endsWith("- TCP OPEN"))
+						addPortToHost(lines[i].split(" ")[1].split(":")[0], lines[i].split(" ")[1].split(":")[1], "TCP");
+				}
+			}
+		}).start();
+	}
+	
+	private void addPortToHost(String host, String port, String protocol) {
+		Log.d("newPort", host + ":" + port);
+		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
+			if (MainActivity.mTargetHostList.get(i).getHost().equals(host)) {
+				MainActivity.mTargetHostList.get(i).addPort(protocol, port);
+				updateAdapters();
+				return;
+			}
+		
+		TargetItem t = new TargetItem(host);
+		t.addPort(protocol, port);
+		MainActivity.mTargetHostList.add(t);
+		updateAdapters();
+	}
+	
+	private void updateAdapters() {
+		Intent tmpIntent = new Intent();
+		tmpIntent.setAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
+		context.sendBroadcast(tmpIntent);	
 	}
 	
 	public void pingReadListener() {
 		new Thread(new Runnable() {  
             @Override
             public void run() {
-            	//while (true) {
-	            	read();
-	            	//try {
-						//Thread.sleep(2000);
-					//} catch (InterruptedException e) {
-					//	e.printStackTrace();
-					//}
-            	//}
+            	read();
             }
         }).start();
 	}

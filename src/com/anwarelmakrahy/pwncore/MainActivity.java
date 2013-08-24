@@ -163,7 +163,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		
 		prepareSidebar(); 	
 		
-	   	TargetItem t = new TargetItem("10.0.0.20");
+	   	TargetItem t = new TargetItem("10.0.0.1");
     	t.setPwned(true);
     	t.setOS("Linux");
     	mTargetHostList.add(t);
@@ -360,11 +360,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			filter.addAction(StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_CREATED);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROYED);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_READ_COMPLETE);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_WRITE_COMPLETE);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROYED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -450,9 +445,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setNotification();
     			setProgressBar(true);
     			
-    			Toast.makeText(getApplicationContext(), 
-    					"ConnectionSuccess: Connected to server", 
-    					Toast.LENGTH_SHORT).show();
+    			//Toast.makeText(getApplicationContext(), 
+    			//		"ConnectionSuccess: Connected to server", 
+    			//		Toast.LENGTH_SHORT).show();
     			
     			Intent tmpIntent = new Intent();
     			tmpIntent.setAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
@@ -606,9 +601,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
     		}*/
     		
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_READ_COMPLETE) {
-    			//Log.d("console",intent.getStringExtra("data"));
-    		}
+
     	}
     };
     

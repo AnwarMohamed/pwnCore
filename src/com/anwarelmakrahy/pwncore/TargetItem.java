@@ -1,5 +1,10 @@
 package com.anwarelmakrahy.pwncore;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class TargetItem {
 	
 	private String host;
@@ -7,11 +12,29 @@ public class TargetItem {
 	private boolean isPwned = false,
 					isUp = false;
 	
+	private List<String> tcpPorts = new ArrayList<String>();
+	private List<String> udpPorts = new ArrayList<String>();
+	
 	TargetItem() {		
 	}
 	
 	TargetItem(String host) {
 		this.host = host;
+	}
+	
+	public void addPort(String type, String port) {
+		if (type.toLowerCase().equals("tcp"))
+			tcpPorts.add(port);
+		else if (type.toLowerCase().equals("udp"))
+			udpPorts.add(port);
+	}
+	
+	public String[] getTcpPorts() {
+		return tcpPorts.toArray(new String[tcpPorts.size()]);
+	}
+	
+	public String[] getUdpPorts() {
+		return udpPorts.toArray(new String[udpPorts.size()]);
 	}
 	
 	public void setHost(String host) {
@@ -43,7 +66,7 @@ public class TargetItem {
 	}
 	
 	public boolean isUp() {
-		return isUp;
+		return (udpPorts.size() + tcpPorts.size() != 0);
 	}
 	
 }

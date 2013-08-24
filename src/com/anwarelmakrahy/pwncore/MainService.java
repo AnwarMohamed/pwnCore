@@ -13,7 +13,9 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,6 +79,7 @@ public class MainService extends Service {
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_READ);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_RUN_MODULE);
 		registerReceiver(mainReceiver, filter);
    
 		executor = Executors.newFixedThreadPool(10);
@@ -211,30 +214,38 @@ public class MainService extends Service {
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
     			THREAD_METHOD = action;
-    			CONSOLE_READ_ID = intent.getStringExtra("msfId");
+    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
     			CONSOLE_ID = intent.getStringExtra("id");
     			executor.execute(thread);
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
     			THREAD_METHOD = action;
-    			CONSOLE_WRITE_ID = intent.getStringExtra("msfId");
+    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
     			CONSOLE_ID = intent.getStringExtra("id");
     			CONSOLE_WRITE_DATA = intent.getStringExtra("data");
     			executor.execute(thread);  			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
     			THREAD_METHOD = action;
-    			CONSOLE_DESTROY_ID = intent.getStringExtra("msfId");
+    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
+    			CONSOLE_ID = intent.getStringExtra("id");
+    			executor.execute(thread);  			
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_RUN_MODULE) {
+    			THREAD_METHOD = action;
+    			MODULE_TYPE = intent.getStringExtra("type");
+    			MODULE_NAME = intent.getStringExtra("name");
+    			MODULE_ARGS = intent.getStringArrayExtra("args");
+    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
     			CONSOLE_ID = intent.getStringExtra("id");
     			executor.execute(thread);  			
     		}
     	}
     };
 
-    private String[] 	NMAP_SCAN_ARGS;
-    private String 		NMAP_SCAN_HOST = "127.0.0.1";
-    private int 		NMAP_SCAN_COUNT = 0;
-    private String		CONSOLE_ID,CONSOLE_READ_ID, CONSOLE_WRITE_ID, CONSOLE_WRITE_DATA, CONSOLE_DESTROY_ID, CONSOLE_TYPE;
+    private String		CONSOLE_ID,CONSOLE_MSF_ID, CONSOLE_WRITE_DATA, CONSOLE_TYPE;
+    private String[] MODULE_ARGS;
+    private String MODULE_TYPE, MODULE_NAME;
     
     Runnable thread = new Runnable()
     {
@@ -308,39 +319,37 @@ public class MainService extends Service {
 	            	}
 	            	
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_CREATE)) {
-	            		String id = CONSOLE_ID;  
-	            		
 	            		Map<String, Value> newConDes = newConsole();
 	            		
 	            		sessionMgr.notifyNewConsole(
-	            				id, 
+	            				CONSOLE_ID, 
 	            				newConDes.get("id").asRawValue().getString(), 
 	            				newConDes.get("prompt").asRawValue().getString());
 	            	}          	
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_READ)) {
-	            		String id = CONSOLE_ID; 
-	            		
-	            		Map<String, Value> newConDes = readConsole(CONSOLE_READ_ID);
+	            		Map<String, Value> newConDes = readConsole(CONSOLE_MSF_ID);
 	            		
 	            		sessionMgr.notifyConsoleNewRead(
-	            				id, 
+	            				CONSOLE_ID, 
 	            				newConDes.get("data").asRawValue().getString(), 
 	            				newConDes.get("prompt").asRawValue().getString(),
 	            				newConDes.get("busy").asBooleanValue().getBoolean());  			
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_WRITE)) {
-	            		String id = CONSOLE_ID;
-	            		
-	            		Map<String, Value> newConDes = writeConsole(CONSOLE_WRITE_DATA, CONSOLE_WRITE_ID);	 
-	            		sessionMgr.notifyConsoleWrite(id);
+	            		Map<String, Value> newConDes = writeConsole(CONSOLE_WRITE_DATA, CONSOLE_MSF_ID);	 
+	            		sessionMgr.notifyConsoleWrite(CONSOLE_ID);
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_DESTROY)) {
-	            		String id = CONSOLE_ID; 
-	            		
-	            		if (destroyConsole(CONSOLE_DESTROY_ID)) {	            		
-		        			sessionMgr.notifyDestroyedConsole(id, CONSOLE_DESTROY_ID);
-	            		}
-	            	}	            	
+
+	            		if (destroyConsole(CONSOLE_MSF_ID))            		
+		        			sessionMgr.notifyDestroyedConsole(CONSOLE_ID, CONSOLE_MSF_ID);
+	            	}	
+	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_RUN_MODULE)) {
+
+	            		String res = runModule(MODULE_TYPE, MODULE_NAME, MODULE_ARGS, false);
+	            		if (res != null)
+	            			sessionMgr.notifyJobCreated(res);
+	            	}
 	            	
 	            	else if (THREAD_METHOD == "get_all") {
 	            		for (int i=0; i<gets.length; i++)
@@ -401,33 +410,7 @@ public class MainService extends Service {
 			}
     	}
     	    	
-    	private void nmapScan(String id, String cmd) 
-    			throws KeyManagementException, NoSuchAlgorithmException, IOException, InterruptedException {
-    		
-    		writeConsole(cmd, id);
-    		readConsole(id);
-    		Map<String, Value> tmp = readConsole(id);
-    		
-    		String res = tmp.get("data").asRawValue().getString();
-    		
-    		while(!tmp.get("data").asRawValue().getString().trim().endsWith("</nmaprun>")) {
-    			Thread.sleep(5000);
-    			tmp = readConsole(id);
-    			res += tmp.get("data").asRawValue().getString();
-    		}
-    		
-    		db.addNmapScan(id, cmd, res);
-    		
-    		InputStream in = new ByteArrayInputStream(res.getBytes());
-			NmapXmlParser parser = new NmapXmlParser(in);
-			
-			for (int i=0; i<parser.getHostItems().size(); i++)
-				for (int x=0; x<parser.getHostItems().get(i).mAddresses.size(); x++)
-					if (parser.getHostItems().get(i).mAddresses.get(x).AddressType.equals("ipv4"))
-						addHostToTargetList(new TargetItem(parser.getHostItems().get(i).mAddresses.get(x).Address));			
-			in.close(); 		
-    	}
-    	
+    
     	private void addHostToTargetList(TargetItem item) {	
     		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
     			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
@@ -442,24 +425,14 @@ public class MainService extends Service {
         	
         	if (con_useSSL) {
         		final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-        	        @Override
-        	        public void checkClientTrusted( final X509Certificate[] chain, final String authType ) { }
-        	        
-        	        @Override
-        	        public void checkServerTrusted( final X509Certificate[] chain, final String authType ) { }
-        	        
-        	        @Override
-        	        public X509Certificate[] getAcceptedIssuers() {
-        	            return null;
-        	        }
-        	    } };
+        	        @Override public void checkClientTrusted( final X509Certificate[] chain, final String authType ) { }	        
+        	        @Override public void checkServerTrusted( final X509Certificate[] chain, final String authType ) { }    	        
+        	        @Override public X509Certificate[] getAcceptedIssuers() { return null; } } 
+        		};
         	    
         	    class NullHostNameVerifier implements HostnameVerifier {
-        	    	@Override
-        	        public boolean verify(String hostname, SSLSession session) {
-        	            return true;
-        	        }
-        	    };
+        	    	@Override public boolean verify(String hostname, SSLSession session) { return true; } 
+    	    	};
         		
         	    final SSLContext sslContext = SSLContext.getInstance( "SSL" );
         	    sslContext.init( null, trustAllCerts, new java.security.SecureRandom() );
@@ -505,39 +478,28 @@ public class MainService extends Service {
     	private Template<Map<String, Integer>> mapInt = tMap(TString, TInteger);
     	
     	private boolean authenticate() throws IOException, JSONException, KeyManagementException, NoSuchAlgorithmException {
-
-            String[] request_details = { "auth.login", con_txtUsername, con_txtPassword };
-            
-            byte[] packedRequest = packedBytesOf(request_details);
-			
-            byte[] packedResponse = connectToGetBytes(packedRequest);
-			
+            String[] request_details = { "auth.login", con_txtUsername, con_txtPassword };           
+            byte[] packedRequest = packedBytesOf(request_details);	
+            byte[] packedResponse = connectToGetBytes(packedRequest);			
             MessagePack msgpack = new MessagePack();
             ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
             Unpacker unpacker = msgpack.createUnpacker(in);
-
-            Map<String, String> res = unpacker.read(mapTmpl);
-            
+            Map<String, String> res = unpacker.read(mapTmpl);          
             if (res.containsKey("result") && res.get("result").equals("success")) {
 				clientTokenSet = true;
 				CLIENT_TOKEN = res.get("token");
 				return true;
-			}
-			
+			}		
     		return false;
     	}
     	
     	private Map<String, Integer> getStats() throws IOException, KeyManagementException, NoSuchAlgorithmException {
-    		String[] request_details = { "core.module_stats", CLIENT_TOKEN };
-            
-            byte[] packedRequest = packedBytesOf(request_details);
-			
-            byte[] packedResponse = connectToGetBytes(packedRequest);
-			
+    		String[] request_details = { "core.module_stats", CLIENT_TOKEN };           
+            byte[] packedRequest = packedBytesOf(request_details);			
+            byte[] packedResponse = connectToGetBytes(packedRequest);		
             MessagePack msgpack = new MessagePack();
             ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);
-            
+            Unpacker unpacker = msgpack.createUnpacker(in);          
             Map<String, Integer> res = unpacker.read(mapInt);
 			return res;
     	}
@@ -609,6 +571,39 @@ public class MainService extends Service {
             
     		return false;
     	}
+       	
+       	private String runModule(String type, String name, String[] args, boolean isPayload) throws IOException, KeyManagementException, NoSuchAlgorithmException {
+       		if (args.length % 2 != 0) 
+       			return null;
+       		
+       		MessagePack msgpack = new MessagePack();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Packer packer = msgpack.createPacker(out);
+
+       		List<Object> list = new ArrayList<Object>();
+            list.add("module.execute");
+            list.add(CLIENT_TOKEN);
+            list.add(type);
+            list.add(name);
+               		
+       		Map<String, String> map = new HashMap<String, String>();
+       		for (int i=0; i<args.length; i+=2)
+       			map.put(args[i], args[i+1]);
+       		
+       		list.add(map);
+       		
+       		packer.write(list);
+       		byte[] packedResponse = connectToGetBytes(out.toByteArray());			
+            MessagePack msgpack2 = new MessagePack();
+            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
+            Unpacker unpacker = msgpack2.createUnpacker(in);
+            Map<String, Value> res = unpacker.read(mapConsole);
+       		
+            if (res.containsKey("job_id"))
+            	return Integer.toString(res.get("job_id").asIntegerValue().getInt());
+            else
+            	return null;
+       	}
        	
     	private boolean getModules(String type) throws IOException, KeyManagementException, NoSuchAlgorithmException {
     		

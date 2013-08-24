@@ -73,7 +73,11 @@ public class AttackHallActivity extends Activity {
         
     	prepareTargetDetails(0);	        	
     	mTargetsListAdapter.setSelectedIndex(0);
+    	
+    	newConsole = MainService.sessionMgr.getNewConsole();
 	}
+	
+	private ConsoleSession newConsole;
 	
 	private void setupListViewListener() {
 		mTargetsListView.setOnItemClickListener(new OnItemClickListener() {
@@ -111,6 +115,7 @@ public class AttackHallActivity extends Activity {
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
+			filter.addAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -162,18 +167,12 @@ public class AttackHallActivity extends Activity {
     					Toast.LENGTH_SHORT).show();
     			finish();
     		}
+    		else if (action == StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
+    			mTargetsListAdapter.notifyDataSetChanged();
+    		}
     	}
     };
-    
-    public void attack(View v) {
-    	TargetItem t = new TargetItem("10.0.0.20");
-    	t.setPwned(true);
-    	t.setOS("Linux");
-    	MainActivity.mTargetHostList.add(t);
-    	mTargetsListAdapter.notifyDataSetChanged();
-    	
-    }
-    
+     
     private void prepareTargetDetails(int position) {
     	TargetItem t = MainActivity.mTargetHostList.get(position);
     	
@@ -189,10 +188,23 @@ public class AttackHallActivity extends Activity {
     		((TextView)findViewById(R.id.targetDetailsPwn)).setTextColor(Color.RED);
     	}
     	
-    	if (t.isUp())
-    		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Up");
-    	else
+    	if (t.isUp()) {
     		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Down");
+    		((TextView)findViewById(R.id.targetDetailsPorts)).setText("Open Ports: None");
+    	}
+    	else {
+    		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Up");
+    		
+    		String openPorts = "";
+    		for (int i=0; i<t.getTcpPorts().length; i++)
+    			openPorts += "\n\t" + t.getTcpPorts()[i] + "\t\tTCP";
+    		
+    		for (int i=0; i<t.getUdpPorts().length; i++)
+    			openPorts += "\n\t" + t.getUdpPorts()[i] + "\t\tUDP";
+    		
+    		((TextView)findViewById(R.id.targetDetailsPorts)).setText("Open Ports:" + openPorts);
+    	}
+    		
     	
     }
     
@@ -234,17 +246,30 @@ public class AttackHallActivity extends Activity {
         }
     }
     
-    private void scanTarget(TargetItem t) {
+    private void scanTarget(final TargetItem t) {
     	
-    	final String cmd = "use auxiliary/scanner/portscan/tcp; set PORTS 80; set RHOSTS 10.0.0.1; set THREADS 10; run";
+    	String ports =     					
+    			"50000, 21, 1720, 80, 143, 3306, 110, 5432, 25, 22, 23, 443, 1521, 50013, 161, 17185, 135, " + 
+				"8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, " + 
+				"9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, " +
+				"6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, "+
+				"2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, "+
+				"1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, "+
+				"8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, "+
+				"19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, "+
+				"2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, "+
+				"69, 5800, 62514, 42, 5631, 902, 3389";
     	
+    	final String cmd = 	"use auxiliary/scanner/portscan/tcp\n" + 
+    						"set RHOSTS " + t.getHost() + "\n" + 
+    						"set THREADS 15\n" + 
+    						"set PORTS " + ports + "\n" +
+    						"run";
+
     	new Thread(new Runnable() {
 			@Override public void run() {
-
-				ConsoleSession newConsole = MainService.sessionMgr.getNewConsole();
 				newConsole.waitForReady();
-				newConsole.write(cmd);
-				
+				newConsole.write(cmd);		
 			}
     	}).start();
     }

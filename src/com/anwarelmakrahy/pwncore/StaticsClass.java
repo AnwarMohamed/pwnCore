@@ -57,14 +57,12 @@ public class StaticsClass {
 	static String PWNCORE_CONSOLE_TYPE_NONE = "com.anwarelmakrahy.pwncore.CONSOLE_TYPE_NONE";
 	
 	static String PWNCORE_CONSOLE_CREATE = "com.anwarelmakrahy.pwncore.CONSOLE_CREATE";
-	
-	static String PWNCORE_CONSOLE_CREATED = "com.anwarelmakrahy.pwncore.CONSOLE_CREATED";
 	static String PWNCORE_CONSOLE_WRITE = "com.anwarelmakrahy.pwncore.CONSOLE_WRITE";
-	static String PWNCORE_CONSOLE_WRITE_COMPLETE = "com.anwarelmakrahy.pwncore.CONSOLE_WRITE_COMPLETE";
 	static String PWNCORE_CONSOLE_READ = "com.anwarelmakrahy.pwncore.CONSOLE_READ";
-	static String PWNCORE_CONSOLE_READ_COMPLETE = "com.anwarelmakrahy.pwncore.CONSOLE_READ_COMPLETE";
 	static String PWNCORE_CONSOLE_DESTROY = "com.anwarelmakrahy.pwncore.CONSOLE_DESTROY";
-	static String PWNCORE_CONSOLE_DESTROYED = "com.anwarelmakrahy.pwncore.CONSOLE_DESTROYED";
+	static String PWNCORE_CONSOLE_RUN_MODULE = "com.anwarelmakrahy.pwncore.CONSOLE_RUN_MODULE";
+
+	static String PWNCORE_NOTIFY_ADAPTER_UPDATE = "com.anwarelmakrahy.pwncore.NOTIFY_ADAPTER_UPDATE";
 	
 	public static boolean isNumeric(String str) {  
 		try {  Double.parseDouble(str); } 

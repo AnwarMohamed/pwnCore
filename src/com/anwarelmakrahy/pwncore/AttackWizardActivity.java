@@ -279,7 +279,6 @@ public class AttackWizardActivity extends Activity {
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
-			filter.addAction(StaticsClass.PWNCORE_CONSOLE_CREATED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -318,12 +317,6 @@ public class AttackWizardActivity extends Activity {
     					"ConnectionLost: Please check your network settings", 
     					Toast.LENGTH_SHORT).show();
     			finish();
-    		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATED) {
-    			((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + 
-    						MainActivity.mTargetHostList.size());
-    			mTargetHostListAdapter.notifyDataSetChanged();
-    			setProgressBar(false);
     		}
     	}
     };

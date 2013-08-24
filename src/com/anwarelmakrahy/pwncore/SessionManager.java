@@ -7,6 +7,7 @@ import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class SessionManager {
 
@@ -81,6 +82,10 @@ public class SessionManager {
 			c.setWindowActive(true);
 			currentConsoleWindowId = id;
 		}
+	}
+	
+	public void notifyJobCreated(String id) {
+		Log.d("notifyJobCreated", id);
 	}
 	
 	public void closeConsoleWindow(String id) {
