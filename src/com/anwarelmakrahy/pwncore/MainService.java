@@ -329,8 +329,10 @@ public class MainService extends Service {
 	            				newConDes.get("busy").asBooleanValue().getBoolean());  			
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_WRITE)) {
-
-	            		writeConsole(CONSOLE_WRITE_DATA, CONSOLE_WRITE_ID);	            		
+	            		String id = CONSOLE_ID;
+	            		
+	            		Map<String, Value> newConDes = writeConsole(CONSOLE_WRITE_DATA, CONSOLE_WRITE_ID);	 
+	            		sessionMgr.notifyConsoleWrite(id);
 	            	}
 	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_DESTROY)) {
 	            		String id = CONSOLE_ID; 
@@ -582,7 +584,7 @@ public class MainService extends Service {
     	}
     	
        	private Map<String, Value> writeConsole(String data, String id) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "console.write", CLIENT_TOKEN, id, data };            
+            String[] request_details = { "console.write", CLIENT_TOKEN, id, data + "\n" };            
             byte[] packedRequest = packedBytesOf(request_details);			
             byte[] packedResponse = connectToGetBytes(packedRequest);			
             MessagePack msgpack = new MessagePack();

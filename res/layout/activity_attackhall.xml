@@ -89,36 +89,6 @@
                         android:text="Availability: Up"
                         android:typeface="monospace" />
 
-                    <Button
-                        android:id="@+id/button2"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentRight="true"
-                        android:onClick="launchHead"
-                        android:text="Scan Target" />
-
-                    <Button
-                        android:id="@+id/button3"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_toLeftOf="@+id/button2"
-                        android:onClick="launchHead"
-                        android:text="Find Attacks" />
-
-                    <Button
-                        android:id="@+id/button4"
-                        style="?android:attr/buttonStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_toLeftOf="@+id/button3"
-                        android:onClick="launchHead"
-                        android:text="Login" />
-
                     <TextView
                         android:id="@+id/targetDetailsPorts"
                         android:layout_width="wrap_content"

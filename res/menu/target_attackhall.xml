@@ -1,0 +1,5 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >  
+    <item android:id="@+id/mnuTargetScan" android:title="Scan"/> 
+    <item android:id="@+id/mnuTargetOS" android:title="Change OS"/>
+    <item android:id="@+id/mnuTargetRemove" android:title="Remove Host"/>
+</menu>

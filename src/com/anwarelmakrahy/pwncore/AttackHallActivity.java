@@ -1,6 +1,6 @@
 package com.anwarelmakrahy.pwncore;
 
-import java.util.ArrayList;
+import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,14 +13,16 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,18 +31,18 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.SearchView;
+import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 public class AttackHallActivity extends Activity {
@@ -48,8 +50,6 @@ public class AttackHallActivity extends Activity {
 	private TabHost tabHost;
 	private ListView mTargetsListView;
 	private TargetsListAdapter mTargetsListAdapter;
-	private ListView modulesList;
-	private ModuleListAdapter modulesExpListAdapter, modulesAuxListAdapter;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
@@ -116,6 +116,14 @@ public class AttackHallActivity extends Activity {
 		}
 			
 		isConnected = prefs.getBoolean("isConnected", false);
+		
+		if (!isConnected) {
+			Toast.makeText(getApplicationContext(), 
+					"ConnectionLost: Please check your network settings", 
+					Toast.LENGTH_SHORT).show();
+			finish();
+		}
+		
 		super.onResume();
 	}
     
@@ -194,25 +202,23 @@ public class AttackHallActivity extends Activity {
         return true;
     }
     
-    private static String[] target_contextmenu_titles = { "Change OS", "Remove Host" };
-    
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        if (v == mTargetsListView) {
-            menu.add(0, v.getId(), 0, target_contextmenu_titles[0]);
-        	menu.add(0, v.getId(), 0, target_contextmenu_titles[1]);
-        }
+    	getMenuInflater().inflate(R.menu.target_attackhall, menu);
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-
-        if (item.getTitle().equals(target_contextmenu_titles[1])) {
+        
+        switch (item.getItemId()) {
+        case R.id.mnuTargetRemove:
         	removeHostFromTargetList(info.position);
-        }
-        else if (item.getTitle().equals(target_contextmenu_titles[0])) {  	
-        	AlertDialog builder = new AlertDialog.Builder(this)
+        	return true;
+        case R.id.mnuTargetScan:
+        	scanTarget(MainActivity.mTargetHostList.get(info.position));
+        	return true;
+        case R.id.mnuTargetOS:
+           	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
@@ -221,10 +227,26 @@ public class AttackHallActivity extends Activity {
                 }
             })
             .create();
-            builder.show();     	
+            builder.show(); 
+        	return true;
+        default:
+        	return false;
         }
-        
-        return super.onContextItemSelected(item);   
+    }
+    
+    private void scanTarget(TargetItem t) {
+    	
+    	final String cmd = "use auxiliary/scanner/portscan/tcp; set PORTS 80; set RHOSTS 10.0.0.1; set THREADS 10; run";
+    	
+    	new Thread(new Runnable() {
+			@Override public void run() {
+
+				ConsoleSession newConsole = MainService.sessionMgr.getNewConsole();
+				newConsole.waitForReady();
+				newConsole.write(cmd);
+				
+			}
+    	}).start();
     }
     
     private void removeHostFromTargetList(int pos) {	
@@ -271,7 +293,7 @@ public class AttackHallActivity extends Activity {
 	    	
 		    LayoutInflater inflater = (LayoutInflater)AttackHallActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		    
-		    View layout = inflater.inflate(R.layout.layout_console, (ViewGroup)findViewById(R.id.popup_element));
+		    final View layout = inflater.inflate(R.layout.layout_console, (ViewGroup)findViewById(R.id.popup_element));
 		    pwindo = new PopupWindow(layout, size.x - 30, (int)(size.y * 0.75), true);
 		    
 		    pwindo.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#eeeeee")));
@@ -280,11 +302,58 @@ public class AttackHallActivity extends Activity {
 		    pwindo.setTouchable(true);
 		    pwindo.setFocusable(true);
 		    pwindo.showAtLocation(layout, Gravity.BOTTOM, 0, 15);
+		    	    
+		    final EditText commander = (EditText)layout.findViewById(R.id.consoleWrite);
+		    final ScrollView scroller = (ScrollView)layout.findViewById(R.id.textAreaScroller);		    
+		    ((TextView)layout.findViewById(R.id.consoleRead)).addTextChangedListener(new TextWatcher() {
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void afterTextChanged(Editable s) {
+                	Log.d("scrollview", "scrollview");
+                	scroller.post(new Runnable() {            
+                	    @Override
+                	    public void run() {
+                	           scroller.fullScroll(View.FOCUS_DOWN);              
+                	    }
+                	});
+                }
+            });
+		    		    
+		    ConsoleSessionParams params = new ConsoleSessionParams();
+		    params.setAcivity(this);
+		    params.setCmdView((TextView)layout.findViewById(R.id.consoleRead));
+		    params.setPromptView((TextView)layout.findViewById(R.id.consolePrompt));
 		    
-		    ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(
-		    		this,
-		    		(TextView)layout.findViewById(R.id.consolePrompt), 
-		    		(TextView)layout.findViewById(R.id.consoleRead));
+		    final ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(params);
+		    MainService.sessionMgr.switchConsoleWindow(newConsole.getId());
+		    
+		    commander.setOnEditorActionListener(new OnEditorActionListener() {
+
+		    	String cmd = null;
+		    	
+	    		@Override
+		        public boolean onEditorAction(TextView v, int keyCode, KeyEvent event) {
+	    			if ((event.getAction() == KeyEvent.ACTION_DOWN) && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)){               
+
+	    				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+	    				imm.hideSoftInputFromWindow(commander.getWindowToken(), 0);
+		               
+	    				cmd = v.getText().toString();
+	    				v.setText("");
+	    				
+						new Thread(new Runnable() {
+						    public void run() {
+						    	newConsole.write(cmd);
+						    }
+						  }).start();
+					
+		               return true;
+		            }
+	    			
+		            return false;
+		        }
+		    });
 		    
 	    } catch (Exception e) {
 	    	e.printStackTrace();

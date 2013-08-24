@@ -21,8 +21,8 @@
  	    android:typeface="monospace" />
     
 	<RelativeLayout
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
 	    android:layout_below="@+id/consoleTitle"
 	    android:background="#000000" >
 
@@ -60,8 +60,8 @@
 
 	    <ScrollView
 	        android:id="@+id/textAreaScroller"
-	        android:layout_width="fill_parent"
-	        android:layout_height="fill_parent"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
 	        android:layout_above="@+id/consolePrompt"
 	        android:layout_alignParentLeft="true"
 	        android:layout_alignParentRight="true"

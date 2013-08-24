@@ -3,10 +3,10 @@ package com.anwarelmakrahy.pwncore;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.app.Activity;
+import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
+
 import android.content.Context;
 import android.content.Intent;
-import android.widget.TextView;
 
 public class SessionManager {
 
@@ -14,6 +14,8 @@ public class SessionManager {
 	
 	private int incConsoleIDs = 1000;
 	private Map<String, ConsoleSession> consoleSessions = new HashMap<String, ConsoleSession>();
+	
+	private String currentConsoleWindowId = null;
 	
 	SessionManager(Context context) {
 		this.context = context;
@@ -30,14 +32,12 @@ public class SessionManager {
 		return newConsole;
 	}
 	
-	public ConsoleSession getNewConsole(Activity activity, TextView prompt, TextView cmd) {			
+	public ConsoleSession getNewConsole(ConsoleSessionParams params) {			
 		String id = Integer.toString(incConsoleIDs++);
 		ConsoleSession newConsole = new ConsoleSession(
 				context, 
 				id,
-				activity,
-				prompt,
-				cmd);
+				params);
 		
 		consoleSessions.put(id, newConsole);			
 		Intent tmpIntent = new Intent();
@@ -54,6 +54,12 @@ public class SessionManager {
 		}
 	}
 	
+	public void notifyConsoleWrite(String id) {
+		if (consoleSessions.containsKey(id)) {
+			consoleSessions.get(id).pingReadListener();
+		}
+	}
+	
 	public void notifyConsoleNewRead(String id, String data, String prompt, boolean busy) {
 		if (consoleSessions.containsKey(id)) {
 			consoleSessions.get(id).newRead(data, prompt, busy);	
@@ -65,5 +71,23 @@ public class SessionManager {
 			consoleSessions.remove(Id);
 	}
 	
+	public void switchConsoleWindow(String id) {
+		if (consoleSessions.containsKey(id)) {
+			ConsoleSession c = consoleSessions.get(id);
+			
+			if (currentConsoleWindowId != null)
+				consoleSessions.get(currentConsoleWindowId).setWindowActive(false);
+		
+			c.setWindowActive(true);
+			currentConsoleWindowId = id;
+		}
+	}
+	
+	public void closeConsoleWindow(String id) {
+		if (consoleSessions.containsKey(id)) {
+			consoleSessions.get(id).setWindowActive(false);
+			currentConsoleWindowId = null;
+		}
+	}
 
 }
