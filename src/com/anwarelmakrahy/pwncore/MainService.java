@@ -1,5 +1,7 @@
 package com.anwarelmakrahy.pwncore;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -27,8 +29,9 @@ public class MainService extends Service {
 	private DatabaseHandler databaseHandler;
 	
 	public static SessionManager sessionMgr;
-	private MsfRpcClient client;
+	public static MsfRpcClient client;
 	
+	public static ArrayList<TargetItem> mTargetHostList = new ArrayList<TargetItem>();
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -51,7 +54,7 @@ public class MainService extends Service {
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
 		registerReceiver(mainReceiver, filter);
    
-		executor = Executors.newFixedThreadPool(30);
+		executor = Executors.newFixedThreadPool(20);
 		
 		//deleteDatabase(DatabaseHandler.DATABASE_NAME);
 		databaseHandler = DatabaseHandler.getInstance(this);
@@ -92,7 +95,7 @@ public class MainService extends Service {
 		        	else {
 		    			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
 		    			sendBroadcast(tmpIntent);
-		        	}        	
+		        	} 
 				}
 			}).start();	   	
         	
@@ -107,12 +110,13 @@ public class MainService extends Service {
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(mainReceiver);
+		executor.shutdownNow();
 		super.onDestroy();
 	}
 	
     public BroadcastReceiver mainReceiver = new BroadcastReceiver() {
     	@Override
-    	public void onReceive(Context context, Intent intent) {
+    	public void onReceive(Context context, final Intent intent) {
     		final String action = intent.getAction();
     		
     		if (action == StaticsClass.PWNCORE_CONNECT) { 
@@ -148,6 +152,7 @@ public class MainService extends Service {
 								StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS, 
 								StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED
 								);
+						Thread.currentThread().interrupt();
 					}}); 			
     		}    		
     		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS) {
@@ -215,32 +220,53 @@ public class MainService extends Service {
     		}
     		
     		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATE) {	
-    			//CONSOLE_ID = intent.getStringExtra("id");
-    			
+				executor.execute(new NewThread(null) {
+					@Override public void run() {														
+	            		Map<String, Value> newConDes = 
+	            				client.call(MsfRpcClient.singleOptCallList("console.create"));
+	            		
+	            		sessionMgr.notifyNewConsole(
+	            				intent.getStringExtra("id"), 
+	            				newConDes.get("id").asRawValue().getString(), 
+	            				newConDes.get("prompt").asRawValue().getString());
+					}});	
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
-    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			//CONSOLE_ID = intent.getStringExtra("id");
-    			
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("console.read");
+						params.add(intent.getStringExtra("msfId"));
+	            		Map<String, Value> newConDes = client.call(params);
+	            		sessionMgr.notifyConsoleNewRead(
+	            				intent.getStringExtra("id"), 
+	            				newConDes.get("data").asRawValue().getString(), 
+	            				newConDes.get("prompt").asRawValue().getString(),
+	            				newConDes.get("busy").asBooleanValue().getBoolean());  
+					}});	
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
-    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			//CONSOLE_ID = intent.getStringExtra("id");
-    			//CONSOLE_WRITE_DATA = intent.getStringExtra("data");
-    			 			
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("console.write");
+						params.add(intent.getStringExtra("msfId"));
+						params.add(intent.getStringExtra("data") + "\n");
+						Map<String, Value> newConDes = client.call(params);
+	            		sessionMgr.notifyConsoleWrite(intent.getStringExtra("id"));  
+					}});			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
-    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			//CONSOLE_ID = intent.getStringExtra("id");
-    		  			
-    		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_RUN_MODULE) {
-    			//MODULE_TYPE = intent.getStringExtra("type");
-    			//MODULE_NAME = intent.getStringExtra("name");
-    			//MODULE_ARGS = intent.getStringArrayExtra("args");
-    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			//CONSOLE_ID = intent.getStringExtra("id");
-    					
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("console.destroy");
+						params.add(intent.getStringExtra("msfId"));
+	            		client.call(params);
+	        			sessionMgr.notifyDestroyedConsole(
+	        					intent.getStringExtra("id"), 
+	        					intent.getStringExtra("msfId"));
+					}});	
     		}
     	}
     };
@@ -278,108 +304,22 @@ public class MainService extends Service {
 	}
 	
     abstract class NewThread implements Runnable {
-    	private Map<String, Object> params = null;
+    	//private Map<String, Object> params = null;
     	NewThread(Map<String, Object> params) {
-    		this.params = params;
+    		//this.params = params;
     	}
-    	public Map<String, Object> getParams() {
-    		return params;
-    	}
+    	//public Map<String, Object> getParams() {
+    		//return params;
+    	//}
     }
     
-
-    
+	private void addHostToTargetList(TargetItem item) {	
+		for (int i=0; i<mTargetHostList.size(); i++)
+			if (mTargetHostList.get(i).getHost().equals(item.getHost()))
+				return;	    	
+    	mTargetHostList.add(0,item);
+    }
  
-
-	            	/*if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_CREATE)) {
-	            		Map<String, Value> newConDes = newConsole();
-	            		
-	            		sessionMgr.notifyNewConsole(
-	            				CONSOLE_ID, 
-	            				newConDes.get("id").asRawValue().getString(), 
-	            				newConDes.get("prompt").asRawValue().getString());
-	            	}          	
-	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_READ)) {
-	            		Map<String, Value> newConDes = readConsole(CONSOLE_MSF_ID);
-	            		
-	            		sessionMgr.notifyConsoleNewRead(
-	            				CONSOLE_ID, 
-	            				newConDes.get("data").asRawValue().getString(), 
-	            				newConDes.get("prompt").asRawValue().getString(),
-	            				newConDes.get("busy").asBooleanValue().getBoolean());  			
-	            	}
-	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_WRITE)) {
-	            		Map<String, Value> newConDes = writeConsole(CONSOLE_WRITE_DATA, CONSOLE_MSF_ID);	 
-	            		sessionMgr.notifyConsoleWrite(CONSOLE_ID);
-	            	}
-	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_DESTROY)) {
-
-	            		if (destroyConsole(CONSOLE_MSF_ID))            		
-		        			sessionMgr.notifyDestroyedConsole(CONSOLE_ID, CONSOLE_MSF_ID);
-	            	}	
-
-
-    	}
-*/
-
-    
-    	private void addHostToTargetList(TargetItem item) {	
-    		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
-    			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
-    				return;	    	
-        	MainActivity.mTargetHostList.add(0,item);
-        }
-    	
-    	/*private Map<String, Value> newConsole() throws IOException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "console.create", CLIENT_TOKEN };            
-            byte[] packedRequest = packedBytesOf(request_details);			
-            byte[] packedResponse = connectToGetBytes(packedRequest);			
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);           
-            Map<String, Value> res = unpacker.read(mapConsole);  
-    		return res;
-    	}
-    	
-    	private Map<String, Value> readConsole(String id) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "console.read", CLIENT_TOKEN, id };            
-            byte[] packedRequest = packedBytesOf(request_details);			
-            byte[] packedResponse = connectToGetBytes(packedRequest);			
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);
-            Map<String, Value> res = unpacker.read(mapConsole);
-    		return res;
-    	}
-    	
-       	private Map<String, Value> writeConsole(String data, String id) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "console.write", CLIENT_TOKEN, id, data + "\n" };            
-            byte[] packedRequest = packedBytesOf(request_details);			
-            byte[] packedResponse = connectToGetBytes(packedRequest);			
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);
-            Map<String, Value> res = unpacker.read(mapConsole);
-    		return res;
-    	}
-
-       	private boolean destroyConsole(String id) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "console.destroy", CLIENT_TOKEN, id };            
-            byte[] packedRequest = packedBytesOf(request_details);			
-            byte[] packedResponse = connectToGetBytes(packedRequest);			
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);
-            Map<String, Value> res = unpacker.read(mapConsole);
-            
-            if (res.containsKey("result") && 
-            		res.get("result").asRawValue().getString().equals("success"))
-            	return true;
-            
-    		return false;
-    	}
-       	 */
-    
     public static boolean checkConnection(Context c) {
 		ConnectivityManager connManager = (ConnectivityManager)c.getSystemService(CONNECTIVITY_SERVICE);
 	    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

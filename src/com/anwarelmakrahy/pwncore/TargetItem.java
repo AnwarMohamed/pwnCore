@@ -11,6 +11,7 @@ public class TargetItem {
 	
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
+
 	
 	TargetItem() {		
 	}

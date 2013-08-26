@@ -1,5 +1,15 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >  
+<menu xmlns:android="http://schemas.android.com/apk/res/android" > 
+    <item android:id="@+id/mnuTargetLogin" android:visible="false" android:title="Login">
+        <menu>
+            <item android:id="@+id/mnuTargetLogin21" android:visible="false" android:title="Ftp"/>
+            <item android:id="@+id/mnuTargetLogin22" android:visible="false" android:title="Ssh"/>
+            <item android:id="@+id/mnuTargetLogin23" android:visible="false" android:title="Telnet"/>
+            <item android:id="@+id/mnuTargetLogin80" android:visible="false" android:title="Http"/>
+            <item android:id="@+id/mnuTargetLogin445" android:visible="false" android:title="Psexec"/>
+        </menu>
+    </item>  
     <item android:id="@+id/mnuTargetScan" android:title="Scan"/> 
+    <item android:id="@+id/mnuTargetFindAttacks" android:visible="false" android:title="Find Attacks"/>
     <item android:id="@+id/mnuTargetOS" android:title="Change OS"/>
     <item android:id="@+id/mnuTargetRemove" android:title="Remove Host"/>
 </menu>

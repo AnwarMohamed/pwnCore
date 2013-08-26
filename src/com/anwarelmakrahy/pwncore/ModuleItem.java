@@ -35,7 +35,7 @@ public class ModuleItem {
 	}
 
 	public String getType() {
-	    return path;
+	    return type;
 	}
 
 	public void setType(String type) {

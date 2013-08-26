@@ -164,12 +164,12 @@ public class ConsoleSession {
 						addPortToHost(lines[i].split(" ")[1].split(":")[0], lines[i].split(" ")[1].split(":")[1], "TCP", "");
 					else {
 						for (int j=0; j<tmpPortQueries.size(); j++)
-							if (lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
+							if (lines[i].trim().split(" ").length > 1 && lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
 								addPortToHost(
 										tmpPortQueries.get(j).split(":")[0], 
 										tmpPortQueries.get(j).split(":")[1],
 										"TCP",
-										lines[i].substring(5 + tmpPortQueries.get(j).length()));
+										lines[i].substring(16 + tmpPortQueries.get(j).length()));
 
 								tmpPortQueries.remove(j);
 								break;
@@ -207,16 +207,16 @@ public class ConsoleSession {
 	
 	private void addPortToHost(String host, String port, String protocol, String details) {
 		enumeratePort(host, port);
-		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
-			if (MainActivity.mTargetHostList.get(i).getHost().equals(host)) {
-				MainActivity.mTargetHostList.get(i).addPort(protocol, port, details);
+		for (int i=0; i<MainService.mTargetHostList.size(); i++)
+			if (MainService.mTargetHostList.get(i).getHost().equals(host)) {
+				MainService.mTargetHostList.get(i).addPort(protocol, port, details);
 				updateAdapters();
 				return;
 			}
 		
 		TargetItem t = new TargetItem(host);
 		t.addPort(protocol, port, details);
-		MainActivity.mTargetHostList.add(t);
+		MainService.mTargetHostList.add(t);
 		updateAdapters();
 	}
 	
@@ -260,6 +260,13 @@ public class ConsoleSession {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void destroy() {
+		Intent tmpIntent = new Intent();
+		tmpIntent.putExtra("msfiId", msfId);
+		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
+		context.sendBroadcast(tmpIntent);	
 	}
 	
 	static class ConsoleSessionParams {

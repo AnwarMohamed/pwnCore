@@ -42,11 +42,11 @@ public class AttackWizardActivity extends Activity {
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         
 		mTargetHostListView = (ListView)findViewById(R.id.targetsListView1);	
-		mTargetHostListAdapter = new TargetsListAdapter(this, MainActivity.mTargetHostList);
+		mTargetHostListAdapter = new TargetsListAdapter(this, MainService.mTargetHostList);
 		mTargetHostListView.setAdapter(mTargetHostListAdapter);
 		mTargetHostListView.setEmptyView(findViewById(R.id.consolePrompt));
 		registerForContextMenu(mTargetHostListView);
-		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainActivity.mTargetHostList.size());
+		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
 		
 		progress = (ProgressBar)findViewById(R.id.progress2);
 		setProgressBar(false);
@@ -95,7 +95,7 @@ public class AttackWizardActivity extends Activity {
 	    	showFileChooser();
 	    	return true;
 	    case R.id.mnuClearHosts:
-	    	MainActivity.mTargetHostList.clear();
+	    	MainService.mTargetHostList.clear();
 	    	mTargetHostListAdapter.notifyDataSetChanged();
 	    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: 0");
 	    	return true;
@@ -147,19 +147,19 @@ public class AttackWizardActivity extends Activity {
 	private SharedPreferences prefs;
 	
 	private void addHostToTargetList(TargetItem item) {	
-		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
-			if (MainActivity.mTargetHostList.get(i).getHost().equals(item.getHost()))
+		for (int i=0; i<MainService.mTargetHostList.size(); i++)
+			if (MainService.mTargetHostList.get(i).getHost().equals(item.getHost()))
 				return;
 	    	
-    	MainActivity.mTargetHostList.add(0,item);
+    	MainService.mTargetHostList.add(0,item);
     	mTargetHostListAdapter.notifyDataSetChanged();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainActivity.mTargetHostList.size());
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
 	 
 	private void removeHostFromTargetList(int pos) {	
-		MainActivity.mTargetHostList.remove(pos);
+		MainService.mTargetHostList.remove(pos);
     	mTargetHostListAdapter.notifyDataSetChanged();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainActivity.mTargetHostList.size());
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
 	
 	private void showManualHostDlg() {
@@ -250,7 +250,7 @@ public class AttackWizardActivity extends Activity {
             .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
-	        		MainActivity.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
+	        		MainService.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
 	        		mTargetHostListAdapter.notifyDataSetChanged();	
                 }
             })
@@ -324,7 +324,7 @@ public class AttackWizardActivity extends Activity {
     public void launchAttack(View v) {
     	isConnected = prefs.getBoolean("isConnected", false);
     	
-    	if (MainActivity.mTargetHostList.size() == 0)
+    	if (MainService.mTargetHostList.size() == 0)
 			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
     	
     	else if (isConnected) {

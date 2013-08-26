@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     private boolean[] ModulesLoaded = { false, false, false, false, false, false };
     
     
-    public static ArrayList<TargetItem> mTargetHostList = new ArrayList<TargetItem>();
+    
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +95,19 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		modulesList.setEmptyView(findViewById(R.id.imageView11));
 		modulesListAdapter = new ModuleListAdapter(getApplicationContext(), ExploitItems);
 		modulesList.setAdapter(modulesListAdapter);
-		
+		modulesList.setOnItemClickListener(new OnItemClickListener() {
+	        @Override
+	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
+	        	Object o = modulesList.getItemAtPosition(position);
+	        	ModuleItem m = (ModuleItem)o;
+	        	
+	        	Intent intent = new Intent(getApplicationContext(), ModuleOptionsActivity.class);
+	        	intent.putExtra("type", m.getType());
+	        	intent.putExtra("name", m.getPath());
+	        	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        	getApplicationContext().startActivity(intent);        	
+	    	}
+		});
         
         /*
          *  Prepare Sidebar
@@ -167,7 +179,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	   	TargetItem t = new TargetItem("10.0.0.1");
     	t.setPwned(true);
     	t.setOS("Linux");
-    	mTargetHostList.add(t);
+    	MainService.mTargetHostList.add(t);
     } 
     
     private boolean titlesHas(String s) {
@@ -393,16 +405,16 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	}
 
 	public void launchAttackHall(View v) {
-		if (!isConnected)
+		if (!isConnected && MainService.checkConnection(this))
 			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
-		else if (mTargetHostList.size() == 0)
+		else if (MainService.mTargetHostList.size() == 0)
 			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));
 	}
 	
 	public void launchAttackWizard(View v) {
-		if (!isConnected)
+		if (!isConnected && MainService.checkConnection(this))
 			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
@@ -794,8 +806,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	@Override
 	public boolean onQueryTextChange(String arg0) {
-		
-		TextView t;
 		return true;
 	}
 

@@ -62,9 +62,10 @@ public class AttackHallActivity extends Activity {
         setContentView(R.layout.activity_attackhall);
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+        newConsole = MainService.sessionMgr.getNewConsole();
         
         mTargetsListView = (ListView)findViewById(R.id.targetsListView2);
-        mTargetsListAdapter =  new TargetsListAdapter(this, MainActivity.mTargetHostList);
+        mTargetsListAdapter =  new TargetsListAdapter(this, MainService.mTargetHostList);
         mTargetsListView.setAdapter(mTargetsListAdapter);
         registerForContextMenu(mTargetsListView);
        
@@ -73,12 +74,10 @@ public class AttackHallActivity extends Activity {
         
     	prepareTargetDetails(0);	        	
     	mTargetsListAdapter.setSelectedIndex(0);
-    	
-    	newConsole = MainService.sessionMgr.getNewConsole();
+
 	}
 	
 	private ConsoleSession newConsole;
-	
 	private void setupListViewListener() {
 		mTargetsListView.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
@@ -90,20 +89,15 @@ public class AttackHallActivity extends Activity {
 		});
     }
 
-
 	private void setupTabHost() {
         tabHost=(TabHost)findViewById(android.R.id.tabhost);
         tabHost.setup();
-      
-    
         TabSpec spec2=tabHost.newTabSpec("Target Details");
         spec2.setContent(R.id.tab2);
-        spec2.setIndicator("Target Details");
-      
+        spec2.setIndicator("Target Details");     
         TabSpec spec3=tabHost.newTabSpec("Console Sessions");
         spec3.setContent(R.id.tab3);
-        spec3.setIndicator("Console Sessions");
-        
+        spec3.setIndicator("Console Sessions");    
         tabHost.addTab(spec2);
         tabHost.addTab(spec3);
 	}
@@ -142,6 +136,8 @@ public class AttackHallActivity extends Activity {
 			unregisterReceiver(conStatusReceiver);
 			conStatusReceiverRegistered = false;
 		}
+
+		MainService.sessionMgr.destroyConsole(newConsole);
 		super.onDestroy();
 	}
     
@@ -177,7 +173,7 @@ public class AttackHallActivity extends Activity {
     private int curListPosition = 0;
     
     private void prepareTargetDetails(int position) {
-    	TargetItem t = MainActivity.mTargetHostList.get(position);
+    	TargetItem t = MainService.mTargetHostList.get(position);
     	
     	((TextView)findViewById(R.id.targetDetailsHost)).setText(t.getHost());
     	((TextView)findViewById(R.id.targetDetailsOS)).setText("OS: " + t.getOS());
@@ -199,11 +195,19 @@ public class AttackHallActivity extends Activity {
     		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Up");
     		
     		String openPorts = "";
+    		
+    		String[] tcpServiceArray = t.getTcpPorts().values().toArray(new String[t.getTcpPorts().size()]);
+    		String[] tcpPortArray = t.getTcpPorts().keySet().toArray(new String[t.getTcpPorts().size()]);
+    		
     		for (int i=0; i<t.getTcpPorts().size(); i++)
-    			openPorts += "\n\t" + t.getTcpPorts().keySet().toArray()[i] + "\t\tTCP\t\t" + t.getTcpPorts().values().toArray()[i];
+    			openPorts += "\n\t" +tcpPortArray[i] + "\t\tTCP\t\t" + tcpServiceArray[i];
+    		
+    		
+    		String[] udpServiceArray = t.getUdpPorts().values().toArray(new String[t.getUdpPorts().size()]);
+    		String[] udpPortArray = t.getUdpPorts().keySet().toArray(new String[t.getUdpPorts().size()]);
     		
     		for (int i=0; i<t.getUdpPorts().size(); i++)
-    			openPorts += "\n\t" + t.getUdpPorts().keySet().toArray()[i] + "\t\tUDP\t\t" + t.getUdpPorts().values().toArray()[i];
+    			openPorts += "\n\t" + udpPortArray[i] + "\t\tUDP\t\t" + udpServiceArray[i];
     		
     		((TextView)findViewById(R.id.targetDetailsPorts)).setText("Open Ports:" + openPorts);
     	}
@@ -219,32 +223,63 @@ public class AttackHallActivity extends Activity {
     
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     	getMenuInflater().inflate(R.menu.target_attackhall, menu);
+    	
+    	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        int position = info.position;
+        
+        if ( MainService.mTargetHostList.get(position).isUp()) {
+        	menu.findItem(R.id.mnuTargetLogin).setVisible(true);
+        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+        }
+        
+        String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
+        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
+        		                            getTcpPorts().size()]);
+        
+        for (int i=0; i<tcpPorts.length; i++)
+        	if (tcpPorts[i].equals("21"))
+        		menu.findItem(R.id.mnuTargetLogin21).setVisible(true);
+        	else if (tcpPorts[i].equals("22"))
+        		menu.findItem(R.id.mnuTargetLogin22).setVisible(true);
+        	else if (tcpPorts[i].equals("23"))
+        		menu.findItem(R.id.mnuTargetLogin23).setVisible(true);
+        	else if (tcpPorts[i].equals("80"))
+        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
+        	else if (tcpPorts[i].equals("445"))
+        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        curListPosition = info.position;
+        if (info != null)
+        	curListPosition = info.position;
         
         switch (item.getItemId()) {
         case R.id.mnuTargetRemove:
         	removeHostFromTargetList(info.position);
         	return true;
         case R.id.mnuTargetScan:
-        	scanTarget(MainActivity.mTargetHostList.get(info.position));
+        	scanTarget(MainService.mTargetHostList.get(info.position));
         	return true;
         case R.id.mnuTargetOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
-	        		MainActivity.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
+	        		MainService.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
 	        		mTargetsListAdapter.notifyDataSetChanged();	
                 }
             })
             .create();
             builder.show(); 
         	return true;
+        	
+        case R.id.mnuTargetLogin21:
+        case R.id.mnuTargetLogin22:
+        case R.id.mnuTargetLogin23:
+        case R.id.mnuTargetLogin80:
+        case R.id.mnuTargetLogin445:
         default:
         	return false;
         }
@@ -279,8 +314,8 @@ public class AttackHallActivity extends Activity {
     }
     
     private void removeHostFromTargetList(int pos) {	
-		MainActivity.mTargetHostList.remove(pos);
-    	if (MainActivity.mTargetHostList.size() == 0)
+		MainService.mTargetHostList.remove(pos);
+    	if (MainService.mTargetHostList.size() == 0)
     		finish();	
     	mTargetsListAdapter.notifyDataSetChanged();
     }
@@ -293,6 +328,13 @@ public class AttackHallActivity extends Activity {
 	    	startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
 	    	finish();    	
 	        return true;
+	    case R.id.mnuRemoveDeadHosts:
+	    	for (int i=0; i<MainService.mTargetHostList.size(); i++)
+	    		if (!MainService.mTargetHostList.get(i).isUp())
+	    			MainService.mTargetHostList.remove(MainService.mTargetHostList.get(i)); 	
+	    	if (MainService.mTargetHostList.size() == 0)
+	    		finish();	
+	    	mTargetsListAdapter.notifyDataSetChanged();
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }

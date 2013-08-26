@@ -95,4 +95,8 @@ public class SessionManager {
 		}
 	}
 
+	public void destroyConsole(ConsoleSession c) {
+		c.destroy();
+		consoleSessions.remove(c.getId());
+	}
 }
