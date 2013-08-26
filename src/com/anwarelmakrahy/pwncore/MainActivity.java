@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -66,7 +65,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     private ItemListBaseAdapter SidebarAdapter;
     private ArrayList<ItemDetails> SidebarItems = new ArrayList<ItemDetails>();
 	
-    private DatabaseHandler db;
+    private DatabaseHandler databaseHandler;
     
     private ProgressBar progress;
     
@@ -84,6 +83,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         setTheme(android.R.style.Theme_Holo_Light);
         setContentView(R.layout.activity_main);
 
+        serviceIntent = new Intent(this, MainService.class);     
+		startService(serviceIntent);
+		
+		databaseHandler = DatabaseHandler.getInstance(this);
+		
 		progress = (ProgressBar)findViewById(R.id.progress1);
 		setProgressBar(false);
         
@@ -92,7 +96,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		modulesListAdapter = new ModuleListAdapter(getApplicationContext(), ExploitItems);
 		modulesList.setAdapter(modulesListAdapter);
 		
-        db = new DatabaseHandler(this);
         
         /*
          *  Prepare Sidebar
@@ -137,24 +140,22 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	    	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
     	    }
     	})
-    	.setNegativeButton("Exit",  new DialogInterface.OnClickListener() {
+    	.setNegativeButton("Cancel",  new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
-    	    	finish();
+    	    	dialog.dismiss();
     	    }
     	})
     	.setPositiveButton("Try again", new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
-    			Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_CHECK);
-    			sendBroadcast(tmpIntent);	
+    			if (!MainService.checkConnection(getApplicationContext()))
+    				checkConDlgBuilder.show();
     	    }
     	});
 		
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setNotification();
-
-        serviceIntent = new Intent(this, MainService.class);     
-		startService(serviceIntent);
+		
+		
 		
         pd = new ProgressDialog(this);
         pd.setMessage("Connecting to Server, Please wait");
@@ -254,8 +255,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	if (!isConnected) {
 		    	Intent intent = new Intent(this, SettingsActivity.class);
 		    	startActivity(intent);
-	    	} else 
-	    		
+	    	} else     		
 	    		Toast.makeText(this, "You have to disconnect first", Toast.LENGTH_SHORT).show();
 	    	
 	    	return true;
@@ -279,11 +279,15 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	if (!isConnected) {
 	    		if (checkConSettings()) {
 	    			
-	    			Intent tmpIntent = new Intent();
-	    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECT);
-	    			sendBroadcast(tmpIntent);
-	    			
-	    			connectDialog(this);
+	    			if (!MainService.checkConnection(getApplicationContext()))
+	    				checkConDlgBuilder.show();
+	    			else {
+		    			Intent tmpIntent = new Intent();
+		    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECT);
+		    			sendBroadcast(tmpIntent);
+		    			
+		    			connectDialog(this);
+	    			}
 	    		}
 	    	}
 	    	else if (isConnected) {
@@ -347,7 +351,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);	
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS);			
 			filter.addAction(StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED);
@@ -360,6 +363,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			filter.addAction(StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED);
 			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS);
+			filter.addAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -420,7 +424,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		invalidateOptionsMenu();
 		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
 		main_menu.findItem(R.id.mnuConnectionAction).setTitle("Connect");
-    	
+    	setProgressBar(false);
 	}
 	
 	public BroadcastReceiver conStatusReceiver = new BroadcastReceiver() {
@@ -434,7 +438,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
-    		}    		
+    		}   
+    		else if (action == StaticsClass.PWNCORE_AUTHENTICATION_FAILED) {
+    			if (pd != null) pd.dismiss();
+    			Disconnect();
+    			Toast.makeText(getApplicationContext(), 
+    					"AuthenticationFailed: Please check that your credentials are valid", 
+    					Toast.LENGTH_SHORT).show();	
+    		}
     		else if (action == StaticsClass.PWNCORE_CONNECTION_SUCCESS) {
     			isConnected = true;
     			
@@ -444,11 +455,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		
     			setNotification();
     			setProgressBar(true);
-    			
-    			//Toast.makeText(getApplicationContext(), 
-    			//		"ConnectionSuccess: Connected to server", 
-    			//		Toast.LENGTH_SHORT).show();
-    			
+    						
     			Intent tmpIntent = new Intent();
     			tmpIntent.setAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
     			sendBroadcast(tmpIntent);	
@@ -463,26 +470,16 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setProgressBar(false);
     			setNotification();
     		}		
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_LOST) {
-    	    	if (isConnected) {  
-        			Disconnect();
-        			setNotification();
-    	    	}
-    	    	
-    	    	mDrawerLayout.closeDrawers();
-    	    	setProgressBar(false);
-    	    	checkConDlgBuilder.show();    	
-    		}
-    		
+  		
     		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch exploits list", 
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS) {
-    			ExploitItems = db.getAllModules("exploits"); 			
+    			ExploitItems = databaseHandler.getAllModules("exploits"); 			
     			ModulesLoaded[0] = true;	
-    			SidebarItems.get(0).setCount(db.getModulesCount("exploits"));
+    			SidebarItems.get(0).setCount(databaseHandler.getModulesCount("exploits"));
     			SidebarAdapter.notifyDataSetChanged();
     			
 				getActionBar().setTitle(titles[0]);
@@ -496,9 +493,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
-    			PayloadItems = db.getAllModules("payloads");
+    			PayloadItems = databaseHandler.getAllModules("payloads");
     			ModulesLoaded[1] = true;
-    			SidebarItems.get(1).setCount(db.getModulesCount("payloads"));
+    			SidebarItems.get(1).setCount(databaseHandler.getModulesCount("payloads"));
     			SidebarAdapter.notifyDataSetChanged();			
     		}
     		
@@ -508,9 +505,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS) {
-    			PostItems = db.getAllModules("post");
+    			PostItems = databaseHandler.getAllModules("post");
     			ModulesLoaded[2] = true;
-    			SidebarItems.get(2).setCount(db.getModulesCount("post"));
+    			SidebarItems.get(2).setCount(databaseHandler.getModulesCount("post"));
     			SidebarAdapter.notifyDataSetChanged();    		
     		} 		
     		
@@ -520,9 +517,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
-    			EncoderItems = db.getAllModules("encoders");
+    			EncoderItems = databaseHandler.getAllModules("encoders");
     			ModulesLoaded[3] = true;
-    			SidebarItems.get(3).setCount(db.getModulesCount("encoders"));
+    			SidebarItems.get(3).setCount(databaseHandler.getModulesCount("encoders"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
@@ -532,9 +529,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
-    			AuxiliaryItems = db.getAllModules("auxiliary");
+    			AuxiliaryItems = databaseHandler.getAllModules("auxiliary");
     			ModulesLoaded[4] = true;
-    			SidebarItems.get(4).setCount(db.getModulesCount("auxiliary"));
+    			SidebarItems.get(4).setCount(databaseHandler.getModulesCount("auxiliary"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
@@ -544,9 +541,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS) {
-    			NopItems = db.getAllModules("nops");
+    			NopItems = databaseHandler.getAllModules("nops");
     			ModulesLoaded[5] = true;
-    			SidebarItems.get(5).setCount(db.getModulesCount("nops"));
+    			SidebarItems.get(5).setCount(databaseHandler.getModulesCount("nops"));
     			SidebarAdapter.notifyDataSetChanged();
     			
     			setProgressBar(false);
@@ -620,9 +617,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			progress.setVisibility(View.INVISIBLE);
     	}
     }
-    
-	
-	
+
 	private void setNotification() {
 		
 		String notiText;	
@@ -647,7 +642,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	
 	private boolean checkConSettings() {
 		loadSharedPreferences();
-		
+
 		boolean hasError = false;
 		String error = "";
 		

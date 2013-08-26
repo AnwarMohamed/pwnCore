@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 	
-	
 	public static final String COLUMN_MODULE_ID = "_id";
 	public static final String COLUMN_MODULE_PATH = "path";
 
@@ -64,6 +63,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 	public static final String TABLES[] = { TABLE_EXPLOITS, TABLE_PAYLOADS, TABLE_POSTS, TABLE_ENCODERS, TABLE_NOPS, TABLE_AUXILIARY};
 	
+	private static DatabaseHandler mInstance = null;
+	public static DatabaseHandler getInstance(Context ctx) {
+	      
+	    // Use the application context, which will ensure that you 
+	    // don't accidentally leak an Activity's context.
+	    // See this article for more information: http://bit.ly/6LRzfx
+	    if (mInstance == null) {
+	      mInstance = new DatabaseHandler(ctx.getApplicationContext());
+	    }
+	    return mInstance;
+	  }
+	
 	public DatabaseHandler(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -86,12 +97,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   
 	public void deleteTable(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
+		//db.setLockingEnabled(true);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLES[id]);
 		db.close();
 	}
   
 	public void createTable(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
+		//db.setLockingEnabled(true);
 		db.execSQL(DATABASE_CREATE[id]);
 		db.close();	  
 	}
@@ -109,13 +122,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
    * DATABASE FUNCTIONS
    */
   
-	public ArrayList<ModuleItem> searchModules(String q) {
+	public synchronized ArrayList<ModuleItem> searchModules(String q) {
 		return new ArrayList<ModuleItem>();
 	}
 	
-	public void addNmapScan(String id, String cmd, String res) {
+	public synchronized void addNmapScan(String id, String cmd, String res) {
 	    SQLiteDatabase db = this.getWritableDatabase();
-	    
+
     	try {
     		db.execSQL("PRAGMA synchronous=OFF");
     		db.beginTransaction();
@@ -136,7 +149,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	    db.close();
 	}
 	
-	public String getNmapScanResult(String id) {
+	public synchronized String getNmapScanResult(String id) {
  	    SQLiteDatabase db = this.getReadableDatabase();	 
   	    Cursor cursor = db.query(TABLE_NMAP_SCANS, new String[] { COLUMN_NMAP_SCAN_ID,
   	    		COLUMN_NMAP_SCAN_RESULT }, COLUMN_NMAP_SCAN_ID + "=?",
@@ -147,7 +160,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   	    String res = cursor.getString(1);
   	    if(cursor != null && !cursor.isClosed())
   	    	cursor.close();
-
+  	    db.close();
   	    return res;
 	}
 	
@@ -158,55 +171,64 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		return 0;
 	}
 	
-  	public void addModule(ModuleItem item, String type) {
+  	public synchronized void addModule(ModuleItem item, String type) {
 	    SQLiteDatabase db = this.getWritableDatabase();
-	    
     	try {
     		db.execSQL("PRAGMA synchronous=OFF");
-    		db.beginTransaction();
-    		
+    		db.beginTransaction();    		
     	    ContentValues values = new ContentValues();
     	    values.put(COLUMN_MODULE_PATH, item.getPath());
-    	    db.insert(TABLES[getIdByString(type)], null, values);
-        	
+    	    db.insert(TABLES[getIdByString(type)], null, values);    
         	db.setTransactionSuccessful();
     	}
     	finally {
     		db.endTransaction();
     		db.execSQL("PRAGMA synchronous=NORMAL");
-    	}
-    	
+    	}  	
 	    db.close();
   	}
 
-  	public ModuleItem getModule(int id, String type) {
-  	    SQLiteDatabase db = this.getReadableDatabase();	 
+  	public synchronized void addModules(String[] paths, String type) {
+	    SQLiteDatabase db = this.getWritableDatabase();
+    	try {
+    		db.execSQL("PRAGMA synchronous=OFF");
+    		db.beginTransaction();    		
+    		for (int i=0; i<paths.length; i++) {
+	    	    ContentValues values = new ContentValues();
+	    	    values.put(COLUMN_MODULE_PATH, paths[i]);
+	    	    db.insert(TABLES[getIdByString(type)], null, values);
+    		}       	
+        	db.setTransactionSuccessful();
+    	}
+    	finally {
+    		db.endTransaction();
+    		db.execSQL("PRAGMA synchronous=NORMAL");
+    	}   	
+	    db.close();
+  	}
+  	
+  	public synchronized ModuleItem getModule(int id, String type) {
+  	    SQLiteDatabase db = this.getReadableDatabase();	
   	    Cursor cursor = db.query(TABLES[getIdByString(type)], new String[] { COLUMN_MODULE_ID,
   	    		COLUMN_MODULE_PATH }, COLUMN_MODULE_ID + "=?",
   	            new String[] { String.valueOf(id) }, null, null, null, null);
   	    if (cursor != null)
-  	        cursor.moveToFirst();
-  	 
-  	  ModuleItem item = new ModuleItem();
+  	        cursor.moveToFirst();	 
+  	    ModuleItem item = new ModuleItem();
   	    item.setID(Integer.parseInt(cursor.getString(0)));
   	    item.setPath(cursor.getString(1));
   	    item.setType(type);
-  	    
-
   	    if(cursor != null && !cursor.isClosed())
-  	    	cursor.close();
-
+  	    	cursor.close();    
+  	    db.close();
   	    return item;
   	}
   	
-  	public List<ModuleItem> getAllModules(String type) {
-  	    List<ModuleItem> list = new ArrayList<ModuleItem>();
-
-  	    String selectQuery = "SELECT  * FROM " + TABLES[getIdByString(type)];
-  	 
+	public synchronized List<ModuleItem> getAllModules(String type) {
+  		List<ModuleItem> list = new ArrayList<ModuleItem>();
+  	    String selectQuery = "SELECT  * FROM " + TABLES[getIdByString(type)];	 
   	    SQLiteDatabase db = this.getWritableDatabase();
-  	    Cursor cursor = db.rawQuery(selectQuery, null);
-  	 
+  	    Cursor cursor = db.rawQuery(selectQuery, null);	 
   	    if (cursor.moveToFirst()) {
   	        do {
   	        	ModuleItem item = new ModuleItem();
@@ -217,36 +239,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   	            list.add(item);
   	        } while (cursor.moveToNext());
   	    }
-  	 
   	    if(cursor != null && !cursor.isClosed())
-  	    	cursor.close();
-  	    
+  	    	cursor.close();    
+  	    db.close();
   	    return list;
   	}
   	
-    public int getModulesCount(String type) {
+    public synchronized int getModulesCount(String type) {
         String countQuery = "SELECT COUNT("+ COLUMN_MODULE_ID +") FROM " + TABLES[getIdByString(type)];
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
-        
         cursor.moveToFirst();
         int count = cursor.getInt(0);
         cursor.close();
- 
+        db.close();
         return count;
     }
     
-    public int updateModule(ModuleItem item, String type) {
+    public synchronized int updateModule(ModuleItem item, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
-     
         ContentValues values = new ContentValues();
         values.put(COLUMN_MODULE_PATH, item.getPath());
-     
-        return db.update(TABLES[getIdByString(type)], values, COLUMN_MODULE_ID + " = ?",
-                new String[] { String.valueOf(item.getID()) });
+        int ret = db.update(TABLES[getIdByString(type)], values, COLUMN_MODULE_ID + " = ?",
+                new String[] { String.valueOf(item.getID()) });      
+        db.close();
+        return ret;
     }
     
-    public void deleteModule(ModuleItem item, String type) {
+    public synchronized void deleteModule(ModuleItem item, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLES[getIdByString(type)], COLUMN_MODULE_ID + " = ?",
                 new String[] { String.valueOf(item.getID()) });

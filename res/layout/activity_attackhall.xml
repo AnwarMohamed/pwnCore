@@ -99,20 +99,11 @@
                         android:typeface="monospace" />
 
                     <TextView
-                        android:id="@+id/targetDetailsServices"
+                        android:id="@+id/targetDetailsAttacks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignLeft="@+id/targetDetailsPorts"
                         android:layout_below="@+id/targetDetailsPorts"
-                        android:text="Detected Services: None"
-                        android:typeface="monospace" />
-
-                    <TextView
-                        android:id="@+id/targetDetailsAttacks"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/targetDetailsServices"
-                        android:layout_below="@+id/targetDetailsServices"
                         android:text="Suggested Attacks: None"
                         android:typeface="monospace" />
 

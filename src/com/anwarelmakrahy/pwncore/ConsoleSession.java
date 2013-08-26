@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 public class ConsoleSession {
 
+	private boolean queryPoolActive = false;
 	private String msfId= null;
 	private String id, prompt;
 	private Context context;
@@ -22,6 +23,8 @@ public class ConsoleSession {
 	private ConsoleSessionParams params;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
+	private ArrayList<String> tmpPortQueries = new ArrayList<String>();
+	private ArrayList<String> queryPool = new ArrayList<String>();
 	
 	ConsoleSession(Context context, String id) {
 		this.id = id;
@@ -36,6 +39,15 @@ public class ConsoleSession {
 	}
 	
 
+	public ArrayList<String> getTmpPortQueries() {
+		return tmpPortQueries;
+	}
+	
+	public void deleteFromTmpPortQueries(String info) {
+		if (tmpPortQueries.contains(info))
+			tmpPortQueries.remove(tmpPortQueries.indexOf(info));
+	}
+	
 	public void setWindowActive(boolean flag) {
 		isWindowActive = flag;
 	}
@@ -72,6 +84,36 @@ public class ConsoleSession {
 	
 	public String getPrompt() {
 		return prompt;
+	}
+	
+	private void notifyQueryPool(final String data) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				queryPool.add(data);
+				if (!queryPoolActive) {		
+					queryPoolActive = true;		
+					for (int i=0; i<queryPool.size(); i++) {
+						Intent tmpIntent = new Intent();
+						tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
+						tmpIntent.putExtra("id", id);
+						tmpIntent.putExtra("msfId", msfId);
+						tmpIntent.putExtra("data", queryPool.get(i));
+						context.sendBroadcast(tmpIntent);
+						
+						queryPool.remove(i);
+						
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
+					}
+					queryPoolActive = false;
+				}
+			}
+		}).start();
 	}
 	
 	private void read() {	
@@ -117,25 +159,63 @@ public class ConsoleSession {
 		new Thread(new Runnable() {
 			@Override public void run() {
 				String[] lines = data.split("\n");				
-				for (int i=0; i<lines.length; i++) {
+				for (int i=0; i<lines.length; i++)
 					if (lines[i].trim().endsWith("- TCP OPEN"))
-						addPortToHost(lines[i].split(" ")[1].split(":")[0], lines[i].split(" ")[1].split(":")[1], "TCP");
-				}
+						addPortToHost(lines[i].split(" ")[1].split(":")[0], lines[i].split(" ")[1].split(":")[1], "TCP", "");
+					else {
+						for (int j=0; j<tmpPortQueries.size(); j++)
+							if (lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
+								addPortToHost(
+										tmpPortQueries.get(j).split(":")[0], 
+										tmpPortQueries.get(j).split(":")[1],
+										"TCP",
+										lines[i].substring(5 + tmpPortQueries.get(j).length()));
+
+								tmpPortQueries.remove(j);
+								break;
+							}
+					}
 			}
 		}).start();
 	}
 	
-	private void addPortToHost(String host, String port, String protocol) {
-		Log.d("newPort", host + ":" + port);
+	private void enumeratePort(final String host, final String port) {
+		new Thread(new Runnable() {
+			@Override public void run() {
+				
+				tmpPortQueries.add(host + ":" + port);
+				
+				if (port.equals("21")) {					
+					write("use scanner/ftp/ftp_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
+				}
+				else if (port.equals("22")) {
+					write("use scanner/ssh/ssh_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
+				}
+				else if (port.equals("23")) {
+					write("use scanner/telnet/telnet_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
+				}
+				else if (port.equals("80"))	{
+					write("use scanner/http/http_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
+				}
+				else if (port.equals("445")) {
+					write("use scanner/smb/smb_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
+				}
+				
+			}
+		}).start();	
+	}
+	
+	private void addPortToHost(String host, String port, String protocol, String details) {
+		enumeratePort(host, port);
 		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
 			if (MainActivity.mTargetHostList.get(i).getHost().equals(host)) {
-				MainActivity.mTargetHostList.get(i).addPort(protocol, port);
+				MainActivity.mTargetHostList.get(i).addPort(protocol, port, details);
 				updateAdapters();
 				return;
 			}
 		
 		TargetItem t = new TargetItem(host);
-		t.addPort(protocol, port);
+		t.addPort(protocol, port, details);
 		MainActivity.mTargetHostList.add(t);
 		updateAdapters();
 	}
@@ -156,14 +236,8 @@ public class ConsoleSession {
 	}
 	
 	public void write(final String data) {
-		if (logoLoaded) {
-			Intent tmpIntent = new Intent();
-			tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
-			tmpIntent.putExtra("id", id);
-			tmpIntent.putExtra("msfId", msfId);
-			tmpIntent.putExtra("data", data);
-			context.sendBroadcast(tmpIntent);
-			
+		if (logoLoaded) {	
+			notifyQueryPool(data);	
 			conversation.add(prompt + data + "\n");
 			
 			if (isWindowActive && isWindowReady) {		

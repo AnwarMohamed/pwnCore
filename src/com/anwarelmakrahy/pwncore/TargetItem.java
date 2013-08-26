@@ -1,19 +1,16 @@
 package com.anwarelmakrahy.pwncore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TargetItem {
 	
 	private String host;
 	private String os = "Unknown";
-	private boolean isPwned = false,
-					isUp = false;
+	private boolean isPwned = false;
 	
-	private List<String> tcpPorts = new ArrayList<String>();
-	private List<String> udpPorts = new ArrayList<String>();
+	private Map<String, String> tcpPorts = new HashMap<String, String>();
+	private Map<String, String> udpPorts = new HashMap<String, String>();
 	
 	TargetItem() {		
 	}
@@ -21,20 +18,20 @@ public class TargetItem {
 	TargetItem(String host) {
 		this.host = host;
 	}
-	
-	public void addPort(String type, String port) {
+	 
+	public void addPort(String type, String port, String details) {
 		if (type.toLowerCase().equals("tcp"))
-			tcpPorts.add(port);
+			tcpPorts.put(port, details);
 		else if (type.toLowerCase().equals("udp"))
-			udpPorts.add(port);
+			udpPorts.put(port, details);
 	}
 	
-	public String[] getTcpPorts() {
-		return tcpPorts.toArray(new String[tcpPorts.size()]);
+	public Map<String, String> getTcpPorts() {
+		return tcpPorts;
 	}
 	
-	public String[] getUdpPorts() {
-		return udpPorts.toArray(new String[udpPorts.size()]);
+	public Map<String, String> getUdpPorts() {
+		return udpPorts;
 	}
 	
 	public void setHost(String host) {
@@ -61,12 +58,8 @@ public class TargetItem {
 		return isPwned;
 	}
 	
-	public void setUp(boolean isUp) {
-		this.isUp  = isUp;
-	}
-	
 	public boolean isUp() {
-		return (udpPorts.size() + tcpPorts.size() != 0);
+		return (udpPorts.size() + tcpPorts.size() == 0) ? false: true;
 	}
 	
 }

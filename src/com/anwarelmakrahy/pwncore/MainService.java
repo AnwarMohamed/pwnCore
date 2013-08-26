@@ -1,32 +1,9 @@
 package com.anwarelmakrahy.pwncore;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,31 +12,24 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.WifiLock;
 import android.os.IBinder;
-import android.widget.TextView;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.msgpack.MessagePack;
-import static org.msgpack.template.Templates.TString;
-import static org.msgpack.template.Templates.TInteger;
-import static org.msgpack.template.Templates.tMap;
-import static org.msgpack.template.Templates.TValue;
-import static org.msgpack.template.Templates.tList;
-import org.msgpack.packer.Packer;
-import org.msgpack.template.Template;
-import org.msgpack.unpacker.Unpacker;
 import org.msgpack.type.Value;
 
 
-
 public class MainService extends Service {
+	
+	private SharedPreferences prefs;
+	private boolean con_useSSL;
+	private String con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
+	private boolean isAuthenticated = false;	
 
+	private ExecutorService executor;
+	private DatabaseHandler databaseHandler;
+	
 	public static SessionManager sessionMgr;
-		
+	private MsfRpcClient client;
+	
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
@@ -79,41 +49,54 @@ public class MainService extends Service {
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_READ);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_RUN_MODULE);
 		registerReceiver(mainReceiver, filter);
    
-		executor = Executors.newFixedThreadPool(10);
+		executor = Executors.newFixedThreadPool(30);
 		
 		//deleteDatabase(DatabaseHandler.DATABASE_NAME);
-		db = new DatabaseHandler(this);
-		
-		if (!checkConReceiverRegistered) {
-			filter = new IntentFilter();
-			filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_CHECK);
-			registerReceiver(checkConReceiver, filter);
-			checkConReceiverRegistered = true;
-		}
-		
-		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		lock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "LockTag");
-		lock.acquire();
-		
+		databaseHandler = DatabaseHandler.getInstance(this);
 		return Service.START_NOT_STICKY;
 	}
 	
-	private WifiLock lock;
-	private String THREAD_METHOD;
-	private void startConnection() {
-			
+	
+	private Map<String, Value> StatsMap;
+	private void startConnection() {			
 		con_useSSL 		= 	prefs.getBoolean("connection_useSSL", false);
         con_txtUsername	=	prefs.getString("connection_Username", "admin");
         con_txtPassword	=	prefs.getString("connection_Password", "admin");
         con_txtHost		=	prefs.getString("connection_Host", "127.0.0.1");
         con_txtPort		=	prefs.getString("connection_Port", "55553"); 
         
-        THREAD_METHOD = "authenticate";
-        executor.execute(thread);   
+        if (!isAuthenticated) {
+        	
+        	
+	        Map<String, Object> opts = new HashMap<String, Object>();
+	        opts.put("host", con_txtHost);
+	        opts.put("port", con_txtPort);
+	        opts.put("ssl" , con_useSSL);
+	        
+	        client = new MsfRpcClient(getApplicationContext(), opts);
+   
+	        new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Intent tmpIntent = new Intent();				
+		        	if (client.login(con_txtUsername, con_txtPassword)) {
+		        		isAuthenticated = true; 
+		        		
+		        		tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);
+		        		sendBroadcast(tmpIntent);
+		        		
+		        		StatsMap = client.call(MsfRpcClient.singleOptCallList("core.module_stats"));
+		        	}
+		        	else {
+		    			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
+		    			sendBroadcast(tmpIntent);
+		        	}        	
+				}
+			}).start();	   	
+        	
+        }
     }
 	
 	@Override
@@ -121,204 +104,194 @@ public class MainService extends Service {
 		return null;
 	}
 	
-	private boolean checkConReceiverRegistered = false;
-	
 	@Override
-	public void onDestroy () {
+	public void onDestroy() {
 		unregisterReceiver(mainReceiver);
-		
-		if (isAuthenticated) {
-	        THREAD_METHOD = "deauthenticate";
-	        executor.execute(thread);
-		}
-		
-		
-		if (checkConReceiverRegistered) {
-			unregisterReceiver(checkConReceiver);
-			checkConReceiverRegistered = false;
-		}
-		
-		//Toast.makeText(getApplicationContext(), 
-		//		"pwnCore service stopped", 
-		//		Toast.LENGTH_SHORT).show();
-		
-		lock.release();
 		super.onDestroy();
 	}
 	
     public BroadcastReceiver mainReceiver = new BroadcastReceiver() {
     	@Override
     	public void onReceive(Context context, Intent intent) {
-    		String action = intent.getAction();
+    		final String action = intent.getAction();
     		
     		if (action == StaticsClass.PWNCORE_CONNECT) { 
-    			if (!isAuthenticated) {
+    			if (!isAuthenticated)
     				startConnection();
-    			}
     		}
-    		else if (action == StaticsClass.PWNCORE_DISCONNECT) {
-    			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "deauthenticate";
-    		        executor.execute(thread);
-    			}
+    		else if (action == StaticsClass.PWNCORE_DISCONNECT) {		
+				isAuthenticated = false;
     		}
 
-    		else if (action == StaticsClass.PWNCORE_LOAD_ALL_MODULES) {
-    			if (isAuthenticated) {
-      		        THREAD_METHOD = "get_all";
-    		        executor.execute(thread);
+    		else if (action == StaticsClass.PWNCORE_LOAD_ALL_MODULES && isAuthenticated) {
+				String[] modules = {
+	        			StaticsClass.PWNCORE_LOAD_EXPLOITS,
+	        			StaticsClass.PWNCORE_LOAD_PAYLOADS,
+	        			StaticsClass.PWNCORE_LOAD_POSTS,
+	        			StaticsClass.PWNCORE_LOAD_AUXILIARY,
+						StaticsClass.PWNCORE_LOAD_NOPS,
+						StaticsClass.PWNCORE_LOAD_ENCODERS,
+						};
+				
+    			Intent tmpIntent = new Intent();        			
+    			for (int i=0; i<modules.length; i++) {
+    				tmpIntent.setAction(modules[i]);
+    				sendBroadcast(tmpIntent); 
     			}
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS) {
-    			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_exploits";
-    		        executor.execute(thread);
-    			}    			
+    		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS && isAuthenticated) {			   				
+				executor.execute(new NewThread(null) {
+					@Override public void run() {							
+						getModules(
+								"exploits", 
+								action, 
+								StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS, 
+								StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED
+								);
+					}}); 			
     		}    		
     		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS) {
     			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_payloads";
-    		        executor.execute(thread);
+    				executor.execute(new NewThread(null) {
+						@Override public void run() {	
+							getModules(
+									"payloads", 
+									action, 
+									StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS, 
+									StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED
+									);
+						}});
     			}    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_POSTS) {
     			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_post";
-    		        executor.execute(thread);
+    				executor.execute(new NewThread(null) {
+						@Override public void run() {								
+							getModules(
+									"post", 
+									action, 
+									StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS, 
+									StaticsClass.PWNCORE_LOAD_POSTS_FAILED
+									);
+						}});
     			}    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY) {
     			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_auxiliary";
-    		        executor.execute(thread);
+    				executor.execute(new NewThread(null) {
+						@Override public void run() {								
+							getModules(
+									"auxiliary", 
+									action, 
+									StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS, 
+									StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED
+									);
+						}});
     			}     			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_NOPS) {
+    		else if (action == StaticsClass.PWNCORE_LOAD_NOPS && isAuthenticated) {
     			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_nops";
-    		        executor.execute(thread);
+    				executor.execute(new NewThread(null) {
+						@Override public void run() {								
+							getModules(
+									"nops", 
+									action, 
+									StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS, 
+									StaticsClass.PWNCORE_LOAD_NOPS_FAILED
+									);
+						}});
     			}    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS) {
-    			if (isAuthenticated) {   			
-    		        THREAD_METHOD = "get_encoders";
-    		        CONSOLE_ID = intent.getStringExtra("id");
-    		        executor.execute(thread);
-    			}    			
+    		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS && isAuthenticated) {		
+				executor.execute(new NewThread(null) {
+					@Override public void run() {								
+						getModules(
+								"encoders", 
+								action, 
+								StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS, 
+								StaticsClass.PWNCORE_LOAD_ENCODERS_FAILED
+								);
+					}});	
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATE) {
-    			THREAD_METHOD = action;		
-    			CONSOLE_ID = intent.getStringExtra("id");
-    			executor.execute(thread);
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATE) {	
+    			//CONSOLE_ID = intent.getStringExtra("id");
+    			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
-    			THREAD_METHOD = action;
-    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			CONSOLE_ID = intent.getStringExtra("id");
-    			executor.execute(thread);
+    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
+    			//CONSOLE_ID = intent.getStringExtra("id");
+    			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
-    			THREAD_METHOD = action;
-    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			CONSOLE_ID = intent.getStringExtra("id");
-    			CONSOLE_WRITE_DATA = intent.getStringExtra("data");
-    			executor.execute(thread);  			
+    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
+    			//CONSOLE_ID = intent.getStringExtra("id");
+    			//CONSOLE_WRITE_DATA = intent.getStringExtra("data");
+    			 			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
-    			THREAD_METHOD = action;
-    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			CONSOLE_ID = intent.getStringExtra("id");
-    			executor.execute(thread);  			
+    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
+    			//CONSOLE_ID = intent.getStringExtra("id");
+    		  			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_RUN_MODULE) {
-    			THREAD_METHOD = action;
-    			MODULE_TYPE = intent.getStringExtra("type");
-    			MODULE_NAME = intent.getStringExtra("name");
-    			MODULE_ARGS = intent.getStringArrayExtra("args");
-    			CONSOLE_MSF_ID = intent.getStringExtra("msfId");
-    			CONSOLE_ID = intent.getStringExtra("id");
-    			executor.execute(thread);  			
+    			//MODULE_TYPE = intent.getStringExtra("type");
+    			//MODULE_NAME = intent.getStringExtra("name");
+    			//MODULE_ARGS = intent.getStringArrayExtra("args");
+    			//CONSOLE_MSF_ID = intent.getStringExtra("msfId");
+    			//CONSOLE_ID = intent.getStringExtra("id");
+    					
     		}
     	}
     };
 
-    private String		CONSOLE_ID,CONSOLE_MSF_ID, CONSOLE_WRITE_DATA, CONSOLE_TYPE;
-    private String[] MODULE_ARGS;
-    private String MODULE_TYPE, MODULE_NAME;
+	private int getCurModulesCount(String  module) {
+		if (module == "exploits")
+			return databaseHandler.getModulesCount(module);
+		else if (module == "payloads")
+			return databaseHandler.getModulesCount(module);
+		else if (module == "post")
+			return databaseHandler.getModulesCount(module);
+		else if (module == "nops")
+			return databaseHandler.getModulesCount(module);
+		else if (module == "encoders")
+			return databaseHandler.getModulesCount(module);
+		else if (module == "auxiliary")
+			return databaseHandler.getModulesCount(module);
+		else 
+			return 0;
+	}
     
-    Runnable thread = new Runnable()
-    {
-    	String urlStart;
-        String urlEnd = "/api";
-        
-        Map<String, Integer> StatsMap;
-        
-    	@Override
-        public void run() 
-        {
-    		urlStart = con_useSSL ? "https://" : "http://";
-    		
-            try {
-            	
-            	if (THREAD_METHOD == "authenticate" && !isAuthenticated) {
-	            	if (authenticate()) {
-	            		isAuthenticated = true;
-	            		
-	            		StatsMap = getStats();
-	            		
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);
-	        			sendBroadcast(tmpIntent);
-	        			return;
-	            	}
-	            	
-	            	else {
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
-	        			sendBroadcast(tmpIntent);
-	        			return;
-	            	}
-            	}
-            	
-            	/*else if (THREAD_METHOD == "nmap_scan") {
-            		int curID = ++NMAP_SCAN_COUNT;
-            		if (nmapScan(NMAP_SCAN_ROOT, NMAP_SCAN_ARGS, NMAP_SCAN_HOST, curID)) {
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(MainActivity.PWNCORE_NMAP_SCAN_SUCCESS);
-	        			tmpIntent.putExtra("id", curID);
-	        			sendBroadcast(tmpIntent);
-            		}
-            		else {
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(MainActivity.PWNCORE_NMAP_SCAN_FAILED);
-	        			tmpIntent.putExtra("id", curID);
-	        			sendBroadcast(tmpIntent);
-            		}
-            	}*/
-            	
-            	else if (isAuthenticated) {
-            		
-	            	String[] gets = {"exploits", "payloads", "post", "nops", "auxiliary", "encoders"};
-	            	String[][] gets_msg = { { StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS, StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED },
-	            							{ StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS, StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED },
-	            							{ StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS, StaticsClass.PWNCORE_LOAD_POSTS_FAILED },
-	            							{ StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS, StaticsClass.PWNCORE_LOAD_NOPS_FAILED },
-	            							{ StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS, StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED },
-	            							{ StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS, StaticsClass.PWNCORE_LOAD_ENCODERS_FAILED } };
-	            	
-	            	if (THREAD_METHOD == "deauthenticate") {
-	            		isAuthenticated = false;
-	    				clientTokenSet = false;
-	    				CLIENT_TOKEN = "";
+	private void getModules(String type, String loadType, String success, String failed) {
+		Intent tmpIntent = new Intent();	
+		tmpIntent.setAction(success);		
+		if (StatsMap != null && 
+				StatsMap.containsKey(type) && 
+				StatsMap.get(type).asIntegerValue().getInt() > 
+				getCurModulesCount(type)) {		
+			String[] modules = client.getModules(loadType);	
+			if (modules != null)
+				databaseHandler.addModules(modules, type);
+			else tmpIntent.setAction(failed);
+		}		
+		sendBroadcast(tmpIntent); 
+	}
 	
-	        			Intent tmpIntent = new Intent();
-	        			tmpIntent.setAction(StaticsClass.PWNCORE_DEAUTHENTICATION_SUCCESS);
-	        			sendBroadcast(tmpIntent);
-	        			return;
-	            	}
-	            	
-	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_CREATE)) {
+    abstract class NewThread implements Runnable {
+    	private Map<String, Object> params = null;
+    	NewThread(Map<String, Object> params) {
+    		this.params = params;
+    	}
+    	public Map<String, Object> getParams() {
+    		return params;
+    	}
+    }
+    
+
+    
+ 
+
+	            	/*if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_CREATE)) {
 	            		Map<String, Value> newConDes = newConsole();
 	            		
 	            		sessionMgr.notifyNewConsole(
@@ -344,72 +317,11 @@ public class MainService extends Service {
 	            		if (destroyConsole(CONSOLE_MSF_ID))            		
 		        			sessionMgr.notifyDestroyedConsole(CONSOLE_ID, CONSOLE_MSF_ID);
 	            	}	
-	            	else if (THREAD_METHOD.equals(StaticsClass.PWNCORE_CONSOLE_RUN_MODULE)) {
 
-	            		String res = runModule(MODULE_TYPE, MODULE_NAME, MODULE_ARGS, false);
-	            		if (res != null)
-	            			sessionMgr.notifyJobCreated(res);
-	            	}
-	            	
-	            	else if (THREAD_METHOD == "get_all") {
-	            		for (int i=0; i<gets.length; i++)
-	            			if (getModules(gets[i])) {
-			        			Intent tmpIntent = new Intent();
-			        			tmpIntent.setAction(gets_msg[i][0]);
-			        			//tmpIntent.putExtra("count", 0);
-			        			sendBroadcast(tmpIntent); 
-	            				continue;
-	            			}
-	            			else {
-			        			Intent tmpIntent = new Intent();
-			        			tmpIntent.setAction(gets_msg[i][1]);
-			        			sendBroadcast(tmpIntent);  
-	            				return;
-	            			}
-	            		
-	            		return;
-	            	}
-	            	
-	            	for (int i=0; i<gets.length && THREAD_METHOD.startsWith("gets_"); i++) { 
-	            		if (THREAD_METHOD.equals("get_" + gets[i])) {
-		            		if (getModules(gets[i])) {	
-			        			Intent tmpIntent = new Intent();
-			        			tmpIntent.setAction(gets_msg[i][0]);
-			        			//tmpIntent.putExtra("count", 0);
-			        			sendBroadcast(tmpIntent); 
-			        			break;
-		            		} else {
-			        			Intent tmpIntent = new Intent();
-			        			tmpIntent.setAction(gets_msg[i][1]);
-			        			sendBroadcast(tmpIntent);  
-			        			break;
-		            		}
-	            		}
-	            	}	            	
-            	}
-				
-			} catch (SocketTimeoutException e) {
-				isAuthenticated = false;
-    			Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
-    			sendBroadcast(tmpIntent);
-    			
-			} catch (ConnectException e) {
-				isAuthenticated = false;
-    			Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
-    			sendBroadcast(tmpIntent);
-    			
-			} catch (Exception e) {		
-				e.printStackTrace();
-				isAuthenticated = false;
-    			Intent tmpIntent = new Intent();
-    			tmpIntent.putExtra("error", e.getMessage());
-    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
-    			sendBroadcast(tmpIntent);
-			}
+
     	}
-    	    	
+*/
+
     
     	private void addHostToTargetList(TargetItem item) {	
     		for (int i=0; i<MainActivity.mTargetHostList.size(); i++)
@@ -418,112 +330,7 @@ public class MainService extends Service {
         	MainActivity.mTargetHostList.add(0,item);
         }
     	
-    	private byte[] connectToGetBytes(byte[] toBePostedBytes) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-			
-        	URL url = new URL(urlStart + con_txtHost + ":" + con_txtPort + urlEnd);	 
-        	HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-        	
-        	if (con_useSSL) {
-        		final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-        	        @Override public void checkClientTrusted( final X509Certificate[] chain, final String authType ) { }	        
-        	        @Override public void checkServerTrusted( final X509Certificate[] chain, final String authType ) { }    	        
-        	        @Override public X509Certificate[] getAcceptedIssuers() { return null; } } 
-        		};
-        	    
-        	    class NullHostNameVerifier implements HostnameVerifier {
-        	    	@Override public boolean verify(String hostname, SSLSession session) { return true; } 
-    	    	};
-        		
-        	    final SSLContext sslContext = SSLContext.getInstance( "SSL" );
-        	    sslContext.init( null, trustAllCerts, new java.security.SecureRandom() );
-        	    final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-    
-        	    ((HttpsURLConnection)urlConn).setSSLSocketFactory( sslSocketFactory );
-        	    ((HttpsURLConnection)urlConn).setHostnameVerifier(new NullHostNameVerifier());
-        	}
- 
-	        urlConn.setDoInput (true);
-	        urlConn.setDoOutput (true);
-	        urlConn.setUseCaches (false);
-            urlConn.setRequestMethod("POST");
-            urlConn.setConnectTimeout(5000);
-            urlConn.setReadTimeout(5000);
-            urlConn.setRequestProperty("Content-Type","binary/message-pack");
-            urlConn.connect();
-   
-            OutputStream toBePosted = urlConn.getOutputStream();
-            
-            toBePosted.write(toBePostedBytes);
-            toBePosted.flush();
-            toBePosted.close();
-
-	        byte[] result = IOUtils.toByteArray(urlConn.getInputStream());
-	        urlConn.disconnect();
-	        
-	        return result;
-    	}
-    	
-    	public byte[] packedBytesOf(String[] s) throws IOException {   	
-    		
-    		MessagePack msgpack = new MessagePack();			
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-	        Packer packer = msgpack.createPacker(out);		      	        
-	        packer.write(s);		        
-	
-	        return out.toByteArray();
-    	}
-    	    	
-    	private Template<Map<String, List<String>>> mapArrayTmpl = tMap(TString, tList(TString));
-    	private Template<Map<String, String>> mapTmpl = tMap(TString, TString);
-    	private Template<Map<String, Integer>> mapInt = tMap(TString, TInteger);
-    	
-    	private boolean authenticate() throws IOException, JSONException, KeyManagementException, NoSuchAlgorithmException {
-            String[] request_details = { "auth.login", con_txtUsername, con_txtPassword };           
-            byte[] packedRequest = packedBytesOf(request_details);	
-            byte[] packedResponse = connectToGetBytes(packedRequest);			
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);
-            Map<String, String> res = unpacker.read(mapTmpl);          
-            if (res.containsKey("result") && res.get("result").equals("success")) {
-				clientTokenSet = true;
-				CLIENT_TOKEN = res.get("token");
-				return true;
-			}		
-    		return false;
-    	}
-    	
-    	private Map<String, Integer> getStats() throws IOException, KeyManagementException, NoSuchAlgorithmException {
-    		String[] request_details = { "core.module_stats", CLIENT_TOKEN };           
-            byte[] packedRequest = packedBytesOf(request_details);			
-            byte[] packedResponse = connectToGetBytes(packedRequest);		
-            MessagePack msgpack = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack.createUnpacker(in);          
-            Map<String, Integer> res = unpacker.read(mapInt);
-			return res;
-    	}
-    	
-    	private int getCurrentCount(String  module) {
-    		if (module == "exploits")
-    			return db.getModulesCount(module);
-    		else if (module == "payloads")
-    			return db.getModulesCount(module);
-    		else if (module == "post")
-    			return db.getModulesCount(module);
-    		else if (module == "nops")
-    			return db.getModulesCount(module);
-    		else if (module == "encoders")
-    			return db.getModulesCount(module);
-    		else if (module == "auxiliary")
-    			return db.getModulesCount(module);
-    		else 
-    			return 0;
-    	}
-    	 
-    	private Template<Map<String, Value>> mapConsole = tMap(TString, TValue);
-    	
-    	private Map<String, Value> newConsole() throws IOException, KeyManagementException, NoSuchAlgorithmException {
+    	/*private Map<String, Value> newConsole() throws IOException, KeyManagementException, NoSuchAlgorithmException {
             String[] request_details = { "console.create", CLIENT_TOKEN };            
             byte[] packedRequest = packedBytesOf(request_details);			
             byte[] packedResponse = connectToGetBytes(packedRequest);			
@@ -571,118 +378,14 @@ public class MainService extends Service {
             
     		return false;
     	}
-       	
-       	private String runModule(String type, String name, String[] args, boolean isPayload) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-       		if (args.length % 2 != 0) 
-       			return null;
-       		
-       		MessagePack msgpack = new MessagePack();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-
-       		List<Object> list = new ArrayList<Object>();
-            list.add("module.execute");
-            list.add(CLIENT_TOKEN);
-            list.add(type);
-            list.add(name);
-               		
-       		Map<String, String> map = new HashMap<String, String>();
-       		for (int i=0; i<args.length; i+=2)
-       			map.put(args[i], args[i+1]);
-       		
-       		list.add(map);
-       		
-       		packer.write(list);
-       		byte[] packedResponse = connectToGetBytes(out.toByteArray());			
-            MessagePack msgpack2 = new MessagePack();
-            ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-            Unpacker unpacker = msgpack2.createUnpacker(in);
-            Map<String, Value> res = unpacker.read(mapConsole);
-       		
-            if (res.containsKey("job_id"))
-            	return Integer.toString(res.get("job_id").asIntegerValue().getInt());
-            else
-            	return null;
-       	}
-       	
-    	private boolean getModules(String type) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-    		
-    		if (StatsMap.containsKey(type) && StatsMap.get(type) > getCurrentCount(type)) {
-    			String[] request_details = { "module." + type, CLIENT_TOKEN };           
-                byte[] packedRequest = packedBytesOf(request_details);   			
-                byte[] packedResponse = connectToGetBytes(packedRequest);    			
-                MessagePack msgpack = new MessagePack();
-                ByteArrayInputStream in = new ByteArrayInputStream(packedResponse);
-                Unpacker unpacker = msgpack.createUnpacker(in);          
-                Map<String, List<String>> res = unpacker.read(mapArrayTmpl);
-                
-                if (res.containsKey("modules")) {
-                	List<String> moduleList = res.get("modules");
-                	
-                	db.deleteTable(db.getTableIdByName(type));
-                	db.createTable(db.getTableIdByName(type));
-                	 
-            		if (type == "exploits")
-            			for (int i=0; i<moduleList.size(); i++)
-            				db.addModule(new ModuleItem(moduleList.get(i)), type);
-            		else if (type == "payloads")
-            			for (int i=0; i<moduleList.size(); i++)
-            				db.addModule(new ModuleItem(moduleList.get(i)), type);
-            		else if (type == "auxiliary")
-            			for (int i=0; i<moduleList.size(); i++)
-            				db.addModule(new ModuleItem(moduleList.get(i)), type);
-            		else if (type == "post")
-            			for (int i=0; i<moduleList.size(); i++)
-            				db.addModule(new ModuleItem(moduleList.get(i)), type);
-            		else if (type == "encoders")
-            			for (int i=0; i<moduleList.size(); i++)
-            				db.addModule(new ModuleItem(moduleList.get(i)), type);
-            		else if (type == "nops")
-        				for (int i=0; i<moduleList.size(); i++)
-        					db.addModule(new ModuleItem(moduleList.get(i)), type);
-
-                	return true;
-                }
-                
-        		return false;
-    		}
-    		
-			return true;
-		}  
-    };
-
-    public BroadcastReceiver checkConReceiver = new BroadcastReceiver() {
-    	@Override
-    	public void onReceive(Context context, Intent intent) {
-    		
-    		ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-    	    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-    	    NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-    	    if (!mWifi.isConnected() && !mMobile.isConnected()) {
-    	    	
-    			if (isAuthenticated) {   			
-    				isAuthenticated = false;
-    			}
-    			
-    			MainActivity.prefs.edit().putBoolean("isConnected", false).commit();
-    			
-    	    	Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_LOST);
-    			sendBroadcast(tmpIntent);
-    			
-    			
-    	    }
-    	}
-    };
+       	 */
     
-	private SharedPreferences prefs;
-	private boolean con_useSSL;
-	private String con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
-	private boolean isAuthenticated = false;	
-	private String CLIENT_TOKEN = "";
-	private boolean clientTokenSet = false;
-
-	private ExecutorService executor;
-	private DatabaseHandler db;
+    public static boolean checkConnection(Context c) {
+		ConnectivityManager connManager = (ConnectivityManager)c.getSystemService(CONNECTIVITY_SERVICE);
+	    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+	    NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+	    if (!mWifi.isConnected() && !mMobile.isConnected())
+	    	return false;
+	    return true;
+	}
 }

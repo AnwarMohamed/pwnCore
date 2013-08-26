@@ -169,10 +169,13 @@ public class AttackHallActivity extends Activity {
     		}
     		else if (action == StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
     			mTargetsListAdapter.notifyDataSetChanged();
+    			prepareTargetDetails(curListPosition);
     		}
     	}
     };
      
+    private int curListPosition = 0;
+    
     private void prepareTargetDetails(int position) {
     	TargetItem t = MainActivity.mTargetHostList.get(position);
     	
@@ -188,7 +191,7 @@ public class AttackHallActivity extends Activity {
     		((TextView)findViewById(R.id.targetDetailsPwn)).setTextColor(Color.RED);
     	}
     	
-    	if (t.isUp()) {
+    	if (!t.isUp()) {
     		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Down");
     		((TextView)findViewById(R.id.targetDetailsPorts)).setText("Open Ports: None");
     	}
@@ -196,11 +199,11 @@ public class AttackHallActivity extends Activity {
     		((TextView)findViewById(R.id.targetDetailsUp)).setText("Availability: Up");
     		
     		String openPorts = "";
-    		for (int i=0; i<t.getTcpPorts().length; i++)
-    			openPorts += "\n\t" + t.getTcpPorts()[i] + "\t\tTCP";
+    		for (int i=0; i<t.getTcpPorts().size(); i++)
+    			openPorts += "\n\t" + t.getTcpPorts().keySet().toArray()[i] + "\t\tTCP\t\t" + t.getTcpPorts().values().toArray()[i];
     		
-    		for (int i=0; i<t.getUdpPorts().length; i++)
-    			openPorts += "\n\t" + t.getUdpPorts()[i] + "\t\tUDP";
+    		for (int i=0; i<t.getUdpPorts().size(); i++)
+    			openPorts += "\n\t" + t.getUdpPorts().keySet().toArray()[i] + "\t\tUDP\t\t" + t.getUdpPorts().values().toArray()[i];
     		
     		((TextView)findViewById(R.id.targetDetailsPorts)).setText("Open Ports:" + openPorts);
     	}
@@ -221,6 +224,7 @@ public class AttackHallActivity extends Activity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        curListPosition = info.position;
         
         switch (item.getItemId()) {
         case R.id.mnuTargetRemove:

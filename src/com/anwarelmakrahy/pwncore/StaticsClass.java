@@ -17,10 +17,8 @@ public class StaticsClass {
 	static String PWNCORE_CONNECT = "com.anwarelmakrahy.pwncore.CONNECT";
 	static String PWNCORE_DISCONNECT = "com.anwarelmakrahy.pwncore.DISCONNECT";
 	
-	static String PWNCORE_SEND_TESTDATA = "com.anwarelmakrahy.pwncore.SEND_TESTDATA";
 	
 	static String PWNCORE_AUTHENTICATION_FAILED = "com.anwarelmakrahy.pwncore.AUTHENTICATION_FAILED";
-	static String PWNCORE_DEAUTHENTICATION_SUCCESS = "com.anwarelmakrahy.pwncore.DEAUTHENTICATION_SUCCESS";
 	
 	static String PWNCORE_LOAD_EXPLOITS = "com.anwarelmakrahy.pwncore.LOAD_EXPLOITS";
 	static String PWNCORE_LOAD_EXPLOITS_SUCCESS = "com.anwarelmakrahy.pwncore.LOAD_EXPLOITS_SUCCESS";
