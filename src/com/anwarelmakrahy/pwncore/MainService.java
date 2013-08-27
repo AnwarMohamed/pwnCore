@@ -85,11 +85,9 @@ public class MainService extends Service {
 				public void run() {
 					Intent tmpIntent = new Intent();				
 		        	if (client.login(con_txtUsername, con_txtPassword)) {
-		        		isAuthenticated = true; 
-		        		
+		        		isAuthenticated = true; 		        		
 		        		tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);
-		        		sendBroadcast(tmpIntent);
-		        		
+		        		sendBroadcast(tmpIntent);	        		
 		        		StatsMap = client.call(MsfRpcClient.singleOptCallList("core.module_stats"));
 		        	}
 		        	else {
@@ -223,12 +221,12 @@ public class MainService extends Service {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {														
 	            		Map<String, Value> newConDes = 
-	            				client.call(MsfRpcClient.singleOptCallList("console.create"));
-	            		
-	            		sessionMgr.notifyNewConsole(
-	            				intent.getStringExtra("id"), 
-	            				newConDes.get("id").asRawValue().getString(), 
-	            				newConDes.get("prompt").asRawValue().getString());
+	            				client.call(MsfRpcClient.singleOptCallList("console.create"));	        
+	            		if (newConDes != null)
+		            		sessionMgr.notifyNewConsole(
+		            				intent.getStringExtra("id"), 
+		            				newConDes.get("id").asRawValue().getString(), 
+		            				newConDes.get("prompt").asRawValue().getString());
 					}});	
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
@@ -238,11 +236,12 @@ public class MainService extends Service {
 						params.add("console.read");
 						params.add(intent.getStringExtra("msfId"));
 	            		Map<String, Value> newConDes = client.call(params);
-	            		sessionMgr.notifyConsoleNewRead(
-	            				intent.getStringExtra("id"), 
-	            				newConDes.get("data").asRawValue().getString(), 
-	            				newConDes.get("prompt").asRawValue().getString(),
-	            				newConDes.get("busy").asBooleanValue().getBoolean());  
+	            		if (newConDes != null)
+		            		sessionMgr.notifyConsoleNewRead(
+		            				intent.getStringExtra("id"), 
+		            				newConDes.get("data").asRawValue().getString(), 
+		            				newConDes.get("prompt").asRawValue().getString(),
+		            				newConDes.get("busy").asBooleanValue().getBoolean());  
 					}});	
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
@@ -253,7 +252,8 @@ public class MainService extends Service {
 						params.add(intent.getStringExtra("msfId"));
 						params.add(intent.getStringExtra("data") + "\n");
 						Map<String, Value> newConDes = client.call(params);
-	            		sessionMgr.notifyConsoleWrite(intent.getStringExtra("id"));  
+						if (newConDes != null)
+							sessionMgr.notifyConsoleWrite(intent.getStringExtra("id"));  
 					}});			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {

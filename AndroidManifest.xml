@@ -46,7 +46,7 @@
         <activity android:name="AttackWizardActivity"></activity>
         <activity android:name="SearchModulesActivity"></activity>
         <service android:name="HeadService"></service>
-        <activity android:name="ModuleOptionsActivity"></activity>        
+        <activity android:name="ModuleOptionsActivity" android:windowSoftInputMode="adjustPan|adjustResize"></activity>        
     </application>
 
 </manifest>

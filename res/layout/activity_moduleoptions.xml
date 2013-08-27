@@ -1,6 +1,121 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/moduleOptReverseCheck"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent" >
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/moduleOptTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/moduleOptPath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/moduleOptTitle"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/moduleOptTitle"
+        android:layout_marginRight="5dp"
+        android:text="Path"
+        android:textColor="#555555"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/moduleOptStart"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:text="Launch" />
+
+    <Spinner
+        android:id="@+id/moduleOptTargets"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_above="@+id/moduleOptAdvanced"
+        android:layout_alignRight="@+id/scrollView1"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/moduleOptSpinnerTitle"
+        android:entries="@array/titles_array"
+        android:gravity="center_vertical"
+        android:prompt="@array/titles_array"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/moduleOptTargets"
+        android:layout_alignLeft="@+id/moduleOptPath"
+        android:layout_alignRight="@+id/moduleOptDesc"
+        android:layout_below="@+id/moduleOptDesc"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp" >
+
+        <GridLayout
+            android:id="@+id/moduleOptLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2" >
+
+        </GridLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/moduleOptSpinnerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/moduleOptTargets"
+        android:layout_alignLeft="@+id/moduleOptPath"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="6dp"
+        android:text="Targets"
+        android:textSize="17sp"
+        android:visibility="gone" />
+
+    <CheckBox
+        android:id="@+id/moduleOptReverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/moduleOptStart"
+        android:layout_alignLeft="@+id/moduleOptAdvanced"
+        android:text="Use a reverse connection"
+        android:visibility="gone" />
+
+    <CheckBox
+        android:id="@+id/moduleOptAdvanced"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/moduleOptReverse"
+        android:layout_alignLeft="@+id/moduleOptPath"
+        android:text="Show advanced options" />
+
+    <TextView
+        android:id="@+id/moduleOptDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/moduleOptPath"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/moduleOptPath"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="15dp"
+        android:fadeScrollbars="false"
+        android:maxLines="6"
+        android:paddingRight="5dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:text="Details"
+        android:textSize="15sp" />
+
+</RelativeLayout>

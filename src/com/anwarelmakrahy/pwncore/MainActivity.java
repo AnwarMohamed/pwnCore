@@ -67,8 +67,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	
     private DatabaseHandler databaseHandler;
     
-    private ProgressBar progress;
-    
+   
     private ListView modulesList;
     private ModuleListAdapter modulesListAdapter;
     private boolean[] ModulesLoaded = { false, false, false, false, false, false };
@@ -87,9 +86,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		startService(serviceIntent);
 		
 		databaseHandler = DatabaseHandler.getInstance(this);
-		
-		progress = (ProgressBar)findViewById(R.id.progress1);
-		setProgressBar(false);
         
 		modulesList = (ListView)findViewById(R.id.modulesListView);
 		modulesList.setEmptyView(findViewById(R.id.imageView11));
@@ -97,16 +93,31 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		modulesList.setAdapter(modulesListAdapter);
 		modulesList.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
-	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
-	        	Object o = modulesList.getItemAtPosition(position);
-	        	ModuleItem m = (ModuleItem)o;
-	        	
-	        	Intent intent = new Intent(getApplicationContext(), ModuleOptionsActivity.class);
-	        	intent.putExtra("type", m.getType());
-	        	intent.putExtra("name", m.getPath());
-	        	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	        	getApplicationContext().startActivity(intent);        	
-	    	}
+	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	
+	        	if (isConnected && MainService.checkConnection(MainActivity.this)) {
+		        	Object o = modulesList.getItemAtPosition(position);
+		        	ModuleItem m = (ModuleItem)o;
+		        	
+		        	if (m.getType().contains("encoder") || m.getType().contains("nop"))
+		    			Toast.makeText(
+		    					getApplicationContext(), 
+		    					"Sorry not implemented yet", 
+		    					Toast.LENGTH_SHORT).show();
+		        	else {
+			        	Intent intent = new Intent(getApplicationContext(), ModuleOptionsActivity.class);
+			        	intent.putExtra("type", m.getType());
+			        	intent.putExtra("name", m.getPath());
+			        	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			        	getApplicationContext().startActivity(intent);        	
+		        	}
+		    	}
+	        	else {
+	    			Toast.makeText(
+	    					getApplicationContext(), 
+	    					"You have to be connected", 
+	    					Toast.LENGTH_SHORT).show();
+	        	}
+	        }
 		});
         
         /*
@@ -166,13 +177,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setNotification();
-		
-		
-		
-        pd = new ProgressDialog(this);
-        pd.setMessage("Connecting to Server, Please wait");
-        pd.setCancelable(false);
-        pd.setIndeterminate(true); 
 		
 		prepareSidebar(); 	
 		
@@ -298,7 +302,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECT);
 		    			sendBroadcast(tmpIntent);
 		    			
-		    			connectDialog(this);
+		    			Toast.makeText(getApplicationContext(), 
+		    					"Connecting to server. Please wait", 
+		    					Toast.LENGTH_SHORT).show();
 	    			}
 	    		}
 	    	}
@@ -405,16 +411,22 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	}
 
 	public void launchAttackHall(View v) {
-		if (!isConnected && MainService.checkConnection(this))
-			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
+		if (!isConnected || !MainService.checkConnection(this))
+			Toast.makeText(
+					getApplicationContext(), 
+					"You have to be connected", 
+					Toast.LENGTH_SHORT).show();
 		else if (MainService.mTargetHostList.size() == 0)
-			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
+			Toast.makeText(
+					getApplicationContext(), 
+					"You have no targets", 
+					Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));
 	}
 	
 	public void launchAttackWizard(View v) {
-		if (!isConnected && MainService.checkConnection(this))
+		if (!isConnected || !MainService.checkConnection(this))
 			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
@@ -436,7 +448,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		invalidateOptionsMenu();
 		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
 		main_menu.findItem(R.id.mnuConnectionAction).setTitle("Connect");
-    	setProgressBar(false);
 	}
 	
 	public BroadcastReceiver conStatusReceiver = new BroadcastReceiver() {
@@ -445,14 +456,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		String action = intent.getAction();
     		
     		if (action == StaticsClass.PWNCORE_CONNECTION_TIMEOUT) {
-    			if (pd != null) pd.dismiss();
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
     		}   
     		else if (action == StaticsClass.PWNCORE_AUTHENTICATION_FAILED) {
-    			if (pd != null) pd.dismiss();
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
     					"AuthenticationFailed: Please check that your credentials are valid", 
@@ -466,20 +475,17 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			main_menu.findItem(R.id.mnuConnectionAction).setTitle("Disconnect");
 		
     			setNotification();
-    			setProgressBar(true);
-    						
+
     			Intent tmpIntent = new Intent();
     			tmpIntent.setAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
     			sendBroadcast(tmpIntent);	
     		}    		
     		else if (action == StaticsClass.PWNCORE_CONNECTION_FAILED) {
-    			pd.dismiss();
     			Disconnect();		
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionFailed: " + intent.getStringExtra("error"), 
     					Toast.LENGTH_SHORT).show();    	
-    			
-    			setProgressBar(false);
+  
     			setNotification();
     		}		
   		
@@ -557,8 +563,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			ModulesLoaded[5] = true;
     			SidebarItems.get(5).setCount(databaseHandler.getModulesCount("nops"));
     			SidebarAdapter.notifyDataSetChanged();
-    			
-    			setProgressBar(false);
     		}
     		
     		/*else if (action == PWNCORE_NMAP_SCAN_SUCCESS) {						
@@ -619,17 +623,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
      * Misc Functions
      */
     
-    private void setProgressBar(boolean state) {
-    	if (state) {
-			progress.setIndeterminate(true);
-			progress.setVisibility(View.VISIBLE);
-    	}
-    	else {
-			progress.setIndeterminate(false);
-			progress.setVisibility(View.INVISIBLE);
-    	}
-    }
-
 	private void setNotification() {
 		
 		String notiText;	
@@ -708,33 +701,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		}
 	}
 	    
-	private ProgressDialog pd; ;
-    private void connectDialog(final Context context) { 	
-    	AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-                  
-            @Override
-            protected void onPreExecute() {          
-                     pd.show();
-            }       
-            @Override
-            protected Void doInBackground(Void... arg0) {        	
-            	while (!isConnected) {
-            		try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {		
-						e.printStackTrace();
-					}
-            	}
-            	return null;
-            } 
-            @Override
-            protected void onPostExecute(Void result) {    	
-                if (pd != null) { pd.dismiss();	}	
-            }
-    	};
-    	task.execute((Void[])null);
-	}
-    
+	
     private class DrawerItemClickListener implements OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
