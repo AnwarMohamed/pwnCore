@@ -35,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class ModuleOptionsActivity extends Activity {
@@ -59,6 +60,14 @@ public class ModuleOptionsActivity extends Activity {
         Intent intent = getIntent();
         moduleName = intent.getStringExtra("name");
         moduleType = intent.getStringExtra("type");
+        
+        if (moduleType == null || moduleName == null) { 
+ 			Toast.makeText(getApplicationContext(), 
+ 					"Error launching module options", 
+ 					Toast.LENGTH_SHORT).show();
+         	finish();
+         	return;
+         }
         
         if (moduleType.contains("exploits"))
         	moduleType = "exploit";
@@ -258,5 +267,21 @@ public class ModuleOptionsActivity extends Activity {
 				optsLoaded = true;
 			}
 		}, 0);
+	}
+	
+	public void launch(View v) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		Object[] keys = options.keySet().toArray();
+		Object[] values = options.values().toArray();
+		
+		for (int i=0; i<options.size(); i++)
+			if (((TextView)(values[i])).getText().toString().trim().length() > 0)
+				params.put(keys[i].toString(), ((TextView)(values[i])).getText().toString().trim());
+		
+    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
+    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    	intent.putExtra("type", "new");
+    	startActivity(intent);   
 	}
 }

@@ -364,7 +364,7 @@ public class AttackHallActivity extends Activity {
 	    	
 		    LayoutInflater inflater = (LayoutInflater)AttackHallActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		    
-		    final View layout = inflater.inflate(R.layout.layout_console, (ViewGroup)findViewById(R.id.popup_element));
+		    final View layout = inflater.inflate(R.layout.activity_console, (ViewGroup)findViewById(R.id.popup_element));
 		    pwindo = new PopupWindow(layout, size.x - 30, (int)(size.y * 0.75), true);
 		    
 		    pwindo.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#eeeeee")));

@@ -45,7 +45,7 @@ public class PopupWindowService extends Service {
 		    	display.getSize(size);
 		    	
 			    LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			    View layout = inflater.inflate(R.layout.layout_console, null);
+			    View layout = inflater.inflate(R.layout.activity_console, null);
 			    pwindo = new PopupWindow(layout, size.x - 30, (int)(size.y * 0.75), true);
 			    
 			    //pwindo.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#eeeeee")));

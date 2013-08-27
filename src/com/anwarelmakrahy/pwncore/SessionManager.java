@@ -97,6 +97,8 @@ public class SessionManager {
 
 	public void destroyConsole(ConsoleSession c) {
 		c.destroy();
+		if (currentConsoleWindowId == c.getId())
+			currentConsoleWindowId = null;
 		consoleSessions.remove(c.getId());
 	}
 }
