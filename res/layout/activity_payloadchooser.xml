@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Select Payload"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#555555"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/payloadList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+    </ListView>
+
+    <TextView
+        android:id="@+id/payloadOptTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Payload Options"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#555555"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/payloadOptScroll"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:visibility="gone" >
+
+        <GridLayout
+            android:id="@+id/payloadOptLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" >
+
+        </GridLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/payloadOptStart"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:onClick="launch"
+        android:text="Launch Exploit"
+        android:visibility="gone" />
+
+</LinearLayout>

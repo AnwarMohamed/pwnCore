@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/moduleOptReverseCheck"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
@@ -44,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_above="@+id/moduleOptAdvanced"
-        android:layout_alignRight="@+id/scrollView1"
+        android:layout_alignRight="@+id/payloadOptScroll"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/moduleOptSpinnerTitle"
@@ -54,7 +53,7 @@
         android:visibility="gone" />
 
     <ScrollView
-        android:id="@+id/scrollView1"
+        android:id="@+id/payloadOptScroll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/moduleOptTargets"
@@ -86,19 +85,10 @@
         android:visibility="gone" />
 
     <CheckBox
-        android:id="@+id/moduleOptReverse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/moduleOptStart"
-        android:layout_alignLeft="@+id/moduleOptAdvanced"
-        android:text="Use a reverse connection"
-        android:visibility="gone" />
-
-    <CheckBox
         android:id="@+id/moduleOptAdvanced"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/moduleOptReverse"
+        android:layout_above="@+id/moduleOptStart"
         android:layout_alignLeft="@+id/moduleOptPath"
         android:text="Show advanced options" />
 

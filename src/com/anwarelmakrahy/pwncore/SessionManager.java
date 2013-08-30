@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -72,14 +73,14 @@ public class SessionManager {
 			consoleSessions.remove(Id);
 	}
 	
-	public void switchConsoleWindow(String id) {
+	public void switchConsoleWindow(String id, Activity activity) {
 		if (consoleSessions.containsKey(id)) {
 			ConsoleSession c = consoleSessions.get(id);
 			
 			if (currentConsoleWindowId != null)
-				consoleSessions.get(currentConsoleWindowId).setWindowActive(false);
+				consoleSessions.get(currentConsoleWindowId).setWindowActive(false, null);
 		
-			c.setWindowActive(true);
+			c.setWindowActive(true, activity);
 			currentConsoleWindowId = id;
 		}
 	}
@@ -90,7 +91,7 @@ public class SessionManager {
 	
 	public void closeConsoleWindow(String id) {
 		if (consoleSessions.containsKey(id)) {
-			consoleSessions.get(id).setWindowActive(false);
+			consoleSessions.get(id).setWindowActive(false, null);
 			currentConsoleWindowId = null;
 		}
 	}
@@ -100,5 +101,13 @@ public class SessionManager {
 		if (currentConsoleWindowId == c.getId())
 			currentConsoleWindowId = null;
 		consoleSessions.remove(c.getId());
+	}
+	
+	public ConsoleSession getConsole(String id) {
+		if (id == null) return null;
+		if (consoleSessions.containsKey(id)) {
+			return consoleSessions.get(id);
+		}
+		return null;
 	}
 }

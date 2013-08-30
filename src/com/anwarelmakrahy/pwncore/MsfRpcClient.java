@@ -59,7 +59,7 @@ public class MsfRpcClient {
 	
 	private Context context;
 	
-	private String host;
+	private String host = "";
 	private String port;
 	private String uri;
 	private boolean ssl;
@@ -121,8 +121,18 @@ public class MsfRpcClient {
 				res.containsKey("result") && 
 				res.get("result").asRawValue().getString().equals("success")) {
 			token = res.get("token").asRawValue().getString();
-			authenticated = true;
-			return true;
+			
+			httpPost = newHttpPost(encode(new String[] { "auth.token_generate", token}));
+			res = getResponse(httpPost);
+			
+			if (res != null && 
+					res.containsKey("result") && 
+					res.get("result").asRawValue().getString().equals("success")) {
+				token = res.get("token").asRawValue().getString();
+				authenticated = true;
+				return true;
+			}
+			return false;
 		}
 		
 		return false;
@@ -309,5 +319,9 @@ public class MsfRpcClient {
 		} catch (Exception ex) {
 			return null;
 		}
+	}
+
+	public String getHost() {	
+		return host;
 	}
 }

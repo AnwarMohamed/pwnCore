@@ -2,12 +2,9 @@ package com.anwarelmakrahy.pwncore;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang3.StringUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.TextView;
 
 public class ConsoleSession {
@@ -20,7 +17,7 @@ public class ConsoleSession {
 					isWindowActive = false,
 					logoLoaded = false;
 		
-	private ConsoleSessionParams params;
+	private ConsoleSessionParams params = null;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
 	private ArrayList<String> tmpPortQueries = new ArrayList<String>();
@@ -48,8 +45,10 @@ public class ConsoleSession {
 			tmpPortQueries.remove(tmpPortQueries.indexOf(info));
 	}
 	
-	public void setWindowActive(boolean flag) {
+	public void setWindowActive(boolean flag, Activity activity) {
 		isWindowActive = flag;
+		if (params != null && activity != null)
+			params.activity = activity;
 	}
 	
 	public String getId() {
@@ -255,7 +254,7 @@ public class ConsoleSession {
 	public void waitForReady() {
 		while (!isReady()) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -270,24 +269,24 @@ public class ConsoleSession {
 	}
 	
 	static class ConsoleSessionParams {
-		private TextView prompt = null;
-		private TextView cmd = null;
+		private int prompt = 0;
+		private int cmd = 0;
 		private Activity activity = null;
 		
-		public void setPromptView(TextView v) {
+		public void setPromptViewId(int v) {
 			prompt = v;
 		}
 		
-		public void setCmdView(TextView v) {
+		public void setCmdViewId(int v) {
 			cmd = v;
 		}
 		
 		public TextView getPromptView() {
-			return prompt;
+			return (TextView) activity.findViewById(prompt);
 		}
 		
 		public TextView getCmdView() {
-			return cmd;
+			return (TextView) activity.findViewById(cmd);
 		}
 		
 		public void setAcivity(Activity a) {
@@ -299,7 +298,7 @@ public class ConsoleSession {
 		}
 		
 		public boolean hasWindowViews() {
-			if (prompt == null || cmd == null || activity == null)
+			if (prompt == 0 || cmd == 0 || activity == null)
 				return false;
 			return true;
 		}

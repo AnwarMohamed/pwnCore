@@ -47,7 +47,8 @@
         <activity android:name="SearchModulesActivity"></activity>
         <service android:name="HeadService"></service>
         <activity android:name="ModuleOptionsActivity" android:windowSoftInputMode="adjustPan|adjustResize"></activity>
-        <activity android:name="ConsoleActivity"></activity>        
+        <activity android:name="ConsoleActivity"></activity>
+        <activity android:name="PayloadChooserActivity"></activity>        
     </application>
 
 </manifest>

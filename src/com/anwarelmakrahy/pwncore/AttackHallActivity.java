@@ -393,11 +393,11 @@ public class AttackHallActivity extends Activity {
 		    		    
 		    ConsoleSessionParams params = new ConsoleSessionParams();
 		    params.setAcivity(this);
-		    params.setCmdView((TextView)layout.findViewById(R.id.consoleRead));
-		    params.setPromptView((TextView)layout.findViewById(R.id.consolePrompt));
+		    params.setCmdViewId(R.id.consoleRead);
+		    params.setPromptViewId(R.id.consolePrompt);
 		    
 		    final ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(params);
-		    MainService.sessionMgr.switchConsoleWindow(newConsole.getId());
+		    MainService.sessionMgr.switchConsoleWindow(newConsole.getId(), this);
 		    
 		    commander.setOnEditorActionListener(new OnEditorActionListener() {
 
