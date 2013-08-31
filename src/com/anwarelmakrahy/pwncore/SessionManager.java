@@ -1,6 +1,8 @@
 package com.anwarelmakrahy.pwncore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
@@ -52,7 +54,13 @@ public class SessionManager {
 	public void notifyNewConsole(String id, String msfId, String prompt) {
 		if (consoleSessions.containsKey(id)) {
 			consoleSessions.get(id).setPrompt(prompt);
-			consoleSessions.get(id).setMsfId(msfId);	
+			consoleSessions.get(id).setMsfId(msfId);
+			
+			if (ConsolesFragment.mConsolesListAdapter != null) {
+				ConsolesFragment.consoleArray.clear();
+				ConsolesFragment.consoleArray.addAll(getConsoleListArray());
+				ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
+			}
 		}
 	}
 	
@@ -101,6 +109,12 @@ public class SessionManager {
 		if (currentConsoleWindowId == c.getId())
 			currentConsoleWindowId = null;
 		consoleSessions.remove(c.getId());
+		
+		if (ConsolesFragment.mConsolesListAdapter != null) {
+			ConsolesFragment.consoleArray.clear();
+			ConsolesFragment.consoleArray.addAll(getConsoleListArray());
+			ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	public ConsoleSession getConsole(String id) {
@@ -109,5 +123,17 @@ public class SessionManager {
 			return consoleSessions.get(id);
 		}
 		return null;
+	}
+	
+	public List<String> getConsoleListArray() {
+		List<String> list = new ArrayList<String>();
+		
+		for (int i=0; i<consoleSessions.size(); i++)
+			list.add("[" + consoleSessions.get(consoleSessions.keySet().
+					toArray()[i].toString()).getId() + "] " + 
+					consoleSessions.get(consoleSessions.keySet().
+							toArray()[i].toString()).getTitle());
+
+		return list;
 	}
 }

@@ -2,6 +2,8 @@ package com.anwarelmakrahy.pwncore;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 
 public class ConsoleSession {
 
+	private String title = "";
 	private boolean queryPoolActive = false;
 	private String msfId= null;
 	private String id, prompt;
@@ -49,6 +52,9 @@ public class ConsoleSession {
 		isWindowActive = flag;
 		if (params != null && activity != null)
 			params.activity = activity;
+		
+		if (flag)
+			params.getCmdView().setText(StringUtils.join(conversation.toArray()));
 	}
 	
 	public String getId() {
@@ -237,6 +243,8 @@ public class ConsoleSession {
 	public void write(final String data) {
 		if (logoLoaded) {	
 			notifyQueryPool(data);	
+			if (title.equals(""))
+				title = data.split("\n")[0];
 			conversation.add(prompt + data + "\n");
 			
 			if (isWindowActive && isWindowReady) {		
@@ -302,5 +310,9 @@ public class ConsoleSession {
 				return false;
 			return true;
 		}
+	}
+	
+	public String getTitle() {
+		return title;
 	}
 }

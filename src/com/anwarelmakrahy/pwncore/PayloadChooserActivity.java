@@ -297,7 +297,7 @@ public class PayloadChooserActivity extends Activity {
 						moduleParams.get(moduleKeys[i]) + "\"\n";
 		}
 		
-		cmd += "exploit -j";
+		cmd += "exploit";
 		
     	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
     	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

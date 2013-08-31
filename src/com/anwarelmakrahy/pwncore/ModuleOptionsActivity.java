@@ -374,7 +374,7 @@ public class ModuleOptionsActivity extends Activity {
 				cmd += "set " + moduleKeys[i] + " \"" + 
 							moduleParams.get(moduleKeys[i]) + "\"\n";
 						
-			cmd += "run -j";
+			cmd += "run";
 			
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
 	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
