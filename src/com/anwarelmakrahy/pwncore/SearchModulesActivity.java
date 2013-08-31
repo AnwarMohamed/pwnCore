@@ -19,9 +19,7 @@ public class SearchModulesActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); 
-        setTitle("Search Results");
-        setTheme(android.R.style.Theme_Holo_Light);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchmodules);
         
         if (!getIntent().hasExtra("q")) {

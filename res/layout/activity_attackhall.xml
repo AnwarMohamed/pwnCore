@@ -9,8 +9,7 @@
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/bg_key" >
+        android:layout_alignParentTop="true">
     </ListView>
 
     <TabHost
@@ -98,15 +97,6 @@
                         android:text="Open Ports: None"
                         android:typeface="monospace" />
 
-                    <TextView
-                        android:id="@+id/targetDetailsAttacks"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignLeft="@+id/targetDetailsPorts"
-                        android:layout_below="@+id/targetDetailsPorts"
-                        android:text="Suggested Attacks: None"
-                        android:typeface="monospace" />
-
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -115,7 +105,19 @@
                     android:layout_height="match_parent" >
                 </RelativeLayout>
 
+                <RelativeLayout
+                    android:id="@+id/tab4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </RelativeLayout>
+                
+                <RelativeLayout
+                    android:id="@+id/tab5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </RelativeLayout>                
             </FrameLayout>
+
         </LinearLayout>
     </TabHost>
 

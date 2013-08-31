@@ -76,10 +76,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     
     
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-    	
+    protected void onCreate(Bundle savedInstanceState) {  	
         super.onCreate(savedInstanceState); 
-        setTheme(android.R.style.Theme_Holo_Light);
         setContentView(R.layout.activity_main);
 
         serviceIntent = new Intent(this, MainService.class);     
@@ -98,7 +96,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		        	Object o = modulesList.getItemAtPosition(position);
 		        	ModuleItem m = (ModuleItem)o;
 		        	
-		        	if (m.getType().contains("encoder") || m.getType().contains("nop"))
+		        	if (m.getType().contains("encoder") || 
+		        			m.getType().contains("nop") || 
+		        			m.getType().contains("post"))
 		    			Toast.makeText(
 		    					getApplicationContext(), 
 		    					"Sorry not implemented yet", 

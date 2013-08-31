@@ -20,10 +20,8 @@ public class SettingsActivity extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(android.R.style.Theme_Holo_Light);
         setContentView(R.layout.activity_rpc);
-        
-        setTitle("Settings");
+
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         

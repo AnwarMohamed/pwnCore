@@ -35,8 +35,6 @@ public class AttackWizardActivity extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
         super.onCreate(savedInstanceState); 
-        setTitle("Attack Wizard");
-        setTheme(android.R.style.Theme_Holo_Light);
         setContentView(R.layout.activity_attackwizard);
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);

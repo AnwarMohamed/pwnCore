@@ -49,9 +49,7 @@ public class ModuleOptionsActivity extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {  
         super.onCreate(savedInstanceState); 
-        setTheme(android.R.style.Theme_Holo_Light);
         setContentView(R.layout.activity_moduleoptions);
-        setTitle("Module Options");
 
         activity = this;
         Intent intent = getIntent();
@@ -77,8 +75,7 @@ public class ModuleOptionsActivity extends Activity {
         else if (moduleType.contains("posts"))
         	moduleType = "post";
   
-        new AsyncTask<Void, Void, Void>() {
-        	 	
+        new AsyncTask<Void, Void, Void>() {  	 	
     		@Override protected void onPreExecute() {
     			pd = ProgressDialog.show(
     	                ModuleOptionsActivity.this,
@@ -92,7 +89,7 @@ public class ModuleOptionsActivity extends Activity {
     	                }
     	        );
     		}
-    			
+   			
     		@Override protected Void doInBackground(Void... arg0) {
     			while (!infoLoaded || !optsLoaded) {
 	    			try {

@@ -18,7 +18,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@android:style/Theme.Holo.Light">
         
         <activity
             android:name="SplashActivity"
@@ -31,24 +31,59 @@
             </intent-filter>
         </activity>
         
-        <activity 
+        <activity  
+            android:label="pwnCore"          
             android:launchMode="singleTask"
             android:name="MainActivity">     
         </activity>
         
-        <service
+        <service     
             android:launchMode="singleInstance"
             android:name="MainService"
             android:enabled="true" >
         </service>
-        <activity android:name="SettingsActivity"></activity>
-        <activity android:name="AttackHallActivity" android:windowSoftInputMode="adjustPan|adjustResize"></activity>
-        <activity android:name="AttackWizardActivity"></activity>
-        <activity android:name="SearchModulesActivity"></activity>
-        <service android:name="HeadService"></service>
-        <activity android:name="ModuleOptionsActivity" android:windowSoftInputMode="adjustPan|adjustResize"></activity>
-        <activity android:name="ConsoleActivity"></activity>
-        <activity android:name="PayloadChooserActivity"></activity>        
+        
+        <activity 
+            android:label="Settings"
+            android:name="SettingsActivity">            
+        </activity>
+
+        <activity 
+            android:label="Attack Wizard"
+            android:name="AttackWizardActivity">            
+        </activity>
+        
+        <activity 
+            android:label="Search Results"
+            android:name="SearchModulesActivity">        
+        </activity>
+        
+        <service 
+            android:name="HeadService">           
+        </service>
+        
+        <activity 
+            android:name="ModuleOptionsActivity" 
+            android:label="Module Options"
+            android:windowSoftInputMode="adjustPan|adjustResize">           
+        </activity>
+        
+        <activity 
+            android:label="Console Session"
+            android:name="ConsoleActivity">          
+        </activity>
+        
+        <activity 
+            android:label="Set Payload"
+            android:name="PayloadChooserActivity">           
+        </activity>
+        
+        <activity 
+            android:theme="@style/Theme.PageIndicatorDefaults"
+            android:label="Attack Hall"
+            android:name="AttackHallActivity">
+        </activity> 
+               
     </application>
 
 </manifest>

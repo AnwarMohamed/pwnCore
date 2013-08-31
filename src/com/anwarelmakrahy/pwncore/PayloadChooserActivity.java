@@ -14,7 +14,10 @@ import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -36,8 +39,6 @@ public class PayloadChooserActivity extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
         super.onCreate(savedInstanceState); 
-        setTheme(android.R.style.Theme_Holo_Light);
-        setTitle("Set Payload");
         setContentView(R.layout.activity_payloadchooser);
         
         intent = getIntent();
@@ -51,12 +52,49 @@ public class PayloadChooserActivity extends Activity {
          	return;
         }
         
-        layout = (GridLayout) findViewById(R.id.payloadOptLayout);
+        new AsyncTask<Void, Void, Void>() {  	 	
+    		@Override protected void onPreExecute() {
+    			pd = ProgressDialog.show(
+    					PayloadChooserActivity.this,
+    	                null, "Loading Payloads",
+    	                true, true,
+    	                new DialogInterface.OnCancelListener(){
+    	                    @Override
+    	                    public void onCancel(DialogInterface dialog) {
+    	                        cancel(true);
+    	                    }
+    	                }
+    	        );
+    		}
+   			
+    		@Override protected Void doInBackground(Void... arg0) {
+    			while (!payloadsLoaded) {
+	    			try {
+	    				Thread.sleep(50);
+	    			} catch (InterruptedException e) {
+	    				if (!payloadsLoaded) finish();
+	    			}	
+    			}
+    			return null;
+    		}
+    		
+    		@Override protected void onPostExecute(Void result) {
+    			if (pd!=null) { pd.dismiss(); }
+    		}  			
+    	}
+    	.execute((Void[])null);
         
-        loadPayloads(
-        		intent.getStringExtra("exploit"),
-        		intent.getStringExtra("target"));
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+		        layout = (GridLayout) findViewById(R.id.payloadOptLayout);       
+		        loadPayloads(
+		        		intent.getStringExtra("exploit"),
+		        		intent.getStringExtra("target"));
+			}}, 0);
 	}
+	
+	private ProgressDialog pd = null;
 	
 	private void loadPayloads(String name, String target) {
 		List<Object> params = new ArrayList<Object>();
@@ -104,10 +142,12 @@ public class PayloadChooserActivity extends Activity {
 			finish();
 			return;
 		}
+		payloadsLoaded  = true;
 	}
 	
 	private GridLayout layout;
-	private Map<String, View> optionsView = new HashMap<String, View>(); 
+	private Map<String, View> optionsView = new HashMap<String, View>();
+	private boolean payloadsLoaded = false; 
 	
 	public static Map<String, Map<String, Value>> moduleOptions = new HashMap<String, Map<String, Value>>();
 	private void parseOptions(final Map<String, Value> opts) {
@@ -161,6 +201,7 @@ public class PayloadChooserActivity extends Activity {
 					}
 					catch (Exception e) { }
 				}	
+				
 				
 			}}, 0);
 	}

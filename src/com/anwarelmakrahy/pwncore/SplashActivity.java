@@ -12,17 +12,12 @@ import android.view.WindowManager;
 public class SplashActivity extends Activity {
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		
+	protected void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
-		setTheme(android.R.style.Theme_Holo_Light);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 		WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-        setContentView(R.layout.activity_splash);
-        
+        setContentView(R.layout.activity_splash);    
         
         long splashDelay = 1000;
 		new Handler().postDelayed(new Runnable() {
