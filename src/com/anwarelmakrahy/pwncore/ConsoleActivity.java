@@ -23,6 +23,7 @@ public class ConsoleActivity extends Activity {
 	
 	private ConsoleSession console = null;
 	private Intent intent = null;
+	private ControlSession session = null;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {   	
@@ -41,8 +42,13 @@ public class ConsoleActivity extends Activity {
         
         String type = intent.getStringExtra("type");
         
-        if (type.startsWith("current"))
-        	getCurrentConsole(intent.getStringExtra("id"));
+        if (type.startsWith("current")) {
+        	
+        	if (type.endsWith("console"))
+        		getCurrentConsole(intent.getStringExtra("id"));
+        	else if (type.endsWith("meterpreter"))
+        		getMeterpreterSession(intent.getStringExtra("id"));
+        }
         else if (type.startsWith("new"))
         	getNewConsole();
         else {
@@ -52,6 +58,21 @@ public class ConsoleActivity extends Activity {
         
 	}
 	
+	private void getMeterpreterSession(String id) {
+		session = MainService.sessionMgr.getSession(id);
+		if (session == null) {
+			Toast.makeText(getApplicationContext(), 
+					"Invalid session id", 
+					Toast.LENGTH_SHORT).show();
+        	finish();
+        	return;
+		}
+		
+		setTitle("Meterpreter Session");
+	    MainService.sessionMgr.switchWindow("session", session.getId(), this);	    
+	    setupWindowTrigger();
+	}
+
 	private void getCurrentConsole(String id) {
 		console = MainService.sessionMgr.getConsole(id);
 		if (console == null) {
@@ -62,13 +83,14 @@ public class ConsoleActivity extends Activity {
         	return;
 		}
 		
-	    MainService.sessionMgr.switchConsoleWindow(console.getId(), this);	    
+	    MainService.sessionMgr.switchWindow("console", console.getId(), this);	    
 	    setupWindowTrigger();
 	    
 	    if (intent.hasExtra("cmd"))
-	    	new Thread(new Runnable() { public void run() {	
-	    		console.waitForReady();
-	    		console.write(intent.getStringExtra("cmd"));
+	    	new Thread(new Runnable() { public void run() {	    		
+	    	    String cmd = intent.getStringExtra("cmd");	
+	    	    console.waitForReady();
+	    		console.write(cmd);
 	    		} }).start();	
 	}
 	
@@ -79,7 +101,7 @@ public class ConsoleActivity extends Activity {
 	    params.setPromptViewId(R.id.consolePrompt);
 		    
 	    console = MainService.sessionMgr.getNewConsole(params);
-	    MainService.sessionMgr.switchConsoleWindow(console.getId(), this);
+	    MainService.sessionMgr.switchWindow("console", console.getId(), this);
 	    
 	    setupWindowTrigger();
 	    
@@ -117,7 +139,12 @@ public class ConsoleActivity extends Activity {
     				imm.hideSoftInputFromWindow(commander.getWindowToken(), 0);
     				cmd = v.getText().toString();
     				v.setText("");
-					new Thread(new Runnable() { public void run() {	console.write(cmd); } }).start();			
+					new Thread(new Runnable() { public void run() {	
+						if (console != null)
+							console.write(cmd);
+						else if (session != null)
+							session.write(cmd);
+					} }).start();			
 					return true;
 	            }    			
 	            return false;

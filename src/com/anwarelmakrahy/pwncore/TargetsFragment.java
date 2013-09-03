@@ -2,7 +2,6 @@ package com.anwarelmakrahy.pwncore;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +31,15 @@ public class TargetsFragment extends Fragment {
 		
 		mTargetsListView.setAdapter(mTargetsListAdapter);
 		
+		if (AttackHallActivity.getCurListPosition() + 1 > MainService.mTargetHostList.size())
+			AttackHallActivity.setCurListPosition(0);
+		
+		mTargetsListAdapter.setSelectedIndex(AttackHallActivity.getCurListPosition());
 
 		setupListViewListener();
 		return view;
 	}
-	 
+	
 	private void setupListViewListener() {
 		mTargetsListView.setOnItemClickListener(new OnItemClickListener() {
 	        @Override

@@ -359,7 +359,7 @@ public class ModuleOptionsActivity extends Activity {
 			
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
 	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    	intent.putExtra("type", "new");
+	    	intent.putExtra("type", "new.console");
 	    	intent.putExtra("cmd", cmd);
 	    	startActivity(intent);   
 	    	finish();
@@ -378,7 +378,7 @@ public class ModuleOptionsActivity extends Activity {
 			
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
 	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    	intent.putExtra("type", "new");
+	    	intent.putExtra("type", "new.console");
 	    	intent.putExtra("cmd", cmd);
 	    	startActivity(intent);   
 	    	finish();
@@ -393,7 +393,7 @@ public class ModuleOptionsActivity extends Activity {
 			
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
 	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    	intent.putExtra("type", "current");
+	    	intent.putExtra("type", "current.console");
 	    	intent.putExtra("id", console.getId());
 	    	startActivity(intent);   
 	    	finish();

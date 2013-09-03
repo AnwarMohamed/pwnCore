@@ -1,11 +1,9 @@
 package com.anwarelmakrahy.pwncore;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.anwarelmakrahy.pwncore.R;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.Settings;
@@ -17,7 +15,6 @@ import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,16 +29,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnQueryTextListener {
 
-
-	
 	public static AlertDialog.Builder checkConDlgBuilder;
 	private boolean conStatusReceiverRegistered = false;
 	
@@ -68,12 +61,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     private DatabaseHandler databaseHandler;
     
    
-    private ListView modulesList;
-    private ModuleListAdapter modulesListAdapter;
-    private boolean[] ModulesLoaded = { false, false, false, false, false, false };
-    
-    
-    
+    private ListView modulesList; 
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {  	
@@ -87,8 +75,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         
 		modulesList = (ListView)findViewById(R.id.modulesListView);
 		modulesList.setEmptyView(findViewById(R.id.imageView11));
-		modulesListAdapter = new ModuleListAdapter(getApplicationContext(), ExploitItems);
-		modulesList.setAdapter(modulesListAdapter);
+		
 		modulesList.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	
@@ -210,7 +197,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	   	item.setCount(0);
         	SidebarItems.add(item);
     	}
-
+    	
 		if (SidebarAdapter != null)
 			SidebarAdapter.notifyDataSetChanged();
     }
@@ -248,12 +235,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	if (!isConnected) {
     		tmpItem.setIcon(R.drawable.plug);
     		tmpItem.setTitle("Connect");	
-    		menu.findItem(R.id.mnuConnection).setTitle("Connect");  		
+    		menu.findItem(R.id.mnuConnection).setTitle("Connect");
+    		menu.findItem(R.id.mnuNewConsole).setVisible(false);
     	}
     	else {
     		tmpItem.setIcon(R.drawable.unplug);
     		tmpItem.setTitle("Disconnect");
     		menu.findItem(R.id.mnuConnection).setTitle("Disconnect");
+    		menu.findItem(R.id.mnuNewConsole).setVisible(true);
     	} 	    	
         return super.onPrepareOptionsMenu(menu);
     }
@@ -340,6 +329,13 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	
 	        return true;
 	        
+	    case R.id.mnuNewConsole:
+	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
+	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    	intent.putExtra("type", "new.console");
+	    	startActivity(intent);   
+	    	
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -388,11 +384,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			
 		isConnected = prefs.getBoolean("isConnected", false);
 		
-		if (!isConnected && ExploitItems != null) {
-			Disconnect();
-			checkConDlgBuilder.show();
-		}
-		
+		loadSharedPreferences();
 		setNotification();
 		super.onResume();
 	}
@@ -435,13 +427,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	/*
 	 * Broadcast Receivers
 	 */
-	
-	public static List<ModuleItem> 	ExploitItems = null, 
-									PayloadItems = null, 
-									PostItems = null, 
-									NopItems = null, 
-									AuxiliaryItems = null, 
-									EncoderItems = null;
 	
 	private void Disconnect() {
 		isConnected = false;	
@@ -495,14 +480,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS) {
-    			ExploitItems = databaseHandler.getAllModules("exploits"); 			
-    			ModulesLoaded[0] = true;	
+    			MainService.modulesMap.setList("exploit", databaseHandler.getAllModules("exploits")); 			
     			SidebarItems.get(0).setCount(databaseHandler.getModulesCount("exploits"));
     			SidebarAdapter.notifyDataSetChanged();
     			
+    			modulesList.setAdapter(MainService.modulesMap.modulesAdapter);
+    			
 				getActionBar().setTitle(titles[0]);
-    			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), ExploitItems);
-    			modulesList.setAdapter(modulesListAdapter);
+				MainService.modulesMap.switchAdapter("exploit");
     		}
     		
     		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED) {
@@ -511,8 +496,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
-    			PayloadItems = databaseHandler.getAllModules("payloads");
-    			ModulesLoaded[1] = true;
+    			MainService.modulesMap.setList("payload", databaseHandler.getAllModules("payloads"));
     			SidebarItems.get(1).setCount(databaseHandler.getModulesCount("payloads"));
     			SidebarAdapter.notifyDataSetChanged();			
     		}
@@ -523,8 +507,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS) {
-    			PostItems = databaseHandler.getAllModules("post");
-    			ModulesLoaded[2] = true;
+    			MainService.modulesMap.setList("post", databaseHandler.getAllModules("post"));
     			SidebarItems.get(2).setCount(databaseHandler.getModulesCount("post"));
     			SidebarAdapter.notifyDataSetChanged();    		
     		} 		
@@ -535,8 +518,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
-    			EncoderItems = databaseHandler.getAllModules("encoders");
-    			ModulesLoaded[3] = true;
+    			MainService.modulesMap.setList("encoder", databaseHandler.getAllModules("encoders"));
     			SidebarItems.get(3).setCount(databaseHandler.getModulesCount("encoders"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
@@ -547,8 +529,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
-    			AuxiliaryItems = databaseHandler.getAllModules("auxiliary");
-    			ModulesLoaded[4] = true;
+    			MainService.modulesMap.setList("auxiliary", databaseHandler.getAllModules("auxiliary"));
     			SidebarItems.get(4).setCount(databaseHandler.getModulesCount("auxiliary"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
@@ -559,62 +540,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS) {
-    			NopItems = databaseHandler.getAllModules("nops");
-    			ModulesLoaded[5] = true;
+    			MainService.modulesMap.setList("nop", databaseHandler.getAllModules("nops"));
     			SidebarItems.get(5).setCount(databaseHandler.getModulesCount("nops"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
-    		
-    		/*else if (action == PWNCORE_NMAP_SCAN_SUCCESS) {						
-				int id = intent.getIntExtra("id", 1);
-				InputStream in = new ByteArrayInputStream(nmapOutputList.get(id).getBytes());
-				NmapXmlParser parser = new NmapXmlParser(in);
-    			setProgressBar(false);
-    		}
-    		else if (action == PWNCORE_NMAP_SCAN_FAILED) {
-    			setProgressBar(false);
-    		}
-    		
-    		else if (action == PWNCORE_NMAP_SCAN_DATA) {
-    			int id = intent.getIntExtra("id", 1);
-    			String type = intent.getStringExtra("type");
-    			String line = intent.getStringExtra("data");
-    			
-    			if (!nmapOutputList.containsKey(id)) {
-    				nmapOutputList.put(id, line);
-    			}
-    			else {
-    				nmapOutputList.put(id, nmapOutputList.get(id).concat(line));
-    			}
-    			
-    			Log.d("result", line);
-    		}*/
-    		
-    		/*else if (action == PWNCORE_CONSOLE_CREATED) {
-    			Log.d("console", "console created");
-    			
-    			String type = intent.getStringExtra(MainActivity.PWNCORE_CONSOLE_TYPE);
-    			String id = intent.getStringExtra("id");
-    			
-    			if (type.equals(MainActivity.PWNCORE_CONSOLE_TYPE_NMAP)) {
-    				String res = db.getNmapScanResult(id);
-    				InputStream in = new ByteArrayInputStream(res.getBytes());
-    				NmapXmlParser parser = new NmapXmlParser(in);
-    				
-    				for (int i=0; i<parser.getHostItems().size(); i++)
-    					for (int x=0; x<parser.getHostItems().get(i).mAddresses.size(); x++)
-    						if (parser.getHostItems().get(i).mAddresses.get(x).AddressType.equals("ipv4"))
-    							addHostToTargetList(new TargetHostItem(parser.getHostItems().get(i).mAddresses.get(x).Address));
-    				
-        			setProgressBar(false);
-        			Toast.makeText(getApplicationContext(), 
-        					"Nmap scan finished", 
-        					Toast.LENGTH_SHORT).show();
-    			}
-
-    		}*/
-    		
-
     	}
     };
     
@@ -717,56 +646,54 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         		boolean loaded = false;
         		
         		if (objDetails.getTitle().equals(titles[0])) {
-        			if (ModulesLoaded[0]) {
+        			if (MainService.modulesMap.ExploitItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), ExploitItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("exploit");
 	        			loaded = true;
         			}
         		}      		 
         		else if (objDetails.getTitle().equals(titles[1])) {
-        			if (ModulesLoaded[1]) {
+        			if (MainService.modulesMap.PayloadItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), PayloadItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("payload");
 	        			loaded = true;
         			}
         		}    		
            		else if (objDetails.getTitle().equals(titles[2])) {
-        			if (ModulesLoaded[2]) {
+        			if (MainService.modulesMap.PostItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), PostItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("post");
 	        			loaded = true;
         			}
         		}       		
            		else if (objDetails.getTitle().equals(titles[3])) {
-        			if (ModulesLoaded[3]) {
+        			if (MainService.modulesMap.EncoderItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), EncoderItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("encoder");
 	        			loaded = true;
         			}
         		}        		
            		else if (objDetails.getTitle().equals(titles[4])) {
-        			if (ModulesLoaded[4]) {
+        			if (MainService.modulesMap.AuxiliaryItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), AuxiliaryItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("auxiliary");
 	        			loaded = true;
         			}
         		}       		
            		else if (objDetails.getTitle().equals(titles[5])) {
-        			if (ModulesLoaded[5]) {
+        			if (MainService.modulesMap.NopItems.size() > 0) {
         				getActionBar().setTitle(objDetails.getTitle());
-	        			modulesListAdapter = new ModuleListAdapter(getApplicationContext(), NopItems);
-	        			modulesList.setAdapter(modulesListAdapter);
+        				MainService.modulesMap.switchAdapter("nop");
 	        			loaded = true;
         			}
         		}
         		
         		if (!loaded) 
-    				Toast.makeText(getApplicationContext(), "Modules not loaded yet", Toast.LENGTH_SHORT).show();
+    				Toast.makeText(
+    						getApplicationContext(), 
+    						"Modules not loaded yet", 
+    						Toast.LENGTH_SHORT
+    						).show();
         	}
         }
     }
@@ -778,7 +705,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	@Override
 	public boolean onQueryTextSubmit(String s) {
-		startActivity(new Intent(getApplicationContext(), SearchModulesActivity.class).putExtra("q", s));
+		startActivity(new Intent(
+				getApplicationContext(), 
+				SearchModulesActivity.class
+				).putExtra("q", s));
+		
 		mnuSearch.collapseActionView();
 		return true;
 	}

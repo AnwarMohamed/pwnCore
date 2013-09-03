@@ -30,6 +30,7 @@ public class MainService extends Service {
 	
 	public static SessionManager sessionMgr;
 	public static MsfRpcClient client;
+	public static ModulesMap modulesMap;
 	
 	public static ArrayList<TargetItem> mTargetHostList = new ArrayList<TargetItem>();
 	
@@ -37,7 +38,8 @@ public class MainService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
 		sessionMgr = new SessionManager(getApplicationContext());
-
+		modulesMap = new ModulesMap(getApplicationContext());
+		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(StaticsClass.PWNCORE_CONNECT);
 		filter.addAction(StaticsClass.PWNCORE_DISCONNECT);
@@ -90,13 +92,8 @@ public class MainService extends Service {
 		        		sendBroadcast(tmpIntent);	        		
 		        		StatsMap = client.call(MsfRpcClient.singleOptCallList("core.module_stats"));
 		        	}
-		        	else {
-		    			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
-		    			sendBroadcast(tmpIntent);
-		        	} 
 				}
-			}).start();	   	
-        	
+			}).start();   	
         }
     }
 	
@@ -253,7 +250,8 @@ public class MainService extends Service {
 						params.add(intent.getStringExtra("data") + "\n");
 						Map<String, Value> newConDes = client.call(params);
 						if (newConDes != null)
-							sessionMgr.notifyConsoleWrite(intent.getStringExtra("id"));  
+							sessionMgr.notifyConsoleWrite(
+									intent.getStringExtra("id"));  
 					}});			
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
@@ -312,13 +310,7 @@ public class MainService extends Service {
     		//return params;
     	//}
     }
-    
-	private void addHostToTargetList(TargetItem item) {	
-		for (int i=0; i<mTargetHostList.size(); i++)
-			if (mTargetHostList.get(i).getHost().equals(item.getHost()))
-				return;	    	
-    	mTargetHostList.add(0,item);
-    }
+ 
  
     public static boolean checkConnection(Context c) {
 		ConnectivityManager connManager = (ConnectivityManager)c.getSystemService(CONNECTIVITY_SERVICE);

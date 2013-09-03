@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.msgpack.type.Value;
+
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
@@ -18,11 +20,51 @@ public class SessionManager {
 	
 	private int incConsoleIDs = 1000;
 	private Map<String, ConsoleSession> consoleSessions = new HashMap<String, ConsoleSession>();
+	private Map<String, ControlSession> controlSessions = new HashMap<String, ControlSession>();
+	private Map<String, Value> sessionsRemoteInfo;
 	
-	private String currentConsoleWindowId = null;
+	private String 	currentConsoleWindowId = null,
+					currentControlWindowId = null;
 	
 	SessionManager(Context context) {
 		this.context = context;
+	}
+	
+	public ControlSession getNewSession(String type, String id, ConsoleSessionParams params) {
+		ControlSession newSession = new ControlSession(context, id, type, params);	
+		controlSessions.put(id, newSession);
+		return newSession;
+	}
+	
+	public ControlSession getSession(String id) {
+		if (id == null) return null;
+		if (controlSessions.containsKey(id)) {
+			return controlSessions.get(id);
+		}
+		return null;
+	}
+	
+	public void notifyControlWrite(String id) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).pingReadListener();
+		}
+	}
+	
+	public void notifyControlNewRead(String id, String data) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).newRead(data);	
+		}
+	}
+	
+	public void updateSessionsRemoteInfo() {
+		List<Object> params = new ArrayList<Object>();
+		sessionsRemoteInfo = MainService.client.call(params);
+		if (sessionsRemoteInfo == null)
+			sessionsRemoteInfo = new HashMap<String, Value>();
+	}
+	
+	public Map<String, Value> getSessionsRemoteInfo() {
+		return sessionsRemoteInfo;
 	}
 	
 	public ConsoleSession getNewConsole() {		
@@ -81,15 +123,41 @@ public class SessionManager {
 			consoleSessions.remove(Id);
 	}
 	
-	public void switchConsoleWindow(String id, Activity activity) {
-		if (consoleSessions.containsKey(id)) {
-			ConsoleSession c = consoleSessions.get(id);
-			
-			if (currentConsoleWindowId != null)
-				consoleSessions.get(currentConsoleWindowId).setWindowActive(false, null);
+	public void switchWindow(String type, String id, Activity activity) {
 		
-			c.setWindowActive(true, activity);
-			currentConsoleWindowId = id;
+		if (currentConsoleWindowId != null && 
+				consoleSessions.containsKey(currentConsoleWindowId))
+			consoleSessions.get(currentConsoleWindowId).
+				setWindowActive(false, null);
+		
+		if (currentControlWindowId != null && 
+				consoleSessions.containsKey(currentControlWindowId))
+			controlSessions.get(currentControlWindowId).
+				setWindowActive(false, null);
+		
+		
+		if (type.equals("console")) {
+			currentControlWindowId = null;
+			
+			if (consoleSessions.containsKey(id)) {
+				ConsoleSession c = consoleSessions.get(id);
+				c.setWindowActive(true, activity);
+				currentConsoleWindowId = id;
+			}
+			else
+				currentConsoleWindowId = null;
+			
+		}
+		else if (type.equals("session")) {
+			currentConsoleWindowId = null;
+			
+			if (controlSessions.containsKey(id)) {
+				ControlSession c = controlSessions.get(id);
+				c.setWindowActive(true, activity);
+				currentControlWindowId = id;
+			}
+			else
+				currentControlWindowId = null;
 		}
 	}
 	

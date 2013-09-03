@@ -417,7 +417,7 @@ public class AttackHall2Activity extends Activity {
 		    params.setPromptViewId(R.id.consolePrompt);
 		    
 		    final ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(params);
-		    MainService.sessionMgr.switchConsoleWindow(newConsole.getId(), this);
+		    MainService.sessionMgr.switchWindow("console", newConsole.getId(), this);
 		    
 		    commander.setOnEditorActionListener(new OnEditorActionListener() {
 

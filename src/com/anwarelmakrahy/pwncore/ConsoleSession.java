@@ -1,16 +1,20 @@
 package com.anwarelmakrahy.pwncore;
 
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.widget.TextView;
 
+
 public class ConsoleSession {
 
+	protected static final long WAIT_TIMEOUT = 10000;
 	private String title = "";
 	private boolean queryPoolActive = false;
 	private String msfId= null;
@@ -36,9 +40,9 @@ public class ConsoleSession {
 		this.context = context;
 		this.params = params;
 		this.isWindowReady = params.hasWindowViews();
+		setupSessionInteractDlg();
 	}
 	
-
 	public ArrayList<String> getTmpPortQueries() {
 		return tmpPortQueries;
 	}
@@ -51,10 +55,37 @@ public class ConsoleSession {
 	public void setWindowActive(boolean flag, Activity activity) {
 		isWindowActive = flag;
 		if (params != null && activity != null)
-			params.activity = activity;
+			params.setAcivity(activity);
 		
 		if (flag)
 			params.getCmdView().setText(StringUtils.join(conversation.toArray()));
+	}
+	
+	AlertDialog.Builder newMeterpreterSessionDlg;
+	
+	private void setupSessionInteractDlg() {
+		newMeterpreterSessionDlg = new AlertDialog.Builder(params.getAcivity());
+		newMeterpreterSessionDlg
+    	.setTitle("Meterpreter Session")
+    	.setMessage("Meterpreter Session attached, Interact ?")
+    	.setIcon(android.R.drawable.ic_dialog_alert)
+    	.setCancelable(false)
+    	.setNegativeButton("No",  new DialogInterface.OnClickListener() {
+    	    public void onClick(DialogInterface dialog, int which) {
+    	    	dialog.dismiss();
+    	    }
+    	})
+    	.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	    public void onClick(DialogInterface dialog, int which) {
+    	    	
+    	    	Intent intent = new Intent(context, ConsoleActivity.class);
+    	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    	    	intent.putExtra("type", "current.meterpreter");
+    	    	intent.putExtra("id", session.getId());
+    	    	context.startActivity(intent);   
+    	    	
+    	    }
+    	});
 	}
 	
 	public String getId() {
@@ -78,13 +109,7 @@ public class ConsoleSession {
 	
 	public void setPrompt(final String p) {
 		this.prompt = p;
-		if (isWindowActive && isWindowReady)
-			params.getAcivity().runOnUiThread(new Runnable() {  
-                @Override
-                public void run() {
-        			params.getPromptView().setText(p);
-                }
-            });
+		appendToLog(null, p);
 	}
 	
 	public String getPrompt() {
@@ -109,7 +134,7 @@ public class ConsoleSession {
 						queryPool.remove(i);
 						
 						try {
-							Thread.sleep(2000);
+							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -138,16 +163,7 @@ public class ConsoleSession {
 			if (!logoLoaded)
 				logoLoaded = true;	
 		
-			if (isWindowActive && isWindowReady) {
-				params.getAcivity().runOnUiThread(new Runnable() {  
-	                @Override
-	                public void run() {
-	                	params.getPromptView().setText(prompt);
-	                	params.getCmdView().append(data);
-	                	//params.getCmdView().setText(StringUtils.join(conversation.toArray()));
-	                }
-	            });
-			}
+			appendToLog(data, prompt);
 		}
 		
 		if (busy) {
@@ -163,27 +179,71 @@ public class ConsoleSession {
 	public void processIncomingData(final String data) {
 		new Thread(new Runnable() {
 			@Override public void run() {
-				String[] lines = data.split("\n");				
-				for (int i=0; i<lines.length; i++)
-					if (lines[i].trim().endsWith("- TCP OPEN"))
-						addPortToHost(lines[i].split(" ")[1].split(":")[0], lines[i].split(" ")[1].split(":")[1], "TCP", "");
-					else {
-						for (int j=0; j<tmpPortQueries.size(); j++)
-							if (lines[i].trim().split(" ").length > 1 && lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
-								addPortToHost(
-										tmpPortQueries.get(j).split(":")[0], 
-										tmpPortQueries.get(j).split(":")[1],
-										"TCP",
-										lines[i].substring(16 + tmpPortQueries.get(j).length()));
-
-								tmpPortQueries.remove(j);
-								break;
-							}
-					}
+				String[] lines = data.split("\n");
+				
+				for (int i=0; i<lines.length; i++) {
+									
+						if (lines[i].trim().startsWith("[*] Meterpreter session") &&
+								lines[i].trim().split(" ")[4].equals("opened")) {
+							sessionInteract(lines[i].trim(), "meterpreter");
+						}
+						
+						else if (lines[i].trim().endsWith("- TCP OPEN"))
+							addPortToHost(
+									lines[i].split(" ")[1].split(":")[0], 
+									lines[i].split(" ")[1].split(":")[1], 
+									"TCP", 
+									"");
+						
+						else {
+							for (int j=0; j<tmpPortQueries.size(); j++)
+								if (lines[i].trim().split(" ").length > 1 && 
+										lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
+									
+									addPortToHost(
+											tmpPortQueries.get(j).split(":")[0], 
+											tmpPortQueries.get(j).split(":")[1],
+											"TCP",
+											lines[i].substring(16 + tmpPortQueries.get(j).length()));
+	
+									tmpPortQueries.remove(j);
+									break;
+								}
+						}
+					
+				}
 			}
 		}).start();
 	}
 	
+	protected ControlSession session;
+	
+	private void sessionInteract(final String data, final String type) {
+		new Thread(new Runnable() {
+			@Override public void run() {
+
+				MainService.sessionMgr.updateSessionsRemoteInfo();
+				String sessionId = data.split(" ")[3];
+				
+				if (MainService.sessionMgr.getSessionsRemoteInfo().containsKey(sessionId)) {
+					
+					ConsoleSessionParams params = new ConsoleSessionParams();
+	    		    params.setCmdViewId(R.id.consoleRead);
+	    		    params.setPromptViewId(R.id.consolePrompt);
+	    		    
+	    	    	session  = MainService.sessionMgr.getNewSession("meterpreter", sessionId, params);
+	    	    	session.setPrompt(type + " > ");
+					
+					if (isWindowActive && isWindowReady)				
+						params.getAcivity().runOnUiThread(new Runnable() {  
+			                @Override public void run() { 
+			                	newMeterpreterSessionDlg.show(); 
+		                	}
+			            });	
+				}
+			}}).start();
+	}
+
 	private void enumeratePort(final String host, final String port) {
 		new Thread(new Runnable() {
 			@Override public void run() {
@@ -246,17 +306,22 @@ public class ConsoleSession {
 			if (title.equals(""))
 				title = data.split("\n")[0];
 			conversation.add(prompt + data + "\n");
-			
-			if (isWindowActive && isWindowReady) {		
-				params.getAcivity().runOnUiThread(new Runnable() {  
-	                @Override
-	                public void run() {
-	                	params.getCmdView().append(prompt + data + "\n");
-	                	//params.getCmdView().setText(StringUtils.join(conversation.toArray()));
-	                }
-	            });	
-			}
-		}			
+			appendToLog(prompt + data, null);
+		}		
+	}
+	
+	private void appendToLog(final String data, final String prompt) {
+		if (isWindowActive && isWindowReady) {		
+			params.getAcivity().runOnUiThread(new Runnable() {  
+                @Override
+                public void run() {
+                	if (data != null)
+                		params.getCmdView().append(data + "\n");
+                	if (prompt != null)
+                		params.getPromptView().setText(prompt);
+                }
+            });	
+		}
 	}
 	
 	public void waitForReady() {

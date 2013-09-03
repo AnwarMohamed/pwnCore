@@ -6,12 +6,8 @@ import java.util.List;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -19,14 +15,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Toast;
+
 
 public class AttackHallActivity extends FragmentActivity {
  
@@ -105,13 +99,13 @@ public class AttackHallActivity extends FragmentActivity {
         return true;
     }
     
-    private int curListPosition = 0;
+    private static int curListPosition = 0;
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         if (info != null)
-        	curListPosition = info.position;
+        	setCurListPosition(info.position);
         
         switch (item.getItemId()) {
         case R.id.mnuTargetRemove:
@@ -169,4 +163,13 @@ public class AttackHallActivity extends FragmentActivity {
  	        return super.onOptionsItemSelected(item);
  	    }
  	}
+
+	public static int getCurListPosition() {
+		return curListPosition;
+	}
+
+	public static void setCurListPosition(int curListPosition) {
+		AttackHallActivity.curListPosition = curListPosition;
+	}
+
 }

@@ -132,9 +132,13 @@ public class MsfRpcClient {
 				authenticated = true;
 				return true;
 			}
+			
 			return false;
 		}
 		
+		Intent tmpIntent = new Intent();
+		tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
+		context.sendBroadcast(tmpIntent);
 		return false;
 	}
 	
