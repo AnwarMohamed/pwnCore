@@ -31,6 +31,7 @@ public class ControlSession {
 		this.id = id;
 		this.context = context;
 		this.type = type;
+		this.prompt = type + " > ";
 	}
 	
 	ControlSession(Context context, String type, String id, ConsoleSessionParams params) {
@@ -38,6 +39,7 @@ public class ControlSession {
 		this.context = context;
 		this.params = params;
 		this.type = type;
+		this.prompt = type + " > ";
 		this.isWindowReady = params.hasWindowViews();
 	}
 	
@@ -46,8 +48,10 @@ public class ControlSession {
 		if (params != null && activity != null)
 			params.setAcivity(activity);
 		
-		if (flag)
+		if (flag) {
 			params.getCmdView().setText(StringUtils.join(conversation.toArray()));
+			params.getPromptView().setText(prompt);
+		}
 	}
 	
 	public String getId() {
@@ -58,15 +62,6 @@ public class ControlSession {
 		return true;
 	}
 		
-	public void setPrompt(final String p) {
-		this.prompt = p;
-		appendToLog(null, p);
-	}
-	
-	public String getPrompt() {
-		return prompt;
-	}
-	
 	private void notifyQueryPool(final String data) {
 		new Thread(new Runnable() {
 			@Override
@@ -116,9 +111,8 @@ public class ControlSession {
 
 		if (data.trim().length() > 0) {
 			conversation.add(data);
-			processIncomingData(data);
-		
-			appendToLog(data, prompt);
+			processIncomingData(data);	
+			appendToLog(data);
 		}
 	}
 	
@@ -147,18 +141,16 @@ public class ControlSession {
 	public void write(final String data) {
 		notifyQueryPool(data);	
 		conversation.add(prompt + data + "\n");
-		appendToLog(prompt + data, null);		
+		appendToLog(prompt + data);		
 	}
 	
-	private void appendToLog(final String data, final String prompt) {
+	private void appendToLog(final String data) {
 		if (isWindowActive && isWindowReady) {		
 			params.getAcivity().runOnUiThread(new Runnable() {  
                 @Override
                 public void run() {
                 	if (data != null)
                 		params.getCmdView().append(data + "\n");
-                	if (prompt != null)
-                		params.getPromptView().setText(prompt);
                 }
             });	
 		}
@@ -176,9 +168,14 @@ public class ControlSession {
 	}
 	
 	public void destroy() {
-		//Intent tmpIntent = new Intent();
-		//tmpIntent.putExtra("msfiId", msfId);
-		//tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
-		//context.sendBroadcast(tmpIntent);	
+		Intent tmpIntent = new Intent();
+		tmpIntent.putExtra("id", id);
+		//tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY);
+		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
+		context.sendBroadcast(tmpIntent);	
+	}
+	
+	public String getType() {
+		return type;
 	}
 }

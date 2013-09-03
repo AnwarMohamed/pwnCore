@@ -1,5 +1,7 @@
 package com.anwarelmakrahy.pwncore;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
@@ -29,6 +31,7 @@ public class ConsoleActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {   	
         super.onCreate(savedInstanceState); 
         setContentView(R.layout.activity_console);
+        activity = this;
         
         intent = getIntent();
 
@@ -181,23 +184,33 @@ public class ConsoleActivity extends Activity {
 	public void onBackPressed() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder
-    	.setTitle("Terminate Console")	
-    	.setMessage("Do you want to terminate console ?")
+    	.setTitle("Terminate " + (console != null ? "Console" : WordUtils.capitalize(session.getType())))	
+    	.setMessage("Do you want to terminate " + (console != null ? "console" : session.getType()) + " ?")
     	.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
     	.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
     			if (console != null && console.isReady())
     				MainService.sessionMgr.destroyConsole(console);
+    			else if (session != null && session.isReady())
+    				MainService.sessionMgr.destroySession(session.getId());
     	    	finish();
     	    }
     	})
     	.setNegativeButton("Run in Background", new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
-    	    	MainService.sessionMgr.closeConsoleWindow(console.getId());
+    	    	if (console != null)
+    	    		MainService.sessionMgr.closeConsoleWindow(console.getId());
+    	    	else if (session != null)
+    	    		MainService.sessionMgr.closeSessionWindow(session.getId());
     	    	finish();
     	    }
     	})
     	.setCancelable(false)
     	.show();
+	}
+
+	private static Activity activity;
+	public static Activity getActivity() {
+		return activity;
 	}
 }

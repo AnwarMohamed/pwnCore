@@ -54,6 +54,12 @@ public class MainService extends Service {
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_READ);
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_READ);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_WRITE);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_READ);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE);	
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY);
+		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
 		registerReceiver(mainReceiver, filter);
    
 		executor = Executors.newFixedThreadPool(20);
@@ -264,6 +270,70 @@ public class MainService extends Service {
 	        			sessionMgr.notifyDestroyedConsole(
 	        					intent.getStringExtra("id"), 
 	        					intent.getStringExtra("msfId"));
+					}});	
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE) {
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("session.meterpreter_write");
+						params.add(intent.getStringExtra("id"));
+						params.add(intent.getStringExtra("data") + "\n");
+						Map<String, Value> newConDes = client.call(params);
+						if (newConDes != null)
+							sessionMgr.notifySessionWrite(
+									intent.getStringExtra("id"));  
+					}});			
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_WRITE) {
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("session.shell_write");
+						params.add(intent.getStringExtra("id"));
+						params.add(intent.getStringExtra("data") + "\n");
+						Map<String, Value> newConDes = client.call(params);
+						if (newConDes != null)
+							sessionMgr.notifySessionWrite(
+									intent.getStringExtra("id"));  
+					}});			
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_READ) {
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("session.meterpreter_read");
+						params.add(intent.getStringExtra("id"));
+	            		Map<String, Value> newConDes = client.call(params);
+	            		if (newConDes != null && newConDes.containsKey("data"))
+		            		sessionMgr.notifySessionNewRead(
+		            				intent.getStringExtra("id"), 
+		            				newConDes.get("data").asRawValue().getString());  
+					}});	
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_READ) {
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("session.shell_read");
+						params.add(intent.getStringExtra("id"));
+	            		Map<String, Value> newConDes = client.call(params);
+	            		if (newConDes != null && newConDes.containsKey("data"))
+		            		sessionMgr.notifySessionNewRead(
+		            				intent.getStringExtra("id"), 
+		            				newConDes.get("data").asRawValue().getString());  
+					}});	
+    		}
+    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY ||
+    				action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY) {
+				executor.execute(new NewThread(null) {
+					@Override public void run() {	
+						List<Object> params = new ArrayList<Object>();
+						params.add("session.stop");
+						params.add(intent.getStringExtra("id"));
+	            		client.call(params);
+	        			sessionMgr.notifyDestroyedSession(
+	        					intent.getStringExtra("id"));
 					}});	
     		}
     	}

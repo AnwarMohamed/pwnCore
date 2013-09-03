@@ -18,9 +18,9 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -49,7 +49,6 @@ import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
-import org.msgpack.unpacker.Unpacker;
 
 import android.content.Context;
 import android.content.Intent;
@@ -83,7 +82,6 @@ public class MsfRpcClient {
 		authenticated = false;
 		token = null;
 		
-
 		
 		HttpParams params = new BasicHttpParams();
 	    HttpConnectionParams.setConnectionTimeout(params, 5000);
@@ -94,19 +92,7 @@ public class MsfRpcClient {
 	    
 		client = (ssl ? sslClient(new DefaultHttpClient(cm, params)) : new DefaultHttpClient(cm, params));	
 	}
-	
-	public <T> void callInNewThread(final Callable<T> myFunc) {
-		new Thread(new Runnable(){
-			@Override public void run() {
-				try {
-					myFunc.call();
-				} catch (Exception e) {
-					Log.e("CallInNewThread", "Exception: " + e);
-				}			
-			}
-		}).start();
-	}
-	
+		
 	public static List<Object> singleOptCallList(String s) {
 		List<Object> tmp = new ArrayList<Object>();
 		tmp.add(s);
@@ -117,32 +103,32 @@ public class MsfRpcClient {
 		HttpPost httpPost = newHttpPost(encode(new String[] { "auth.login", username, password }));
 		Map<String, Value> res = getResponse(httpPost);
 		
-		if (res != null && 
-				res.containsKey("result") && 
-				res.get("result").asRawValue().getString().equals("success")) {
-			token = res.get("token").asRawValue().getString();
-			
-			httpPost = newHttpPost(encode(new String[] { "auth.token_generate", token}));
-			res = getResponse(httpPost);
-			
-			if (res != null && 
-					res.containsKey("result") && 
+		if (res != null) {
+			if (res.containsKey("result") && 
 					res.get("result").asRawValue().getString().equals("success")) {
 				token = res.get("token").asRawValue().getString();
-				authenticated = true;
-				return true;
+				
+				httpPost = newHttpPost(encode(new String[] { "auth.token_generate", token}));
+				res = getResponse(httpPost);
+				
+				if (res != null && 
+						res.containsKey("result") && 
+						res.get("result").asRawValue().getString().equals("success")) {
+					token = res.get("token").asRawValue().getString();
+					authenticated = true;
+					return true;
+				}
+				
+				return false;
 			}
 			
+			Intent tmpIntent = new Intent();
+			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
+			context.sendBroadcast(tmpIntent);
 			return false;
 		}
-		
-		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
-		context.sendBroadcast(tmpIntent);
 		return false;
 	}
-	
-	
 	
 	private Map<String, Value> getResponse(HttpPost p) {
 		try {
@@ -233,10 +219,26 @@ public class MsfRpcClient {
 	}
 	
 	private Template<Map<String, Value>> decodeAsMap = tMap(TString, TValue);
+	private Template<Map<Integer, Value>> decodeAsIntMap = tMap(TInteger, TValue);
+	
 	private Map<String, Value> decode(InputStream in) throws IOException {
 		MessagePack msgpack = new MessagePack();
-        Unpacker unpacker = msgpack.createUnpacker(in);
-        return unpacker.read(decodeAsMap);  
+		Value tmpResult = msgpack.read(in);
+		
+        try {
+        	
+        	return new Converter(tmpResult).read(decodeAsMap);
+        } catch (Exception e) {
+        	Map<Integer, Value> before = new Converter(tmpResult).read(decodeAsIntMap);
+        	Map<String, Value> after = new HashMap<String, Value>();
+        	
+        	Integer[] keys = before.keySet().toArray(new Integer[before.size()]);
+        	Value[] values = before.values().toArray(new Value[before.size()]);
+        	for (int i=0; i<before.size(); i++)
+        		after.put(keys[i].toString(), values[i]);
+ 
+        	return after;
+        }
 	}
 	
 	private byte[] encode(String[] s) {

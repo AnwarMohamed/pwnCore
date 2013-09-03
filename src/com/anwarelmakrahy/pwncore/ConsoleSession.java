@@ -230,9 +230,9 @@ public class ConsoleSession {
 					ConsoleSessionParams params = new ConsoleSessionParams();
 	    		    params.setCmdViewId(R.id.consoleRead);
 	    		    params.setPromptViewId(R.id.consolePrompt);
+	    		    params.setAcivity(ConsoleActivity.getActivity());
 	    		    
 	    	    	session  = MainService.sessionMgr.getNewSession("meterpreter", sessionId, params);
-	    	    	session.setPrompt(type + " > ");
 					
 					if (isWindowActive && isWindowReady)				
 						params.getAcivity().runOnUiThread(new Runnable() {  

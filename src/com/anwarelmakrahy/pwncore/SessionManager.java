@@ -31,7 +31,7 @@ public class SessionManager {
 	}
 	
 	public ControlSession getNewSession(String type, String id, ConsoleSessionParams params) {
-		ControlSession newSession = new ControlSession(context, id, type, params);	
+		ControlSession newSession = new ControlSession(context, type, id, params);	
 		controlSessions.put(id, newSession);
 		return newSession;
 	}
@@ -58,6 +58,7 @@ public class SessionManager {
 	
 	public void updateSessionsRemoteInfo() {
 		List<Object> params = new ArrayList<Object>();
+		params.add("session.list");
 		sessionsRemoteInfo = MainService.client.call(params);
 		if (sessionsRemoteInfo == null)
 			sessionsRemoteInfo = new HashMap<String, Value>();
@@ -203,5 +204,37 @@ public class SessionManager {
 							toArray()[i].toString()).getTitle());
 
 		return list;
+	}
+
+	public void notifySessionWrite(String id) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).pingReadListener();
+		}	
+	}
+
+	public void notifySessionNewRead(String id, String data) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).newRead(data);
+		}	
+	}
+
+	public void destroySession(String id) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).destroy();
+			if (currentControlWindowId == id)
+				currentControlWindowId = null;
+			controlSessions.remove(id);
+		}
+	}
+
+	public void notifyDestroyedSession(String stringExtra) {
+		updateSessionsRemoteInfo();
+	}
+
+	public void closeSessionWindow(String id) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).setWindowActive(false, null);
+			currentControlWindowId = null;
+		}
 	}
 }
