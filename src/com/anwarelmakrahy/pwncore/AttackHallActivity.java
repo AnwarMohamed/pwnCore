@@ -49,6 +49,7 @@ public class AttackHallActivity extends FragmentActivity {
     	  fList.add(TargetsFragment.newInstance());
     	  fList.add(TargetDetailsFragment.newInstance());
     	  fList.add(ConsolesFragment.newInstance());
+    	  fList.add(ControlSessionsFragment.newInstance());
 
     	  return fList;
     }
@@ -66,31 +67,48 @@ public class AttackHallActivity extends FragmentActivity {
     }
     
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    	getMenuInflater().inflate(R.menu.target_attackhall, menu);
+    	getMenuInflater().inflate(R.menu.context_attackhall, menu);
     	
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         int position = info.position;
         
-        if ( MainService.mTargetHostList.get(position).isUp()) {
-        	menu.findItem(R.id.mnuTargetLogin).setVisible(true);
-        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+        switch (v.getId()) {
+        case R.id.targetsFragmentListView:
+        	
+        	menu.findItem(R.id.mnuTargetScan).setVisible(true);
+        	menu.findItem(R.id.mnuTargetRemove).setVisible(true);
+        	menu.findItem(R.id.mnuTargetOS).setVisible(true);
+        	
+	        if ( MainService.mTargetHostList.get(position).isUp()) {
+	        	menu.findItem(R.id.mnuTargetLogin).setVisible(true);
+	        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+	        }
+	        
+	        String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
+	        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
+	        		                            getTcpPorts().size()]);
+	        
+	        for (int i=0; i<tcpPorts.length; i++)
+	        	if (tcpPorts[i].equals("21"))
+	        		menu.findItem(R.id.mnuTargetLogin21).setVisible(true);
+	        	else if (tcpPorts[i].equals("22"))
+	        		menu.findItem(R.id.mnuTargetLogin22).setVisible(true);
+	        	else if (tcpPorts[i].equals("23"))
+	        		menu.findItem(R.id.mnuTargetLogin23).setVisible(true);
+	        	else if (tcpPorts[i].equals("80"))
+	        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
+	        	else if (tcpPorts[i].equals("445"))
+	        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);
+	        break;
+	        
+        case R.id.sessionsListView:
+        	menu.findItem(R.id.mnuSessionKill).setVisible(true);
+        	break;
+        	
+        case R.id.targetsConsolesListView:
+        	menu.findItem(R.id.mnuConsoleKill).setVisible(true);
+        	break;
         }
-        
-        String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
-        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
-        		                            getTcpPorts().size()]);
-        
-        for (int i=0; i<tcpPorts.length; i++)
-        	if (tcpPorts[i].equals("21"))
-        		menu.findItem(R.id.mnuTargetLogin21).setVisible(true);
-        	else if (tcpPorts[i].equals("22"))
-        		menu.findItem(R.id.mnuTargetLogin22).setVisible(true);
-        	else if (tcpPorts[i].equals("23"))
-        		menu.findItem(R.id.mnuTargetLogin23).setVisible(true);
-        	else if (tcpPorts[i].equals("80"))
-        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
-        	else if (tcpPorts[i].equals("445"))
-        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);
     }
     
     @Override
@@ -132,6 +150,17 @@ public class AttackHallActivity extends FragmentActivity {
         case R.id.mnuTargetLogin23:
         case R.id.mnuTargetLogin80:
         case R.id.mnuTargetLogin445:
+        case R.id.mnuSessionKill:
+        	MainService.sessionMgr.destroySession(
+        			MainService.sessionMgr.controlSessionsList.get(info.position).getId());
+        	return true;
+
+        case R.id.mnuConsoleKill:
+        	ConsoleSession console = MainService.sessionMgr.getConsole(ConsolesFragment.consoleArray.get(info.position).
+	        			split(" ")[0].replace("]", "").replace("[", ""));
+        	MainService.sessionMgr.destroyConsole(console);
+        	return true;
+        	
         default:
         	return false;
         }
@@ -152,6 +181,7 @@ public class AttackHallActivity extends FragmentActivity {
  	    	startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
  	    	finish();    	
  	        return true;
+ 	        
  	    case R.id.mnuRemoveDeadHosts:
  	    	for (int i=0; i<MainService.mTargetHostList.size(); i++)
  	    		if (!MainService.mTargetHostList.get(i).isUp())
@@ -159,6 +189,14 @@ public class AttackHallActivity extends FragmentActivity {
  	    	if (MainService.mTargetHostList.size() == 0)
  	    		finish();	
  	    	TargetsFragment.mTargetsListAdapter.notifyDataSetChanged();
+ 	    	return true;
+ 	    	
+ 	    case R.id.mnuNewConsole:
+	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
+	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    	intent.putExtra("type", "new.console");
+	    	startActivity(intent);  
+	    	return true;
  	    default:
  	        return super.onOptionsItemSelected(item);
  	    }

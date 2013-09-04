@@ -1,4 +1,5 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >  
+    <item android:id="@+id/mnuNewConsole" android:title="New Console"/> 
     <item android:id="@+id/mnuAddHosts" android:title="Add Hosts"/>
     <item android:id="@+id/mnuRemoveDeadHosts" android:title="Remove Dead Hosts"/>
 </menu>

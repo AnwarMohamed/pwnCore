@@ -78,8 +78,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/textView3"
-        android:layout_below="@+id/textView3"
+        android:layout_alignRight="@+id/sessionPayload"
+        android:layout_below="@+id/sessionPayload"
         android:layout_marginTop="22dp"
         android:text="Password"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -89,8 +89,8 @@
         android:id="@+id/txtUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView3"
-        android:layout_alignBottom="@+id/textView3"
+        android:layout_alignBaseline="@+id/sessionPayload"
+        android:layout_alignBottom="@+id/sessionPayload"
         android:layout_alignLeft="@+id/chkSSL"
         android:layout_alignParentRight="true"
         android:ems="10"
@@ -118,7 +118,7 @@
         android:text="Cancel" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/sessionPayload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/count"

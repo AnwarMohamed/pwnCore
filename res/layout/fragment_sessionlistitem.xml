@@ -1,0 +1,41 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/sessionHandler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:text="via multi/handler"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/sessionType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/sessionHandler"
+        android:layout_below="@+id/sessionHandler"
+        android:text="Meterpreter @ 192.168.0.1:4444"
+        android:textColor="#555555"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/sessionPayload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/sessionType"
+        android:layout_below="@+id/sessionType"
+        android:layout_marginBottom="10dp"
+        android:paddingBottom="5dp"
+        android:text="windows/meterpreter/reverse_tcp"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+
+</RelativeLayout>

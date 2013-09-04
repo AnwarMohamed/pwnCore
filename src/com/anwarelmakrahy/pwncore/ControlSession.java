@@ -1,7 +1,10 @@
 package com.anwarelmakrahy.pwncore;
 
 import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+import org.msgpack.type.Value;
 
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
@@ -23,23 +26,26 @@ public class ControlSession {
 					isWindowActive = false;
 		
 	private ConsoleSessionParams params = null;
+	private Map<String, Value> info;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
 	private ArrayList<String> queryPool = new ArrayList<String>();
 	
-	ControlSession(Context context, String type, String id) {
+	ControlSession(Context context, String type, String id, Map<String, Value> info) {
 		this.id = id;
 		this.context = context;
 		this.type = type;
 		this.prompt = type + " > ";
+		this.info = info;
 	}
 	
-	ControlSession(Context context, String type, String id, ConsoleSessionParams params) {
+	ControlSession(Context context, String type, String id, Map<String, Value> info, ConsoleSessionParams params) {
 		this.id = id;
 		this.context = context;
 		this.params = params;
 		this.type = type;
 		this.prompt = type + " > ";
+		this.info = info;
 		this.isWindowReady = params.hasWindowViews();
 	}
 	
@@ -177,5 +183,26 @@ public class ControlSession {
 	
 	public String getType() {
 		return type;
+	}
+	
+	public String getPeer() {
+		if (info.containsKey("tunnel_peer"))
+			return info.get("tunnel_peer").asRawValue().getString();
+		else
+			return "unknown";		
+	}
+	
+	public String getViaExploit() {
+		if (info.containsKey("via_exploit"))
+			return info.get("via_exploit").asRawValue().getString();
+		else
+			return "unknown";		
+	}
+	
+	public String getViaPayload() {
+		if (info.containsKey("via_payload"))
+			return info.get("via_payload").asRawValue().getString();
+		else
+			return "unknown";		
 	}
 }

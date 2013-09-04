@@ -31,7 +31,6 @@ public class ConsoleActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {   	
         super.onCreate(savedInstanceState); 
         setContentView(R.layout.activity_console);
-        activity = this;
         
         intent = getIntent();
 
@@ -209,8 +208,5 @@ public class ConsoleActivity extends Activity {
     	.show();
 	}
 
-	private static Activity activity;
-	public static Activity getActivity() {
-		return activity;
-	}
+
 }

@@ -5,16 +5,19 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@+id/targetsConsolesListView"
-        android:layout_width="fill_parent"     
+        android:id="@+id/sessionsListView"   
+        android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
+
     </ListView>
+
     <TextView
-        android:id="@+id/noConsoles"
+        android:id="@+id/noSessions"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:text="No Active Consoles"
+        android:text="No Active Sessions"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#777777" />
+
 </LinearLayout>

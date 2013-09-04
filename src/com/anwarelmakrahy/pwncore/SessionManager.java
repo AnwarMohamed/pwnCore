@@ -1,11 +1,17 @@
 package com.anwarelmakrahy.pwncore;
 
+import static org.msgpack.template.Templates.TInteger;
+import static org.msgpack.template.Templates.TString;
+import static org.msgpack.template.Templates.tMap;
+import static org.msgpack.template.Templates.TValue;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.msgpack.type.Value;
+import org.msgpack.unpacker.Converter;
 
 import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
 
@@ -23,6 +29,8 @@ public class SessionManager {
 	private Map<String, ControlSession> controlSessions = new HashMap<String, ControlSession>();
 	private Map<String, Value> sessionsRemoteInfo;
 	
+	public List<ControlSession> controlSessionsList = new ArrayList<ControlSession>();
+	
 	private String 	currentConsoleWindowId = null,
 					currentControlWindowId = null;
 	
@@ -31,9 +39,27 @@ public class SessionManager {
 	}
 	
 	public ControlSession getNewSession(String type, String id, ConsoleSessionParams params) {
-		ControlSession newSession = new ControlSession(context, type, id, params);	
-		controlSessions.put(id, newSession);
-		return newSession;
+		try {
+			Map<String, Value> tmp = null;
+			
+			if (sessionsRemoteInfo.containsKey(id)) {
+				Converter conv = new Converter(sessionsRemoteInfo.get(id).asMapValue());
+				tmp = conv.read(tMap(TString,TValue));
+				conv.close();
+			}
+			
+			ControlSession newSession = new ControlSession(context, type, id, tmp, params);	
+			controlSessions.put(id, newSession);
+			controlSessionsList.add(newSession);
+			
+			if (ControlSessionsFragment.listAdapter != null) {
+				ControlSessionsFragment.listAdapter.notifyDataSetChanged();
+			}
+			
+			return newSession;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	public ControlSession getSession(String id) {
@@ -224,6 +250,16 @@ public class SessionManager {
 			if (currentControlWindowId == id)
 				currentControlWindowId = null;
 			controlSessions.remove(id);
+			
+			for (int i=0; i<controlSessionsList.size(); i++)
+				if (controlSessionsList.get(i).getId() == id) {
+					controlSessionsList.remove(i);
+					break;
+				}	
+			
+			if (ControlSessionsFragment.listAdapter != null) {
+				ControlSessionsFragment.listAdapter.notifyDataSetChanged();
+			}
 		}
 	}
 

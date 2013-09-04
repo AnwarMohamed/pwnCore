@@ -242,7 +242,7 @@ public class AttackHall2Activity extends Activity {
     }
     
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    	getMenuInflater().inflate(R.menu.target_attackhall, menu);
+    	getMenuInflater().inflate(R.menu.context_attackhall, menu);
     	
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         int position = info.position;

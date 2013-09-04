@@ -67,7 +67,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     protected void onCreate(Bundle savedInstanceState) {  	
         super.onCreate(savedInstanceState); 
         setContentView(R.layout.activity_main);
-
+        activity = this;
+        
         serviceIntent = new Intent(this, MainService.class);     
 		startService(serviceIntent);
 		
@@ -717,4 +718,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		return true;
 	}
     
+	private static Activity activity;
+	public static Activity getActivity() {
+		return activity;
+	}
 }
