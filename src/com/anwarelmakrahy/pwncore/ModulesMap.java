@@ -3,6 +3,9 @@ package com.anwarelmakrahy.pwncore;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.anwarelmakrahy.pwncore.structures.ModuleItem;
+import com.anwarelmakrahy.pwncore.structures.ModuleListAdapter;
+
 import android.content.Context;
 
 public class ModulesMap {

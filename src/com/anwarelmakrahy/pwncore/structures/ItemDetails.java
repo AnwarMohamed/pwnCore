@@ -1,4 +1,4 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.structures;
 
 public class ItemDetails {
 

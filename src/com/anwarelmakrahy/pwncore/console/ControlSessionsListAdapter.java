@@ -1,8 +1,12 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.console;
 
 import java.util.List;
 
 import org.apache.commons.lang3.text.WordUtils;
+
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.content.Context;
 import android.view.LayoutInflater;

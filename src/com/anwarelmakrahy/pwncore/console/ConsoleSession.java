@@ -1,8 +1,15 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.console;
 
 
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
+
+import com.anwarelmakrahy.pwncore.MainActivity;
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,12 +37,12 @@ public class ConsoleSession {
 	private ArrayList<String> tmpPortQueries = new ArrayList<String>();
 	private ArrayList<String> queryPool = new ArrayList<String>();
 	
-	ConsoleSession(Context context, String id) {
+	public ConsoleSession(Context context, String id) {
 		this.id = id;
 		this.context = context;
 	}
 	
-	ConsoleSession(Context context, String id, ConsoleSessionParams params) {
+	public ConsoleSession(Context context, String id, ConsoleSessionParams params) {
 		this.id = id;
 		this.context = context;
 		this.params = params;
@@ -341,7 +348,7 @@ public class ConsoleSession {
 		context.sendBroadcast(tmpIntent);	
 	}
 	
-	static class ConsoleSessionParams {
+	public static class ConsoleSessionParams {
 		private int prompt = 0;
 		private int cmd = 0;
 		private Activity activity = null;

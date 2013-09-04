@@ -1,4 +1,4 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.activities;
 
 import static org.msgpack.template.Templates.TString;
 import static org.msgpack.template.Templates.tList;
@@ -12,6 +12,12 @@ import java.util.Map;
 
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
+
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;

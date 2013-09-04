@@ -13,7 +13,11 @@ import java.util.Map;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
 
-import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession;
+import com.anwarelmakrahy.pwncore.console.ControlSession;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
+import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 
 import android.app.Activity;
 import android.content.Context;

@@ -3,6 +3,8 @@ package com.anwarelmakrahy.pwncore;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.anwarelmakrahy.pwncore.structures.ModuleItem;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

@@ -1,6 +1,12 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.structures;
 
 import java.util.ArrayList;
+
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.drawable;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;

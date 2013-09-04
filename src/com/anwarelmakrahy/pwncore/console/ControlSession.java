@@ -1,4 +1,4 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.console;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -6,7 +6,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 
-import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
 import android.content.Context;
@@ -39,7 +40,7 @@ public class ControlSession {
 		this.info = info;
 	}
 	
-	ControlSession(Context context, String type, String id, Map<String, Value> info, ConsoleSessionParams params) {
+	public ControlSession(Context context, String type, String id, Map<String, Value> info, ConsoleSessionParams params) {
 		this.id = id;
 		this.context = context;
 		this.params = params;

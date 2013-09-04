@@ -1,10 +1,19 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.activities;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.R.menu;
+import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;

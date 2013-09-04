@@ -1,6 +1,15 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.activities;
 
-import com.anwarelmakrahy.pwncore.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.R.menu;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;

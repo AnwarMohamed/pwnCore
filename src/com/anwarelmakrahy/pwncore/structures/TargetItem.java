@@ -1,4 +1,4 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.structures;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class TargetItem {
 	TargetItem() {		
 	}
 	
-	TargetItem(String host) {
+	public TargetItem(String host) {
 		this.host = host;
 	}
 	 

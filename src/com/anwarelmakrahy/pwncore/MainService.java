@@ -17,6 +17,8 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import org.msgpack.type.Value;
 
+import com.anwarelmakrahy.pwncore.structures.TargetItem;
+
 
 public class MainService extends Service {
 	

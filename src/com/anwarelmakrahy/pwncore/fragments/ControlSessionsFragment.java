@@ -1,6 +1,14 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.fragments;
 
 import java.util.ArrayList;
+
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
+import com.anwarelmakrahy.pwncore.console.ControlSession;
+import com.anwarelmakrahy.pwncore.console.ControlSessionsListAdapter;
 
 import android.content.Intent;
 import android.os.Bundle;

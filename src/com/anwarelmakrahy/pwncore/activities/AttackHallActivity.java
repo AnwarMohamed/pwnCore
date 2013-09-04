@@ -1,8 +1,20 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.activities;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.R.menu;
+import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession;
+import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
+import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
+import com.anwarelmakrahy.pwncore.fragments.TargetDetailsFragment;
+import com.anwarelmakrahy.pwncore.fragments.TargetsFragment;
+import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.app.AlertDialog;

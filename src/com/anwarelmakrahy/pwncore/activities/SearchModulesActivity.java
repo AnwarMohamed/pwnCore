@@ -1,4 +1,4 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.activities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.msgpack.type.Value;
+
+import com.anwarelmakrahy.pwncore.DatabaseHandler;
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.app.Activity;
 import android.os.Bundle;

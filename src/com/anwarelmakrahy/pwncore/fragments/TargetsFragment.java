@@ -1,4 +1,11 @@
-package com.anwarelmakrahy.pwncore;
+package com.anwarelmakrahy.pwncore.fragments;
+
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.R.id;
+import com.anwarelmakrahy.pwncore.R.layout;
+import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
+import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

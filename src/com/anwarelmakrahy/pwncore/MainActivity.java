@@ -3,6 +3,16 @@ package com.anwarelmakrahy.pwncore;
 import java.util.ArrayList;
 
 import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
+import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
+import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
+import com.anwarelmakrahy.pwncore.activities.SearchModulesActivity;
+import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
+import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
+import com.anwarelmakrahy.pwncore.structures.ItemDetails;
+import com.anwarelmakrahy.pwncore.structures.ItemListBaseAdapter;
+import com.anwarelmakrahy.pwncore.structures.ModuleItem;
+import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 import android.os.Bundle;
 import android.os.StrictMode;
