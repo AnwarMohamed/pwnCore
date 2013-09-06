@@ -1,7 +1,6 @@
 package com.anwarelmakrahy.pwncore.fragments;
 
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

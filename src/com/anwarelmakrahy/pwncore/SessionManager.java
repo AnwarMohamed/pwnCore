@@ -1,6 +1,5 @@
 package com.anwarelmakrahy.pwncore;
 
-import static org.msgpack.template.Templates.TInteger;
 import static org.msgpack.template.Templates.TString;
 import static org.msgpack.template.Templates.tMap;
 import static org.msgpack.template.Templates.TValue;
@@ -18,6 +17,7 @@ import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
+import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +34,7 @@ public class SessionManager {
 	private Map<String, Value> sessionsRemoteInfo;
 	
 	public List<ControlSession> controlSessionsList = new ArrayList<ControlSession>();
+	public List<String> jobsList = new ArrayList<String>();
 	
 	private String 	currentConsoleWindowId = null,
 					currentControlWindowId = null;
@@ -92,6 +93,31 @@ public class SessionManager {
 		sessionsRemoteInfo = MainService.client.call(params);
 		if (sessionsRemoteInfo == null)
 			sessionsRemoteInfo = new HashMap<String, Value>();
+	}
+	
+	public void updateJobsList() {
+		List<Object> params = new ArrayList<Object>();
+		params.add("job.list");		
+		Map<String, Value> res = MainService.client.call(params);
+		String[] id = res.keySet().toArray(new String[res.size()]);
+		
+		jobsList.clear();
+		for (int i=0; i<res.size(); i++)
+			jobsList.add("[" + id[i] + "] " + res.get(id[i]).asRawValue().getString());	
+		
+		if (JobsFragment.listadapter != null)
+			JobsFragment.listadapter.notifyDataSetChanged();
+	}
+	
+	public void stopJob(String id) {
+		List<Object> params = new ArrayList<Object>();
+		params.add("job.stop");	
+		params.add(id);	
+		Map<String, Value> res = MainService.client.call(params);
+		
+		if (res.containsKey("result") &&
+				res.get("result").asRawValue().getString().equals("success"))
+			updateJobsList();
 	}
 	
 	public Map<String, Value> getSessionsRemoteInfo() {

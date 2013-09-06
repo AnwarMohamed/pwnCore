@@ -5,13 +5,11 @@ import java.util.List;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
-import com.anwarelmakrahy.pwncore.R.menu;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
+import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
 import com.anwarelmakrahy.pwncore.fragments.TargetDetailsFragment;
 import com.anwarelmakrahy.pwncore.fragments.TargetsFragment;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
@@ -62,6 +60,7 @@ public class AttackHallActivity extends FragmentActivity {
     	  fList.add(TargetDetailsFragment.newInstance());
     	  fList.add(ConsolesFragment.newInstance());
     	  fList.add(ControlSessionsFragment.newInstance());
+    	  fList.add(JobsFragment.newInstance());
 
     	  return fList;
     }
@@ -120,6 +119,11 @@ public class AttackHallActivity extends FragmentActivity {
         case R.id.targetsConsolesListView:
         	menu.findItem(R.id.mnuConsoleKill).setVisible(true);
         	break;
+        	
+        case R.id.jobsListView:
+        	menu.findItem(R.id.mnuJobKill).setVisible(true);
+        	menu.findItem(R.id.mnuJobDetails).setVisible(true);
+        	break;        	
         }
     }
     
@@ -171,6 +175,12 @@ public class AttackHallActivity extends FragmentActivity {
         	ConsoleSession console = MainService.sessionMgr.getConsole(ConsolesFragment.consoleArray.get(info.position).
 	        			split(" ")[0].replace("]", "").replace("[", ""));
         	MainService.sessionMgr.destroyConsole(console);
+        	return true;
+        
+        case R.id.mnuJobKill:
+        	MainService.sessionMgr.stopJob(
+        			MainService.sessionMgr.jobsList.get(info.position).
+	        			split(" ")[0].replace("]", "").replace("[", ""));
         	return true;
         	
         default:

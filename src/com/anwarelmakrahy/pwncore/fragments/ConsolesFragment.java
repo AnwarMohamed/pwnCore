@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 
 import android.content.Intent;
@@ -21,7 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ConsolesFragment extends Fragment implements OnFocusChangeListener {
+public class ConsolesFragment extends Fragment {
 	
 	public static ListView mConsolesListView = null;
 	public static ArrayAdapter<String> mConsolesListAdapter = null;
@@ -68,10 +66,10 @@ public class ConsolesFragment extends Fragment implements OnFocusChangeListener 
 	}
 	
 	@Override
-	public void onFocusChange(View view, boolean hasFocus) {
-		if (hasFocus &&
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser &&
 				mConsolesListAdapter != null) 
 			mConsolesListAdapter.notifyDataSetChanged();
 	}
-	
 }

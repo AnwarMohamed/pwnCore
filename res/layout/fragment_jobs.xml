@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/bg_key"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/jobsListView"
+        android:layout_width="fill_parent"     
+        android:layout_height="fill_parent" >
+    </ListView>
+    <TextView
+        android:id="@+id/noJobs"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:text="No Active Jobs"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#777777" />
+</LinearLayout>

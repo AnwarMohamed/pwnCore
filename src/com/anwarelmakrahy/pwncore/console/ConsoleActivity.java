@@ -4,8 +4,6 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;

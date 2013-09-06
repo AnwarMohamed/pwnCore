@@ -2,8 +2,6 @@ package com.anwarelmakrahy.pwncore.fragments;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
@@ -17,7 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TargetsFragment extends Fragment implements OnFocusChangeListener  {
+public class TargetsFragment extends Fragment {
 	
 	public static ListView mTargetsListView;
 	public static TargetsListAdapter mTargetsListAdapter;
@@ -66,8 +64,9 @@ public class TargetsFragment extends Fragment implements OnFocusChangeListener  
 	}
 
 	@Override
-	public void onFocusChange(View arg0, boolean hasFocus) {
-		if (hasFocus &&
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser &&
 				mTargetsListAdapter != null)
 			mTargetsListAdapter.notifyDataSetChanged();
 	}

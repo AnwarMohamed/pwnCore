@@ -1,14 +1,11 @@
 package com.anwarelmakrahy.pwncore.fragments;
 
-import java.util.ArrayList;
-
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
+
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ControlSession;
-import com.anwarelmakrahy.pwncore.console.ControlSessionsListAdapter;
+import com.anwarelmakrahy.pwncore.structures.ControlSessionsListAdapter;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ControlSessionsFragment extends Fragment implements OnFocusChangeListener {
+public class ControlSessionsFragment extends Fragment {
 	
 	private ListView listview;
 	public static ControlSessionsListAdapter listAdapter;
@@ -38,7 +35,7 @@ public class ControlSessionsFragment extends Fragment implements OnFocusChangeLi
 		listview = (ListView)view.findViewById(R.id.sessionsListView);
 		listview.setEmptyView(view.findViewById(R.id.noSessions));
 		listAdapter = new ControlSessionsListAdapter(
-				getActivity().getApplicationContext(), 
+				getActivity(), 
 				MainService.sessionMgr.controlSessionsList);
 		
 		listview.setAdapter(listAdapter);
@@ -68,8 +65,9 @@ public class ControlSessionsFragment extends Fragment implements OnFocusChangeLi
 	}
 
 	@Override
-	public void onFocusChange(View v, boolean hasFocus) {
-		if (hasFocus &&
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser &&
 				listAdapter != null)
 			listAdapter.notifyDataSetChanged();
 	}

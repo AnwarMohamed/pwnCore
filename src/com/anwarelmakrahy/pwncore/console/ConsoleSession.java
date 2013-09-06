@@ -1,6 +1,5 @@
 package com.anwarelmakrahy.pwncore.console;
 
-
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
@@ -8,8 +7,6 @@ import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticsClass;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,7 +31,7 @@ public class ConsoleSession {
 	private ConsoleSessionParams params = null;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
-	private ArrayList<String> tmpPortQueries = new ArrayList<String>();
+
 	private ArrayList<String> queryPool = new ArrayList<String>();
 	
 	public ConsoleSession(Context context, String id) {
@@ -50,14 +47,7 @@ public class ConsoleSession {
 		setupSessionInteractDlg();
 	}
 	
-	public ArrayList<String> getTmpPortQueries() {
-		return tmpPortQueries;
-	}
-	
-	public void deleteFromTmpPortQueries(String info) {
-		if (tmpPortQueries.contains(info))
-			tmpPortQueries.remove(tmpPortQueries.indexOf(info));
-	}
+
 	
 	public void setWindowActive(boolean flag, Activity activity) {
 		isWindowActive = flag;
@@ -189,40 +179,31 @@ public class ConsoleSession {
 				String[] lines = data.split("\n");
 				
 				for (int i=0; i<lines.length; i++) {
-									
-						if (lines[i].trim().startsWith("[*] Meterpreter session") &&
-								lines[i].trim().split(" ")[4].equals("opened")) {
-							sessionInteract(lines[i].trim(), "meterpreter");
-						}
 						
-						else if (lines[i].trim().endsWith("- TCP OPEN"))
-							addPortToHost(
-									lines[i].split(" ")[1].split(":")[0], 
-									lines[i].split(" ")[1].split(":")[1], 
-									"TCP", 
-									"");
-						
-						else {
-							for (int j=0; j<tmpPortQueries.size(); j++)
-								if (lines[i].trim().split(" ").length > 1 && 
-										lines[i].trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
-									
-									addPortToHost(
-											tmpPortQueries.get(j).split(":")[0], 
-											tmpPortQueries.get(j).split(":")[1],
-											"TCP",
-											lines[i].substring(16 + tmpPortQueries.get(j).length()));
-	
-									tmpPortQueries.remove(j);
-									break;
-								}
-						}
+					processDataLine(lines[i].trim());
+				
+					if (lines[i].trim().startsWith("[*] Meterpreter session") &&
+							lines[i].trim().split(" ")[4].equals("opened")) {
+						sessionInteract(lines[i].trim(), "meterpreter");
+					}
 					
+					else if (lines[i].trim().startsWith("[*] Shell session") &&
+							lines[i].trim().split(" ")[4].equals("opened")) {
+						sessionInteract(lines[i].trim(), "shell");
+					}
+					
+					else if (lines[i].trim().startsWith("[*] Started")) {
+						MainService.sessionMgr.updateJobsList();
+					}					
 				}
 			}
 		}).start();
 	}
 	
+	protected void processDataLine(String data) {
+		//TODO
+	}
+
 	protected ControlSession session;
 	
 	private void sessionInteract(final String data, final String type) {
@@ -250,49 +231,8 @@ public class ConsoleSession {
 				}
 			}}).start();
 	}
-
-	private void enumeratePort(final String host, final String port) {
-		new Thread(new Runnable() {
-			@Override public void run() {
-				
-				tmpPortQueries.add(host + ":" + port);
-				
-				if (port.equals("21")) {					
-					write("use scanner/ftp/ftp_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("22")) {
-					write("use scanner/ssh/ssh_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("23")) {
-					write("use scanner/telnet/telnet_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("80"))	{
-					write("use scanner/http/http_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("445")) {
-					write("use scanner/smb/smb_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				
-			}
-		}).start();	
-	}
 	
-	private void addPortToHost(String host, String port, String protocol, String details) {
-		enumeratePort(host, port);
-		for (int i=0; i<MainService.mTargetHostList.size(); i++)
-			if (MainService.mTargetHostList.get(i).getHost().equals(host)) {
-				MainService.mTargetHostList.get(i).addPort(protocol, port, details);
-				updateAdapters();
-				return;
-			}
-		
-		TargetItem t = new TargetItem(host);
-		t.addPort(protocol, port, details);
-		MainService.mTargetHostList.add(t);
-		updateAdapters();
-	}
-	
-	private void updateAdapters() {
+	protected void updateAdapters() {
 		Intent tmpIntent = new Intent();
 		tmpIntent.setAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
 		context.sendBroadcast(tmpIntent);	

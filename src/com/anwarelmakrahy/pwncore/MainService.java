@@ -99,6 +99,8 @@ public class MainService extends Service {
 		        		tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);
 		        		sendBroadcast(tmpIntent);	        		
 		        		StatsMap = client.call(MsfRpcClient.singleOptCallList("core.module_stats"));
+		        		sessionMgr.updateJobsList();
+		        		sessionMgr.updateSessionsRemoteInfo();
 		        	}
 				}
 			}).start();   	

@@ -10,8 +10,6 @@ import org.msgpack.type.Value;
 import com.anwarelmakrahy.pwncore.DatabaseHandler;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.app.Activity;
 import android.os.Bundle;

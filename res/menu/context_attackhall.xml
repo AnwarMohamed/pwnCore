@@ -16,4 +16,7 @@
     <item android:id="@+id/mnuSessionKill" android:visible="false" android:title="Terminate Session"/>
     
     <item android:id="@+id/mnuConsoleKill" android:visible="false" android:title="Terminate Console"/>
+    
+    <item android:id="@+id/mnuJobDetails" android:visible="false" android:title="Show Details"/>
+    <item android:id="@+id/mnuJobKill" android:visible="false" android:title="Kill Job"/>
 </menu>

@@ -2,8 +2,6 @@ package com.anwarelmakrahy.pwncore.activities;
 
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.layout;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

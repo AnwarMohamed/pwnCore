@@ -9,9 +9,6 @@ import java.net.URISyntaxException;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticsClass;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
-import com.anwarelmakrahy.pwncore.R.menu;
 import com.anwarelmakrahy.pwncore.structures.TargetItem;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 

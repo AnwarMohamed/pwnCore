@@ -1,8 +1,6 @@
 package com.anwarelmakrahy.pwncore.activities;
 
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.app.Activity;
 import android.app.AlertDialog;

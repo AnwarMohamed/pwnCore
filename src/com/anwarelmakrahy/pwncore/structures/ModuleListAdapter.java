@@ -3,9 +3,6 @@ package com.anwarelmakrahy.pwncore.structures;
 import java.util.List;
 
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

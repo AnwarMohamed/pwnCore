@@ -3,9 +3,6 @@ package com.anwarelmakrahy.pwncore.structures;
 import java.util.ArrayList;
 
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.R.drawable;
-import com.anwarelmakrahy.pwncore.R.id;
-import com.anwarelmakrahy.pwncore.R.layout;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -23,13 +20,13 @@ public class TargetsListAdapter extends BaseAdapter {
 	private LayoutInflater l_Inflater;
 	private int selectedIndex;
 	private int selectedColor = Color.TRANSPARENT;
-	private Context context;
+	//private Context context;
 
 	public TargetsListAdapter(Context context, ArrayList<TargetItem> results) {
 		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
 		selectedIndex = -1;
-		this.context = context;
+		//this.context = context;
 	}
 
 	public int getCount() {
