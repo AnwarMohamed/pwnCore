@@ -104,7 +104,8 @@ public class ConsoleActivity extends Activity {
 	    params.setCmdViewId(R.id.consoleRead);
 	    params.setPromptViewId(R.id.consolePrompt);
 		    
-	    console = MainService.sessionMgr.getNewConsole(params);
+	    console = new ConsoleSession(getApplicationContext(), params);
+	    MainService.sessionMgr.getNewConsole(console);
 	    MainService.sessionMgr.switchWindow("console", console.getId(), this);
 	    
 	    setupWindowTrigger();

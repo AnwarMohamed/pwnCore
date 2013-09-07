@@ -9,6 +9,9 @@ import java.net.URISyntaxException;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession;
+import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.structures.TargetItem;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
@@ -151,11 +154,13 @@ public class AttackWizardActivity extends Activity {
 	
 	private void addHostToTargetList(TargetItem item) {	
 		for (int i=0; i<MainService.mTargetHostList.size(); i++)
-			if (MainService.mTargetHostList.get(i).getHost().equals(item.getHost()))
+			if (MainService.mTargetHostList.get(i).getHost().equals(item.getHost())) {
 				return;
+			}
 	    	
     	MainService.mTargetHostList.add(0,item);
     	mTargetHostListAdapter.notifyDataSetChanged();
+		scan(item.getHost());
     	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
 	 
@@ -164,6 +169,26 @@ public class AttackWizardActivity extends Activity {
     	mTargetHostListAdapter.notifyDataSetChanged();
     	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
+	
+	private void scan(final String host) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+			    //ConsoleSessionParams scannerParams = new ConsoleSessionParams();
+			    //scannerParams.setAcivity(AttackWizardActivity.this);
+			    //scannerParams.setCmdViewId(R.id.consoleRead);
+			    //scannerParams.setPromptViewId(R.id.consolePrompt);
+				    
+			    PortScanner scanner = new PortScanner(getApplicationContext()/*, scannerParams*/);
+			    MainService.sessionMgr.getNewConsole(scanner);
+			    if (scanner != null)
+			    	scanner.scan(host);
+			}
+			
+		}).start();
+
+	}
 	
 	private void showManualHostDlg() {
        	final EditText input = new EditText(this);

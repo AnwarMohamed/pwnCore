@@ -28,26 +28,22 @@ public class ConsoleSession {
 					isWindowActive = false,
 					logoLoaded = false;
 		
-	private ConsoleSessionParams params = null;
+	protected ConsoleSessionParams params = null;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
 
 	private ArrayList<String> queryPool = new ArrayList<String>();
 	
-	public ConsoleSession(Context context, String id) {
-		this.id = id;
+	public ConsoleSession(Context context) {
 		this.context = context;
 	}
 	
-	public ConsoleSession(Context context, String id, ConsoleSessionParams params) {
-		this.id = id;
+	public ConsoleSession(Context context, ConsoleSessionParams params) {
 		this.context = context;
 		this.params = params;
 		this.isWindowReady = params.hasWindowViews();
 		setupSessionInteractDlg();
 	}
-	
-
 	
 	public void setWindowActive(boolean flag, Activity activity) {
 		isWindowActive = flag;
@@ -55,7 +51,8 @@ public class ConsoleSession {
 			params.setAcivity(activity);
 		
 		if (flag)
-			params.getCmdView().setText(StringUtils.join(conversation.toArray()));
+			if (params != null)
+				params.getCmdView().setText(StringUtils.join(conversation.toArray()));
 	}
 	
 	AlertDialog.Builder newMeterpreterSessionDlg;
@@ -94,7 +91,7 @@ public class ConsoleSession {
 	}
 	
 	public boolean isReady() {
-		return logoLoaded;
+		return (logoLoaded && id != null);
 	}
 	
 	public void setMsfId(String id) {
@@ -102,6 +99,11 @@ public class ConsoleSession {
 			msfId = id;
 			read();
 		}
+	}
+	
+	public void setId(String id) {
+		if (this.id == null)
+			this.id = id;
 	}
 	
 	public void setPrompt(final String p) {
@@ -220,7 +222,7 @@ public class ConsoleSession {
 	    		    params.setPromptViewId(R.id.consolePrompt);
 	    		    params.setAcivity(MainActivity.getActivity());
 	    		    
-	    	    	session  = MainService.sessionMgr.getNewSession("meterpreter", sessionId, params);
+	    	    	MainService.sessionMgr.getNewSession(session, "meterpreter", sessionId, params);
 					
 					if (isWindowActive && isWindowReady)				
 						params.getAcivity().runOnUiThread(new Runnable() {  
@@ -231,6 +233,8 @@ public class ConsoleSession {
 				}
 			}}).start();
 	}
+	
+	
 	
 	protected void updateAdapters() {
 		Intent tmpIntent = new Intent();
@@ -283,7 +287,7 @@ public class ConsoleSession {
 	
 	public void destroy() {
 		Intent tmpIntent = new Intent();
-		tmpIntent.putExtra("msfiId", msfId);
+		tmpIntent.putExtra("msfId", msfId);
 		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
 		context.sendBroadcast(tmpIntent);	
 	}

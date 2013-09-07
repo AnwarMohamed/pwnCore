@@ -68,7 +68,7 @@ public class AttackHall2Activity extends Activity {
         setContentView(R.layout.activity_attackhall);
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
-        newConsole = MainService.sessionMgr.getNewConsole();
+        MainService.sessionMgr.getNewConsole(newConsole);
         
         mTargetsListView = (ListView)findViewById(R.id.targetsListView2);
         mTargetsListAdapter =  new TargetsListAdapter(this, MainService.mTargetHostList);
@@ -422,7 +422,9 @@ public class AttackHall2Activity extends Activity {
 		    params.setCmdViewId(R.id.consoleRead);
 		    params.setPromptViewId(R.id.consolePrompt);
 		    
-		    final ConsoleSession newConsole = MainService.sessionMgr.getNewConsole(params);
+		    final ConsoleSession newConsole = null;
+		    //MainService.sessionMgr.getNewConsole(newConsole, params);
+		    
 		    MainService.sessionMgr.switchWindow("console", newConsole.getId(), this);
 		    
 		    commander.setOnEditorActionListener(new OnEditorActionListener() {

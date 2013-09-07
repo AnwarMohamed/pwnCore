@@ -1,7 +1,5 @@
 package com.anwarelmakrahy.pwncore.console.utils;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 
 import com.anwarelmakrahy.pwncore.MainService;
@@ -10,89 +8,59 @@ import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 
 public class PortScanner extends ConsoleSession {
-	private ArrayList<String> tmpPortQueries = new ArrayList<String>();
-	
-	public PortScanner(Context context, String id) {
-		super(context, id);
+
+	public PortScanner(Context context) {
+		super(context);
 	}
 
-	public PortScanner(Context context, String id, ConsoleSessionParams params) {
-		super(context, id, params);
+	public PortScanner(Context context, ConsoleSessionParams params) {
+		super(context, params);
+	}
+	
+	private TargetItem target;
+	private final String ports =     					
+			"50000, 21, 1720, 80, 143, 3306, 110, 5432, 25, 22, 23, 443, 1521, 50013, 161, 17185, 135, " + 
+			"8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, " + 
+			"9080, 8812, 2525, 2207, 3050, 5405, 1723, 1099, 5555, 921, 10001, 123, 3690, 548, 617, 6112, " +
+			"6667, 3632, 783, 10050, 38292, 12174, 2967, 5168, 3628, 7777, 6101, 10000, 6504, 41523, 41524, "+
+			"2000, 1900, 10202, 6503, 6070, 6502, 6050, 2103, 41025, 44334, 2100, 5554, 12203, 26000, 4000, "+
+			"1000, 8014, 5250, 34443, 8028, 8008, 7510, 9495, 1581, 8000, 18881, 57772, 9090, 9999, 81, 3000, "+
+			"8300, 8800, 8090, 389, 10203, 5093, 1533, 13500, 705, 623, 4659, 20031, 16102, 6080, 6660, 11000, "+
+			"19810, 3057, 6905, 1100, 10616, 10628, 5051, 1582, 65535, 105, 22222, 30000, 113, 1755, 407, 1434, "+
+			"2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, "+
+			"69, 5800, 62514, 42, 5631, 902, 3389";
+	
+	public void scan(TargetItem target) {
+		waitForReady();
+		this.target = target;
+		
+		if (this.target == null) 
+			return;
+		
+    	String cmd =	"use auxiliary/scanner/portscan/tcp\n" + 
+						"set RHOSTS " + target.getHost() + "\n" + 
+						"set THREADS 15\n" + 
+						"set PORTS " + ports + "\n" +
+						"run";
+    	write(cmd);
 	}
 	
 	@Override
 	protected void processDataLine(String data) {
 		if (data.endsWith("- TCP OPEN"))
 			addPortToHost(
-					data.split(" ")[1].split(":")[0], 
 					data.split(" ")[1].split(":")[1], 
 					"TCP", 
-					"");
+					"Unknown Service");
 		
-		else {
-			for (int j=0; j<tmpPortQueries.size(); j++)
-				if (data.trim().split(" ").length > 1 && 
-						data.trim().split(" ")[1].equals(tmpPortQueries.get(j))) {	
-					
-					addPortToHost(
-							tmpPortQueries.get(j).split(":")[0], 
-							tmpPortQueries.get(j).split(":")[1],
-							"TCP",
-							data.substring(16 + tmpPortQueries.get(j).length()));
-
-					tmpPortQueries.remove(j);
-					break;
-				}
+		else if (data.startsWith("[*] Auxiliary module execution completed")) {
+			if (params == null)
+				MainService.sessionMgr.destroyConsole(this);
 		}
 	}
 	
-	private void addPortToHost(String host, String port, String protocol, String details) {
-		enumeratePort(host, port);
-		for (int i=0; i<MainService.mTargetHostList.size(); i++)
-			if (MainService.mTargetHostList.get(i).getHost().equals(host)) {
-				MainService.mTargetHostList.get(i).addPort(protocol, port, details);
-				updateAdapters();
-				return;
-			}
-		
-		TargetItem t = new TargetItem(host);
-		t.addPort(protocol, port, details);
-		MainService.mTargetHostList.add(t);
+	private void addPortToHost(String port, String protocol, String details) {
+		target.addPort(protocol, port, details);
 		updateAdapters();
-	}
-	
-	private void enumeratePort(final String host, final String port) {
-		new Thread(new Runnable() {
-			@Override public void run() {
-				
-				tmpPortQueries.add(host + ":" + port);
-				
-				if (port.equals("21")) {					
-					write("use scanner/ftp/ftp_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("22")) {
-					write("use scanner/ssh/ssh_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("23")) {
-					write("use scanner/telnet/telnet_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("80"))	{
-					write("use scanner/http/http_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				else if (port.equals("445")) {
-					write("use scanner/smb/smb_version\nset THREADS 10\nset RHOSTS " + host + "\nrun -j");
-				}
-				
-			}
-		}).start();	
-	}
-	
-	public ArrayList<String> getTmpPortQueries() {
-		return tmpPortQueries;
-	}
-	
-	public void deleteFromTmpPortQueries(String info) {
-		if (tmpPortQueries.contains(info))
-			tmpPortQueries.remove(tmpPortQueries.indexOf(info));
 	}
 }

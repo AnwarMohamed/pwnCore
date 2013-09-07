@@ -243,7 +243,10 @@ public class MainService extends Service {
 						params.add("console.read");
 						params.add(intent.getStringExtra("msfId"));
 	            		Map<String, Value> newConDes = client.call(params);
-	            		if (newConDes != null)
+	            		if (newConDes != null &&
+	            				newConDes.containsKey("data") &&
+	            				newConDes.containsKey("prompt") &&
+	            				newConDes.containsKey("busy"))
 		            		sessionMgr.notifyConsoleNewRead(
 		            				intent.getStringExtra("id"), 
 		            				newConDes.get("data").asRawValue().getString(), 
@@ -270,7 +273,7 @@ public class MainService extends Service {
 						List<Object> params = new ArrayList<Object>();
 						params.add("console.destroy");
 						params.add(intent.getStringExtra("msfId"));
-	            		client.call(params);
+						Map<String, Value> newConDes = client.call(params);
 	        			sessionMgr.notifyDestroyedConsole(
 	        					intent.getStringExtra("id"), 
 	        					intent.getStringExtra("msfId"));

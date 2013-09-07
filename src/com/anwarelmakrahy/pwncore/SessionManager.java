@@ -15,6 +15,7 @@ import org.msgpack.unpacker.Converter;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
@@ -22,6 +23,8 @@ import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 public class SessionManager {
@@ -43,7 +46,7 @@ public class SessionManager {
 		this.context = context;
 	}
 	
-	public ControlSession getNewSession(String type, String id, ConsoleSessionParams params) {
+	public void getNewSession(ControlSession newSession, String type, String id, ConsoleSessionParams params) {
 		try {
 			Map<String, Value> tmp = null;
 			
@@ -53,7 +56,7 @@ public class SessionManager {
 				conv.close();
 			}
 			
-			ControlSession newSession = new ControlSession(context, type, id, tmp, params);	
+			newSession = new ControlSession(context, type, id, tmp, params);	
 			controlSessions.put(id, newSession);
 			controlSessionsList.add(newSession);
 			
@@ -61,9 +64,8 @@ public class SessionManager {
 				ControlSessionsFragment.listAdapter.notifyDataSetChanged();
 			}
 			
-			return newSession;
+
 		} catch (Exception e) {
-			return null;
 		}
 	}
 	
@@ -96,17 +98,22 @@ public class SessionManager {
 	}
 	
 	public void updateJobsList() {
-		List<Object> params = new ArrayList<Object>();
-		params.add("job.list");		
-		Map<String, Value> res = MainService.client.call(params);
-		String[] id = res.keySet().toArray(new String[res.size()]);
-		
-		jobsList.clear();
-		for (int i=0; i<res.size(); i++)
-			jobsList.add("[" + id[i] + "] " + res.get(id[i]).asRawValue().getString());	
-		
-		if (JobsFragment.listadapter != null)
-			JobsFragment.listadapter.notifyDataSetChanged();
+		new Runnable() {
+
+		@Override
+		public void run() {
+			List<Object> params = new ArrayList<Object>();
+			params.add("job.list");		
+			Map<String, Value> res = MainService.client.call(params);
+			String[] id = res.keySet().toArray(new String[res.size()]);
+			
+			jobsList.clear();
+			for (int i=0; i<res.size(); i++)
+				jobsList.add("[" + id[i] + "] " + res.get(id[i]).asRawValue().getString());	
+			
+			if (JobsFragment.listadapter != null)
+				JobsFragment.listadapter.notifyDataSetChanged();
+		}}.run();
 	}
 	
 	public void stopJob(String id) {
@@ -124,30 +131,14 @@ public class SessionManager {
 		return sessionsRemoteInfo;
 	}
 	
-	public ConsoleSession getNewConsole() {		
+	public void getNewConsole(ConsoleSession newConsole) {		
 		String id = Integer.toString(incConsoleIDs++);
-		ConsoleSession newConsole = new ConsoleSession(context, id);
+		newConsole.setId(id);
 		consoleSessions.put(id, newConsole);			
 		Intent tmpIntent = new Intent();
 		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_CREATE);
 		tmpIntent.putExtra("id", id);
 		context.sendBroadcast(tmpIntent);		
-		return newConsole;
-	}
-	
-	public ConsoleSession getNewConsole(ConsoleSessionParams params) {			
-		String id = Integer.toString(incConsoleIDs++);
-		ConsoleSession newConsole = new ConsoleSession(
-				context, 
-				id,
-				params);
-		
-		consoleSessions.put(id, newConsole);			
-		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_CREATE);
-		tmpIntent.putExtra("id", id);
-		context.sendBroadcast(tmpIntent);		
-		return newConsole;
 	}
 	
 	public void notifyNewConsole(String id, String msfId, String prompt) {
@@ -237,8 +228,8 @@ public class SessionManager {
 		
 		if (ConsolesFragment.mConsolesListAdapter != null) {
 			ConsolesFragment.consoleArray.clear();
-			ConsolesFragment.consoleArray.addAll(getConsoleListArray());
-			ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
+			ConsolesFragment.consoleArray.addAll(getConsoleListArray());    	 
+			//ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
 		}
 	}
 	
