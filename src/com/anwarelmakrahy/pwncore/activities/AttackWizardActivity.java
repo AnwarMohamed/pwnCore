@@ -160,7 +160,7 @@ public class AttackWizardActivity extends Activity {
 	    	
     	MainService.mTargetHostList.add(0,item);
     	mTargetHostListAdapter.notifyDataSetChanged();
-		scan(item.getHost());
+		item.scanPorts();
     	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
 	 
@@ -169,27 +169,7 @@ public class AttackWizardActivity extends Activity {
     	mTargetHostListAdapter.notifyDataSetChanged();
     	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
     }
-	
-	private void scan(final String host) {
-		new Thread(new Runnable() {
 
-			@Override
-			public void run() {
-			    //ConsoleSessionParams scannerParams = new ConsoleSessionParams();
-			    //scannerParams.setAcivity(AttackWizardActivity.this);
-			    //scannerParams.setCmdViewId(R.id.consoleRead);
-			    //scannerParams.setPromptViewId(R.id.consolePrompt);
-				    
-			    PortScanner scanner = new PortScanner(getApplicationContext()/*, scannerParams*/);
-			    MainService.sessionMgr.getNewConsole(scanner);
-			    if (scanner != null)
-			    	scanner.scan(host);
-			}
-			
-		}).start();
-
-	}
-	
 	private void showManualHostDlg() {
        	final EditText input = new EditText(this);
        	input.setSingleLine(false);
@@ -203,7 +183,7 @@ public class AttackWizardActivity extends Activity {
 	    	  
     			for (int i=0; i<hosts.length; i++) {
     				if (StaticsClass.validateIPAddress(hosts[i], false)) {
-    					addHostToTargetList(new TargetItem(hosts[i]));				
+    					addHostToTargetList(new TargetItem(getApplicationContext(), hosts[i]));				
     				}
     			}
     		}
@@ -239,7 +219,7 @@ public class AttackWizardActivity extends Activity {
 					String line;
 				    while ((line = br.readLine()) != null) {
 	    				if (StaticsClass.validateIPAddress(line, false)) {
-	    					addHostToTargetList(new TargetItem(line));				
+	    					addHostToTargetList(new TargetItem(getApplicationContext(), line));				
 	    				}
 				    }				    
 				    br.close();

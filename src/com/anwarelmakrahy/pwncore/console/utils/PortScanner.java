@@ -9,12 +9,12 @@ import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 public class PortScanner extends ConsoleSession {
 
-	public PortScanner(Context context) {
-		super(context);
+	public PortScanner(Context context, String title) {
+		super(context, title);
 	}
 
-	public PortScanner(Context context, ConsoleSessionParams params) {
-		super(context, params);
+	public PortScanner(Context context, ConsoleSessionParams params, String title) {
+		super(context, params, title);
 	}
 	
 	private TargetItem target;
@@ -30,6 +30,7 @@ public class PortScanner extends ConsoleSession {
 			"2049, 689, 3128, 20222, 20034, 7580, 7579, 38080, 12401, 910, 912, 11234, 46823, 5061, 5060, 2380, "+
 			"69, 5800, 62514, 42, 5631, 902, 3389";
 	
+	private boolean isScanning = false;
 	public void scan(TargetItem target) {
 		waitForReady();
 		this.target = target;
@@ -43,8 +44,30 @@ public class PortScanner extends ConsoleSession {
 						"set PORTS " + ports + "\n" +
 						"run";
     	write(cmd);
+    	startObserver();
 	}
 	
+	private void startObserver() {
+		isScanning  = true;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				int seconds = 45;
+				while(isScanning) {
+					if (--seconds ==  0) {
+						target.scanPorts();
+						if (params == null)			
+							MainService.sessionMgr.destroyConsole(PortScanner.this);
+						break;
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {}	
+				}
+			}		
+		}).start();
+	}
+
 	@Override
 	protected void processDataLine(String data) {
 		if (data.endsWith("- TCP OPEN"))
@@ -54,13 +77,14 @@ public class PortScanner extends ConsoleSession {
 					"Unknown Service");
 		
 		else if (data.startsWith("[*] Auxiliary module execution completed")) {
-			if (params == null)
+			isScanning = false;
+			if (params == null) {			
 				MainService.sessionMgr.destroyConsole(this);
+			}
 		}
 	}
 	
 	private void addPortToHost(String port, String protocol, String details) {
 		target.addPort(protocol, port, details);
-		updateAdapters();
 	}
 }

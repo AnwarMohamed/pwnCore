@@ -32,7 +32,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_below="@+id/progress1"
-            android:layout_above="@+id/imageView1" />
+            android:layout_above="@+id/detailStatus" />
 
         <TextView
             android:id="@+id/targetDetailsPwn"
@@ -65,7 +65,7 @@
             />
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/detailStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/targetDetailsPwn"

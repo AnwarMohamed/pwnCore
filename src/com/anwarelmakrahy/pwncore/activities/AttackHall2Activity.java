@@ -285,9 +285,9 @@ public class AttackHall2Activity extends Activity {
         case R.id.mnuTargetRemove:
         	removeHostFromTargetList(info.position);
         	return true;
-        case R.id.mnuTargetScan:
-        	scanTarget(MainService.mTargetHostList.get(info.position));
-        	return true;
+        //case R.id.mnuTargetScan:
+        //	scanTarget(MainService.mTargetHostList.get(info.position));
+        //	return true;
         case R.id.mnuTargetOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {

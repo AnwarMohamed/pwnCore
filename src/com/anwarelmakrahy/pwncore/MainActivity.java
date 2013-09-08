@@ -6,13 +6,11 @@ import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
 import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
-import com.anwarelmakrahy.pwncore.activities.SearchModulesActivity;
 import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.structures.ItemDetails;
 import com.anwarelmakrahy.pwncore.structures.ItemListBaseAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
 
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -178,10 +176,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		
 		prepareSidebar(); 	
 		
-	   	TargetItem t = new TargetItem("10.0.0.1");
-    	t.setPwned(true);
-    	t.setOS("Linux");
-    	MainService.mTargetHostList.add(t);
+	   	//TargetItem t = new TargetItem(getApplicationContext(), "10.0.0.1");
+    	//t.setPwned(true);
+    	//t.setOS("Linux");
+    	//MainService.mTargetHostList.add(t);
+    	
+    	//mHandler.postDelayed(mRunnable, 600000);
     } 
     
     private boolean titlesHas(String s) {
@@ -713,18 +713,19 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     }
 
 	@Override
-	public boolean onQueryTextChange(String arg0) {
+	public boolean onQueryTextChange(String text) {
+		MainService.modulesMap.modulesAdapter.getFilter().filter(text); 
 		return true;
 	}
 
 	@Override
 	public boolean onQueryTextSubmit(String s) {
-		startActivity(new Intent(
-				getApplicationContext(), 
-				SearchModulesActivity.class
-				).putExtra("q", s));
-		
-		mnuSearch.collapseActionView();
+		//startActivity(new Intent(
+		//		getApplicationContext(), 
+		//		SearchModulesActivity.class
+		//		).putExtra("q", s));
+		//
+		//mnuSearch.collapseActionView();
 		return true;
 	}
     

@@ -2,4 +2,40 @@
     android:layout_width="fill_parent"
     android:background="@drawable/bg_key"
     android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/detailOS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/detailHost"
+        android:layout_below="@+id/detailHost"
+        android:layout_marginLeft="3dp"
+        android:text="OS: Unknown"
+        android:textColor="#777777"
+        android:translationY="-4dp"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/detailStatus"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/circle_grey" />
+
+    <TextView
+        android:id="@+id/detailHost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/detailStatus"
+        android:layout_toRightOf="@+id/detailStatus"
+        android:text="localhost"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:translationY="-4dp" />
+
 </RelativeLayout>

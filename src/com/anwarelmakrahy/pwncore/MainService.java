@@ -64,7 +64,7 @@ public class MainService extends Service {
 		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
 		registerReceiver(mainReceiver, filter);
    
-		executor = Executors.newFixedThreadPool(20);
+		executor = Executors.newFixedThreadPool(30);
 		
 		//deleteDatabase(DatabaseHandler.DATABASE_NAME);
 		databaseHandler = DatabaseHandler.getInstance(this);
@@ -274,9 +274,13 @@ public class MainService extends Service {
 						params.add("console.destroy");
 						params.add(intent.getStringExtra("msfId"));
 						Map<String, Value> newConDes = client.call(params);
-	        			sessionMgr.notifyDestroyedConsole(
-	        					intent.getStringExtra("id"), 
-	        					intent.getStringExtra("msfId"));
+						if (newConDes.containsKey("result") &&
+								newConDes.get("result").asRawValue().
+								getString().equals("success")) {
+		        			sessionMgr.notifyDestroyedConsole(
+		        					intent.getStringExtra("id"), 
+		        					intent.getStringExtra("msfId"));
+						}
 					}});	
     		}
     		else if (action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE) {
@@ -364,7 +368,8 @@ public class MainService extends Service {
 	}
     
 	private void getModules(String type, String loadType, String success, String failed) {
-		Intent tmpIntent = new Intent();	
+		Intent tmpIntent = new Intent();
+		//int local = getCurModulesCount(type);
 		tmpIntent.setAction(success);		
 		if (StatsMap != null && 
 				StatsMap.containsKey(type) && 

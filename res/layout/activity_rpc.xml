@@ -62,16 +62,7 @@
         android:layout_alignRight="@+id/txtPort"
         android:layout_below="@+id/txtPort"
         android:layout_marginTop="18dp"
-        android:text="SSL Connection ?" />
-
-    <Button
-        android:id="@+id/cmdSaveSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/cmdCancel"
-        android:layout_alignBottom="@+id/cmdCancel"
-        android:layout_toLeftOf="@+id/cmdCancel"
-        android:text="Save Settings" />
+        android:text="Use SSL Connection" />
 
     <TextView
         android:id="@+id/textView4"
@@ -108,15 +99,6 @@
         android:password="true"
         android:singleLine="true" />
 
-    <Button
-        android:id="@+id/cmdCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/txtPassword"
-        android:layout_below="@+id/txtPassword"
-        android:layout_marginTop="24dp"
-        android:text="Cancel" />
-
     <TextView
         android:id="@+id/sessionPayload"
         android:layout_width="wrap_content"
@@ -127,5 +109,32 @@
         android:text="Username"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="16dp" />
+
+    <CheckBox
+        android:id="@+id/chkDebug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/txtPassword"
+        android:layout_below="@+id/txtPassword"
+        android:layout_marginTop="18dp"
+        android:text="Debug Mode" />
+
+    <Button
+        android:id="@+id/cmdCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chkDebug"
+        android:layout_marginTop="20dp"
+        android:layout_toRightOf="@+id/cmdSaveSettings"
+        android:text="Cancel" />
+
+    <Button
+        android:id="@+id/cmdSaveSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/cmdCancel"
+        android:layout_alignBottom="@+id/cmdCancel"
+        android:layout_toRightOf="@+id/textView4"
+        android:text="Save Settings" />
 
 </RelativeLayout>

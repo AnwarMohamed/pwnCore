@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.StaticsClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
@@ -16,8 +17,11 @@ import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -29,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
@@ -86,16 +91,17 @@ public class AttackHallActivity extends FragmentActivity {
         switch (v.getId()) {
         case R.id.targetsFragmentListView:
         	
-        	menu.findItem(R.id.mnuTargetScan).setVisible(true);
+        	menu.findItem(R.id.mnuTargetScanPorts).setVisible(true);
         	menu.findItem(R.id.mnuTargetRemove).setVisible(true);
         	menu.findItem(R.id.mnuTargetOS).setVisible(true);
         	
 	        if ( MainService.mTargetHostList.get(position).isUp()) {
-	        	menu.findItem(R.id.mnuTargetLogin).setVisible(true);
+	        	menu.findItem(R.id.mnuTargetScanServices).setVisible(true);
+	        	//menu.findItem(R.id.mnuTargetLogin).setVisible(true);
 	        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
-	        }
 	        
-	        String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
+	        
+	        /*String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
 	        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
 	        		                            getTcpPorts().size()]);
 	        
@@ -109,7 +115,10 @@ public class AttackHallActivity extends FragmentActivity {
 	        	else if (tcpPorts[i].equals("80"))
 	        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
 	        	else if (tcpPorts[i].equals("445"))
-	        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);
+	        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);*/
+	        
+	        }
+	        
 	        break;
 	        
         case R.id.sessionsListView:
@@ -145,8 +154,11 @@ public class AttackHallActivity extends FragmentActivity {
         case R.id.mnuTargetRemove:
         	removeHostFromTargetList(info.position);
         	return true;
-        case R.id.mnuTargetScan:
-        	//scanTarget(MainService.mTargetHostList.get(info.position));
+        case R.id.mnuTargetScanPorts:
+        	MainService.mTargetHostList.get(info.position).scanPorts();
+        	return true;
+        case R.id.mnuTargetScanServices:
+        	MainService.mTargetHostList.get(info.position).scanServices();
         	return true;
         case R.id.mnuTargetOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
@@ -154,18 +166,26 @@ public class AttackHallActivity extends FragmentActivity {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
 	        		MainService.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
-	        		TargetsFragment.mTargetsListAdapter.notifyDataSetChanged();	
+	        		TargetsFragment.listAdapter.notifyDataSetChanged();	
                 }
             })
             .create();
             builder.show(); 
         	return true;
         	
+        	
         case R.id.mnuTargetLogin21:
+        	return true;
         case R.id.mnuTargetLogin22:
+        	return true;
         case R.id.mnuTargetLogin23:
+        	return true;
         case R.id.mnuTargetLogin80:
+        	return true;
         case R.id.mnuTargetLogin445:
+        	return true;
+        	
+        	
         case R.id.mnuSessionKill:
         	MainService.sessionMgr.destroySession(
         			MainService.sessionMgr.controlSessionsList.get(info.position).getId());
@@ -192,7 +212,7 @@ public class AttackHallActivity extends FragmentActivity {
  		MainService.mTargetHostList.remove(pos);
      	if (MainService.mTargetHostList.size() == 0)
      		finish();	
-     	TargetsFragment.mTargetsListAdapter.notifyDataSetChanged();
+     	TargetsFragment.listAdapter.notifyDataSetChanged();
      }
      
      @Override
@@ -210,7 +230,7 @@ public class AttackHallActivity extends FragmentActivity {
  	    			MainService.mTargetHostList.remove(MainService.mTargetHostList.get(i)); 	
  	    	if (MainService.mTargetHostList.size() == 0)
  	    		finish();	
- 	    	TargetsFragment.mTargetsListAdapter.notifyDataSetChanged();
+ 	    	TargetsFragment.listAdapter.notifyDataSetChanged();
  	    	return true;
  	    	
  	    case R.id.mnuNewConsole:
@@ -231,5 +251,46 @@ public class AttackHallActivity extends FragmentActivity {
 	public static void setCurListPosition(int curListPosition) {
 		AttackHallActivity.curListPosition = curListPosition;
 	}
+
+	@Override
+	public void onResume() {
+		if (!conStatusReceiverRegistered) {
+			IntentFilter filter = new IntentFilter();	
+			filter.addAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);	
+			registerReceiver(conStatusReceiver, filter);
+			conStatusReceiverRegistered = true;
+		}		
+		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		if (conStatusReceiverRegistered) {
+			unregisterReceiver(conStatusReceiver);
+			conStatusReceiverRegistered = false;
+		}
+
+		super.onPause();
+	}
+	
+	private boolean conStatusReceiverRegistered = false;
+	public BroadcastReceiver conStatusReceiver = new BroadcastReceiver() {
+    	@Override
+    	public void onReceive(Context context, Intent intent) {
+    		String action = intent.getAction();
+    		
+    		if (action == StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
+				if (ConsolesFragment.listAdapter != null) {
+					ConsolesFragment.consoleArray.clear();
+					ConsolesFragment.consoleArray.addAll(MainService.sessionMgr.getConsoleListArray()); 
+					ConsolesFragment.listAdapter.notifyDataSetChanged();
+				}
+				
+				if (TargetsFragment.listAdapter != null) {
+					TargetsFragment.listAdapter.notifyDataSetChanged();
+				}
+    		}   
+    	}
+    };
 
 }

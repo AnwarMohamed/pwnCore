@@ -24,23 +24,24 @@ public class ConsoleSession {
 	private String msfId= null;
 	private String id, prompt;
 	private Context context;
-	private boolean isWindowReady = false,
-					isWindowActive = false,
+	private boolean isWindowActive = false,
 					logoLoaded = false;
-		
+	public boolean isWindowReady = false;
 	protected ConsoleSessionParams params = null;
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
 
 	private ArrayList<String> queryPool = new ArrayList<String>();
 	
-	public ConsoleSession(Context context) {
+	public ConsoleSession(Context context, String title) {
 		this.context = context;
+		this.title = title;
 	}
 	
-	public ConsoleSession(Context context, ConsoleSessionParams params) {
+	public ConsoleSession(Context context, ConsoleSessionParams params, String title) {
 		this.context = context;
 		this.params = params;
+		this.title = title;
 		this.isWindowReady = params.hasWindowViews();
 		setupSessionInteractDlg();
 	}
@@ -236,11 +237,7 @@ public class ConsoleSession {
 	
 	
 	
-	protected void updateAdapters() {
-		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
-		context.sendBroadcast(tmpIntent);	
-	}
+
 	
 	public void pingReadListener() {
 		new Thread(new Runnable() {  
@@ -254,8 +251,7 @@ public class ConsoleSession {
 	public void write(final String data) {
 		if (logoLoaded) {	
 			notifyQueryPool(data);	
-			if (title.equals(""))
-				title = data.split("\n")[0];
+
 			conversation.add(prompt + data + "\n");
 			appendToLog(prompt + data, null);
 		}		
@@ -288,6 +284,7 @@ public class ConsoleSession {
 	public void destroy() {
 		Intent tmpIntent = new Intent();
 		tmpIntent.putExtra("msfId", msfId);
+		tmpIntent.putExtra("id", id);
 		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
 		context.sendBroadcast(tmpIntent);	
 	}

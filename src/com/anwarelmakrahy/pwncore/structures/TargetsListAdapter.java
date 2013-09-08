@@ -94,11 +94,12 @@ public class TargetsListAdapter extends BaseAdapter {
 		for (int i=0; i<osTitles.length; i++)
 			if (osTitles[i].equals(os))
 				return osImages[i];
-		return osImages[0];
+		return osImages[osTitles.length - 1];
 	}
 	
-	public static String[] osTitles = { "Unknown", "Windows", "Linux", "Android", "Cisco IOS", "FreeBSD", "NetBSD", "Mac OS X", "OpenBSD", "Printer", "Solaris"};
-	private static int[] osImages = { R.drawable.unknown, R.drawable.windows7, R.drawable.linux, R.drawable.android, R.drawable.cisco, R.drawable.bsd, R.drawable.bsd, 
-								R.drawable.macosx, R.drawable.bsd, R.drawable.printer, R.drawable.solaris};
-
+	public static String[] osTitles = { "Windows 2000", "Windows XP", "Windows 7", "Windows 8", 
+		"Linux", "Android", "Cisco IOS", "FreeBSD", "NetBSD", "Mac OS X", "OpenBSD", "Printer", "Solaris", "Unknown"};
+	private static int[] osImages = { R.drawable.windows2000, R.drawable.windowsxp,  
+		R.drawable.windows7, R.drawable.windows8, R.drawable.linux, R.drawable.android, R.drawable.cisco, 
+		R.drawable.bsd, R.drawable.bsd, R.drawable.macosx, R.drawable.bsd, R.drawable.printer, R.drawable.solaris, R.drawable.unknown};
 }

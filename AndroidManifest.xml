@@ -50,12 +50,7 @@
             android:label="Attack Wizard"
             android:name="com.anwarelmakrahy.pwncore.activities.AttackWizardActivity">            
         </activity>
-        
-        <activity 
-            android:label="Search Results"
-            android:name="com.anwarelmakrahy.pwncore.activities.SearchModulesActivity">        
-        </activity>
-        
+
         <service 
             android:name="HeadService">           
         </service>

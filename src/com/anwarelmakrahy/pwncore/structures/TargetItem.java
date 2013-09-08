@@ -3,6 +3,12 @@ package com.anwarelmakrahy.pwncore.structures;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
+import com.anwarelmakrahy.pwncore.console.utils.ServiceEnum;
+
+import android.content.Context;
+
 public class TargetItem {
 	
 	private String host;
@@ -12,10 +18,15 @@ public class TargetItem {
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
 
-	public TargetItem() {}
+	private Context context;
 	
-	public TargetItem(String host) {
+	public TargetItem(Context context) {
+		this.context = context;
+	}
+	
+	public TargetItem(Context context, String host) {
 		this.host = host;
+		this.context = context;
 	}
 	 
 	public void addPort(String type, String port, String details) {
@@ -57,8 +68,31 @@ public class TargetItem {
 		return isPwned;
 	}
 	
-	public boolean isUp() {
-		return (udpPorts.size() + tcpPorts.size() == 0) ? false: true;
+	public void scanPorts() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+			    PortScanner scanner = new PortScanner(context, "PortScanner " + getHost());
+			    MainService.sessionMgr.getNewConsole(scanner);
+			    if (scanner != null)
+			    	scanner.scan(TargetItem.this);
+			}	
+		}).start();
 	}
 	
+	public void scanServices() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+			    ServiceEnum services = new ServiceEnum(context, "ServiceEnum " + getHost());
+			    MainService.sessionMgr.getNewConsole(services);
+			    if (services != null)
+			    	services.enumerate(TargetItem.this);
+			}	
+		}).start();
+	}
+
+	public boolean isUp() {
+		return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
+	}	
 }

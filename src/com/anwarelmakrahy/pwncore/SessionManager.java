@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
@@ -32,12 +34,12 @@ public class SessionManager {
 	private Context context;
 	
 	private int incConsoleIDs = 1000;
-	private Map<String, ConsoleSession> consoleSessions = new HashMap<String, ConsoleSession>();
-	private Map<String, ControlSession> controlSessions = new HashMap<String, ControlSession>();
+	private Map<String, ConsoleSession> consoleSessions = new ConcurrentHashMap<String, ConsoleSession>();
+	private Map<String, ControlSession> controlSessions = new ConcurrentHashMap<String, ControlSession>();
 	private Map<String, Value> sessionsRemoteInfo;
 	
-	public List<ControlSession> controlSessionsList = new ArrayList<ControlSession>();
-	public List<String> jobsList = new ArrayList<String>();
+	public List<ControlSession> controlSessionsList = new CopyOnWriteArrayList<ControlSession>();
+	public List<String> jobsList = new CopyOnWriteArrayList<String>();
 	
 	private String 	currentConsoleWindowId = null,
 					currentControlWindowId = null;
@@ -111,8 +113,8 @@ public class SessionManager {
 			for (int i=0; i<res.size(); i++)
 				jobsList.add("[" + id[i] + "] " + res.get(id[i]).asRawValue().getString());	
 			
-			if (JobsFragment.listadapter != null)
-				JobsFragment.listadapter.notifyDataSetChanged();
+			if (JobsFragment.listAdapter != null)
+				JobsFragment.listAdapter.notifyDataSetChanged();
 		}}.run();
 	}
 	
@@ -141,17 +143,18 @@ public class SessionManager {
 		context.sendBroadcast(tmpIntent);		
 	}
 	
+	private void updateAdapters() {
+		Intent tmpIntent = new Intent();
+		tmpIntent.setAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
+		context.sendBroadcast(tmpIntent);	
+	}
+	
 	public void notifyNewConsole(String id, String msfId, String prompt) {
 		if (consoleSessions.containsKey(id)) {
 			consoleSessions.get(id).setPrompt(prompt);
 			consoleSessions.get(id).setMsfId(msfId);
-			
-			if (ConsolesFragment.mConsolesListAdapter != null) {
-				ConsolesFragment.consoleArray.clear();
-				ConsolesFragment.consoleArray.addAll(getConsoleListArray());
-				ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
-			}
 		}
+		updateAdapters();
 	}
 	
 	public void notifyConsoleWrite(String id) {
@@ -169,6 +172,7 @@ public class SessionManager {
 	public void notifyDestroyedConsole(String Id, String msfId) {
 		if (consoleSessions.containsKey(Id))
 			consoleSessions.remove(Id);
+		updateAdapters();
 	}
 	
 	public void switchWindow(String type, String id, Activity activity) {
@@ -226,7 +230,7 @@ public class SessionManager {
 			currentConsoleWindowId = null;
 		consoleSessions.remove(c.getId());
 		
-		if (ConsolesFragment.mConsolesListAdapter != null) {
+		if (ConsolesFragment.listAdapter != null) {
 			ConsolesFragment.consoleArray.clear();
 			ConsolesFragment.consoleArray.addAll(getConsoleListArray());    	 
 			//ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
@@ -242,7 +246,7 @@ public class SessionManager {
 	}
 	
 	public List<String> getConsoleListArray() {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new CopyOnWriteArrayList<String>();
 		
 		for (int i=0; i<consoleSessions.size(); i++)
 			list.add("[" + consoleSessions.get(consoleSessions.keySet().

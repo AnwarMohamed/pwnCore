@@ -5,6 +5,8 @@ import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,9 +19,9 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class TargetsFragment extends Fragment {
 	
-	public static ListView mTargetsListView;
-	public static TargetsListAdapter mTargetsListAdapter;
-	
+	public static ListView listview;
+	public static TargetsListAdapter listAdapter;
+	private SharedPreferences prefs;
 
 	public static final TargetsFragment newInstance() {
 		TargetsFragment fragment = new TargetsFragment();
@@ -30,28 +32,28 @@ public class TargetsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_targets, container, false);
 		 
-		mTargetsListView = (ListView)view.findViewById(R.id.targetsFragmentListView);
-		mTargetsListAdapter = new TargetsListAdapter(
+		listview = (ListView)view.findViewById(R.id.targetsFragmentListView);
+		listAdapter = new TargetsListAdapter(
 				getActivity().getApplicationContext(), 
 				MainService.mTargetHostList);
 		
-		mTargetsListView.setAdapter(mTargetsListAdapter);
+		listview.setAdapter(listAdapter);
 		
 		if (AttackHallActivity.getCurListPosition() + 1 > MainService.mTargetHostList.size())
 			AttackHallActivity.setCurListPosition(0);
 		
-		mTargetsListAdapter.setSelectedIndex(AttackHallActivity.getCurListPosition());
+		listAdapter.setSelectedIndex(AttackHallActivity.getCurListPosition());
 
 		setupListViewListener();
 		return view;
 	}
 	
 	private void setupListViewListener() {
-		mTargetsListView.setOnItemClickListener(new OnItemClickListener() {
+		listview.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
-	        	//prepareTargetDetails(position);	        	
-        		mTargetsListAdapter.setSelectedIndex(position);
+	        	prefs.edit().putString("target_id", Integer.toString(position)).commit();      	
+        		listAdapter.setSelectedIndex(position);
         		AttackHallActivity.pager.setCurrentItem(1);
 	        }
 		});
@@ -60,14 +62,16 @@ public class TargetsFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedState) {
 		super.onActivityCreated(savedState);
-		registerForContextMenu(mTargetsListView);
+		prefs = getActivity().getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+		prefs.edit().putString("target_id", "0").commit();
+		registerForContextMenu(listview);
 	}
 
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser &&
-				mTargetsListAdapter != null)
-			mTargetsListAdapter.notifyDataSetChanged();
+				listAdapter != null)
+			listAdapter.notifyDataSetChanged();
 	}
 }

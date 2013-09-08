@@ -16,7 +16,7 @@ import android.widget.EditText;
 public class SettingsActivity extends Activity {
 	
 	private SharedPreferences prefs;
-	private CheckBox con_chkSSL;
+	private CheckBox con_chkSSL, chkDebug;
 	private EditText con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
 	
 	@Override
@@ -27,12 +27,14 @@ public class SettingsActivity extends Activity {
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         
+        chkDebug = (CheckBox)findViewById(R.id.chkDebug);
         con_chkSSL = (CheckBox)findViewById(R.id.chkSSL);
         con_txtUsername = (EditText)findViewById(R.id.txtUsername);
         con_txtPassword = (EditText)findViewById(R.id.txtPassword);
         con_txtHost = (EditText)findViewById(R.id.txtHost);
         con_txtPort = (EditText)findViewById(R.id.txtPort);
         
+        chkDebug.setChecked(prefs.getBoolean("debug_mode", false));
         con_chkSSL.setChecked(prefs.getBoolean("connection_useSSL", false));
         con_txtUsername.setText(prefs.getString("connection_Username", ""));
         con_txtPassword.setText(prefs.getString("connection_Password", ""));
@@ -85,6 +87,7 @@ public class SettingsActivity extends Activity {
 	private void saveSettings() {
     	SharedPreferences.Editor editor = prefs.edit();
     	
+    	editor.putBoolean("debug_mode", chkDebug.isChecked());
     	editor.putBoolean("connection_useSSL", con_chkSSL.isChecked());
     	editor.putString("connection_Port", con_txtPort.getText().toString());
     	editor.putString("connection_Host", con_txtHost.getText().toString());

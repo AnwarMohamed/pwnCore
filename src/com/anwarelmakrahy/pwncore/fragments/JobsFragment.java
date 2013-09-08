@@ -14,7 +14,7 @@ import android.widget.ListView;
 public class JobsFragment extends Fragment {
 	
 	private ListView listview = null;
-	public static ArrayAdapter<String> listadapter = null;
+	public static ArrayAdapter<String> listAdapter = null;
 	
 	public static final JobsFragment newInstance() {
 		JobsFragment fragment = new JobsFragment();
@@ -27,11 +27,11 @@ public class JobsFragment extends Fragment {
 	
 		listview = (ListView)view.findViewById(R.id.jobsListView);
 		listview.setEmptyView(view.findViewById(R.id.noJobs));
-		listadapter = new ArrayAdapter<String>(
+		listAdapter = new ArrayAdapter<String>(
 				getActivity(), 
 				R.layout.payload_item, 
 				MainService.sessionMgr.jobsList);	
-		listview.setAdapter(listadapter);
+		listview.setAdapter(listAdapter);
 
 		return view;
 	}
@@ -47,9 +47,9 @@ public class JobsFragment extends Fragment {
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser &&
-				listadapter != null) {
+				listAdapter != null) {
 			MainService.sessionMgr.updateJobsList();
-			listadapter.notifyDataSetChanged();
+			listAdapter.notifyDataSetChanged();
 		}
 	}
 	

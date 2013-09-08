@@ -6,7 +6,7 @@
     tools:context=".SplashActivity" >
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/detailStatus"
         android:layout_width="match_parent"
         android:layout_height="282dp"
         android:layout_gravity="center_vertical"

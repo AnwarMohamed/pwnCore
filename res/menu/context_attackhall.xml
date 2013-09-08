@@ -8,8 +8,12 @@
             <item android:id="@+id/mnuTargetLogin445" android:visible="false" android:title="Psexec"/>
         </menu>
     </item>  
-    <item android:id="@+id/mnuTargetScan" android:visible="false" android:title="Scan"/> 
+    
     <item android:id="@+id/mnuTargetFindAttacks" android:visible="false" android:title="Find Attacks"/>
+    
+     <item android:id="@+id/mnuTargetScanServices" android:visible="false" android:title="Scan Services"/>
+     <item android:id="@+id/mnuTargetScanPorts" android:visible="false" android:title="Scan Ports"/>
+    
     <item android:id="@+id/mnuTargetOS" android:visible="false" android:title="Change OS"/>
     <item android:id="@+id/mnuTargetRemove" android:visible="false" android:title="Remove Host"/>
     

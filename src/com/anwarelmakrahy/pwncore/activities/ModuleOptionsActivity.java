@@ -393,7 +393,7 @@ public class ModuleOptionsActivity extends Activity {
 		    consoleParams.setCmdViewId(R.id.consoleRead);
 		    consoleParams.setPromptViewId(R.id.consolePrompt);
 			    
-		    ConsoleSession console = new ConsoleSession(getApplicationContext(), consoleParams);
+		    ConsoleSession console = new ConsoleSession(getApplicationContext(), consoleParams, moduleName);
 		    MainService.sessionMgr.getNewConsole(console);
 			
 	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
