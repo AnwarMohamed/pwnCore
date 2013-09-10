@@ -52,7 +52,7 @@ public class PortScanner extends ConsoleSession {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				int seconds = 45;
+				int seconds = 60;
 				while(isScanning) {
 					if (--seconds ==  0) {
 						target.scanPorts();

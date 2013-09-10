@@ -92,6 +92,15 @@ public class TargetItem {
 		}).start();
 	}
 
+	public void findAttacks() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+			   
+			}	
+		}).start();
+	}
+	
 	public boolean isUp() {
 		return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
 	}	

@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
@@ -120,7 +120,7 @@ public class AttackWizardActivity extends Activity {
 	    	public void onClick(DialogInterface dialog, int whichButton) {
 	    	  String host = input.getText().toString();
 	    	  
-	    	  if (StaticsClass.validateIPAddress(host, true))
+	    	  if (StaticClass.validateIPAddress(host, true))
 	    		  startNmapScan(args, host);
 	    	  else 
 	    		  showNmapHostDlg(args);
@@ -133,10 +133,10 @@ public class AttackWizardActivity extends Activity {
 	private void startNmapScan(String[] args, String host) {
 
 		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_CREATE);
-		tmpIntent.putExtra(StaticsClass.PWNCORE_NMAP_SCAN_ARGS, args);
-		tmpIntent.putExtra(StaticsClass.PWNCORE_NMAP_SCAN_HOST, host);
-		tmpIntent.putExtra(StaticsClass.PWNCORE_CONSOLE_TYPE, StaticsClass.PWNCORE_CONSOLE_TYPE_NMAP);
+		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_CREATE);
+		tmpIntent.putExtra(StaticClass.PWNCORE_NMAP_SCAN_ARGS, args);
+		tmpIntent.putExtra(StaticClass.PWNCORE_NMAP_SCAN_HOST, host);
+		tmpIntent.putExtra(StaticClass.PWNCORE_CONSOLE_TYPE, StaticClass.PWNCORE_CONSOLE_TYPE_NMAP);
 		sendBroadcast(tmpIntent);
 		
 		Toast.makeText(getApplicationContext(), 
@@ -182,7 +182,7 @@ public class AttackWizardActivity extends Activity {
     			String[] hosts = input.getText().toString().split("\n");
 	    	  
     			for (int i=0; i<hosts.length; i++) {
-    				if (StaticsClass.validateIPAddress(hosts[i], false)) {
+    				if (StaticClass.validateIPAddress(hosts[i], false)) {
     					addHostToTargetList(new TargetItem(getApplicationContext(), hosts[i]));				
     				}
     			}
@@ -213,12 +213,12 @@ public class AttackWizardActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();           
 				try {
-					String path = StaticsClass.getPath(this, uri);
+					String path = StaticClass.getPath(this, uri);
 					File file = new File(path);
 					BufferedReader br = new BufferedReader(new FileReader(file));
 					String line;
 				    while ((line = br.readLine()) != null) {
-	    				if (StaticsClass.validateIPAddress(line, false)) {
+	    				if (StaticClass.validateIPAddress(line, false)) {
 	    					addHostToTargetList(new TargetItem(getApplicationContext(), line));				
 	    				}
 				    }				    
@@ -284,9 +284,9 @@ public class AttackWizardActivity extends Activity {
 	public void onResume() {
 		if (!conStatusReceiverRegistered) {
 			IntentFilter filter = new IntentFilter();	
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_FAILED);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_TIMEOUT);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_LOST);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -309,17 +309,17 @@ public class AttackWizardActivity extends Activity {
     	public void onReceive(Context context, Intent intent) {
     		String action = intent.getAction();
     		
-    		if (action == StaticsClass.PWNCORE_CONNECTION_TIMEOUT) {		
+    		if (action == StaticClass.PWNCORE_CONNECTION_TIMEOUT) {		
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
     		}  				
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_FAILED) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionFailed: " + intent.getStringExtra("error"), 
     					Toast.LENGTH_SHORT).show();    	
     		}		
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_LOST) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_LOST) {
     			prefs.edit().putBoolean("isConnected", false).commit();
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionLost: Please check your network settings", 

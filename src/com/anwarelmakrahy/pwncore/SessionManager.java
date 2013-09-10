@@ -138,14 +138,14 @@ public class SessionManager {
 		newConsole.setId(id);
 		consoleSessions.put(id, newConsole);			
 		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_CREATE);
+		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_CREATE);
 		tmpIntent.putExtra("id", id);
 		context.sendBroadcast(tmpIntent);		
 	}
 	
 	private void updateAdapters() {
 		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
+		tmpIntent.setAction(StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
 		context.sendBroadcast(tmpIntent);	
 	}
 	

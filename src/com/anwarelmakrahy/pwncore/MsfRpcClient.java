@@ -123,7 +123,7 @@ public class MsfRpcClient {
 			}
 			
 			Intent tmpIntent = new Intent();
-			tmpIntent.setAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
+			tmpIntent.setAction(StaticClass.PWNCORE_AUTHENTICATION_FAILED);
 			context.sendBroadcast(tmpIntent);
 			return false;
 		}
@@ -148,21 +148,21 @@ public class MsfRpcClient {
 			Log.e("GetResponse", "ConnectTimeoutException: " + e);
 			
 			Intent tmpIntent = new Intent();
-			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
+			tmpIntent.setAction(StaticClass.PWNCORE_CONNECTION_TIMEOUT);
 			context.sendBroadcast(tmpIntent);
 			
 		} catch (HttpHostConnectException e) {
 			Log.e("GetResponse", "HttpHostConnectException: " + e);
 			
 			Intent tmpIntent = new Intent();
-			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
+			tmpIntent.setAction(StaticClass.PWNCORE_CONNECTION_FAILED);
 			context.sendBroadcast(tmpIntent);
 			
 		} catch (IOException e) {
 			Log.e("GetResponse", "IOException: " + e);
 			
 			Intent tmpIntent = new Intent();
-			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
+			tmpIntent.setAction(StaticClass.PWNCORE_CONNECTION_FAILED);
 			context.sendBroadcast(tmpIntent);
 		}
 		return null;
@@ -183,17 +183,17 @@ public class MsfRpcClient {
 	public String[] getModules(String type) {
 		String moduleTag = "module.";
 		
-		if (type.contains(StaticsClass.PWNCORE_LOAD_EXPLOITS))
+		if (type.contains(StaticClass.PWNCORE_LOAD_EXPLOITS))
 			moduleTag += "exploits";
-		else if (type.contains(StaticsClass.PWNCORE_LOAD_PAYLOADS))
+		else if (type.contains(StaticClass.PWNCORE_LOAD_PAYLOADS))
 			moduleTag += "payloads";
-		else if (type.contains(StaticsClass.PWNCORE_LOAD_AUXILIARY))
+		else if (type.contains(StaticClass.PWNCORE_LOAD_AUXILIARY))
 			moduleTag += "auxiliary";
-		else if (type.contains(StaticsClass.PWNCORE_LOAD_POSTS))
+		else if (type.contains(StaticClass.PWNCORE_LOAD_POSTS))
 			moduleTag += "post";
-		else if (type.contains(StaticsClass.PWNCORE_LOAD_ENCODERS))
+		else if (type.contains(StaticClass.PWNCORE_LOAD_ENCODERS))
 			moduleTag += "encoders";
-		else if (type.contains(StaticsClass.PWNCORE_LOAD_NOPS))
+		else if (type.contains(StaticClass.PWNCORE_LOAD_NOPS))
 			moduleTag += "nops";
 		else return null;
 

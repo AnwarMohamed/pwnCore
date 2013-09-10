@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.StaticClass;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -76,7 +76,8 @@ public class ConsoleSession {
     	    	Intent intent = new Intent(context, ConsoleActivity.class);
     	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     	    	intent.putExtra("type", "current.meterpreter");
-    	    	intent.putExtra("id", session.getId());
+    	    	String id = session.getId();
+    	    	intent.putExtra("id", id);
     	    	context.startActivity(intent);   
     	    	
     	    }
@@ -125,7 +126,7 @@ public class ConsoleSession {
 					queryPoolActive = true;		
 					for (int i=0; i<queryPool.size(); i++) {
 						Intent tmpIntent = new Intent();
-						tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
+						tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_WRITE);
 						tmpIntent.putExtra("id", id);
 						tmpIntent.putExtra("msfId", msfId);
 						tmpIntent.putExtra("data", queryPool.get(i));
@@ -148,7 +149,7 @@ public class ConsoleSession {
 	
 	private void read() {	
 		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_READ);
+		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_READ);
 		tmpIntent.putExtra("id", id);
 		tmpIntent.putExtra("msfId", msfId);
 		context.sendBroadcast(tmpIntent);
@@ -207,7 +208,7 @@ public class ConsoleSession {
 		//TODO
 	}
 
-	protected ControlSession session;
+	private ControlSession session;
 	
 	private void sessionInteract(final String data, final String type) {
 		new Thread(new Runnable() {
@@ -224,6 +225,7 @@ public class ConsoleSession {
 	    		    params.setAcivity(MainActivity.getActivity());
 	    		    
 	    	    	MainService.sessionMgr.getNewSession(session, "meterpreter", sessionId, params);
+					session = MainService.sessionMgr.getSession(sessionId);
 					
 					if (isWindowActive && isWindowReady)				
 						params.getAcivity().runOnUiThread(new Runnable() {  
@@ -285,7 +287,7 @@ public class ConsoleSession {
 		Intent tmpIntent = new Intent();
 		tmpIntent.putExtra("msfId", msfId);
 		tmpIntent.putExtra("id", id);
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
+		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_DESTROY);
 		context.sendBroadcast(tmpIntent);	
 	}
 	

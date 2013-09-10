@@ -59,6 +59,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 					con_txtHost, 
 					con_txtPort;
 	
+	public static boolean debug_mode = false;
+	
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -280,10 +282,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	String msgbox_string = 	"pwnCore v1.0b\n" + 
 					"Android Cyber Attack Management tool for Metasploit\n\n" +
 					"Anwar Mohamed\n" + 
-					"anwarelmakrahy@gmail.com\n\n";
+					"anwarelmakrahy@gmail.com";
 
 			AlertDialog dlg = new AlertDialog.Builder(this).create();
 			dlg.setMessage(msgbox_string);
+			dlg.setTitle("About pwnCore");
 			dlg.setCancelable(true);
 			dlg.setButton(DialogInterface.BUTTON_POSITIVE, "Ok", (DialogInterface.OnClickListener) null);
 			dlg.show();
@@ -298,7 +301,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    				checkConDlgBuilder.show();
 	    			else {
 		    			Intent tmpIntent = new Intent();
-		    			tmpIntent.setAction(StaticsClass.PWNCORE_CONNECT);
+		    			tmpIntent.setAction(StaticClass.PWNCORE_CONNECT);
 		    			sendBroadcast(tmpIntent);
 		    			
 		    			Toast.makeText(getApplicationContext(), 
@@ -309,7 +312,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    	}
 	    	else if (isConnected) {
     			Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_DISCONNECT);
+    			tmpIntent.setAction(StaticClass.PWNCORE_DISCONNECT);
     			sendBroadcast(tmpIntent);	
     			Disconnect();
     			
@@ -376,22 +379,22 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	public void onResume() {
 		if (!conStatusReceiverRegistered) {
 			IntentFilter filter = new IntentFilter();	
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);	
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS);			
-			filter.addAction(StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS);			
-			filter.addAction(StaticsClass.PWNCORE_LOAD_POSTS_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_ENCODERS_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_NOPS_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS);
-			filter.addAction(StaticsClass.PWNCORE_AUTHENTICATION_FAILED);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_SUCCESS);	
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_FAILED);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_TIMEOUT);
+			filter.addAction(StaticClass.PWNCORE_LOAD_EXPLOITS_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_EXPLOITS_SUCCESS);			
+			filter.addAction(StaticClass.PWNCORE_LOAD_PAYLOADS_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_PAYLOADS_SUCCESS);			
+			filter.addAction(StaticClass.PWNCORE_LOAD_POSTS_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_POSTS_SUCCESS);
+			filter.addAction(StaticClass.PWNCORE_LOAD_ENCODERS_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_ENCODERS_SUCCESS);
+			filter.addAction(StaticClass.PWNCORE_LOAD_NOPS_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_NOPS_SUCCESS);
+			filter.addAction(StaticClass.PWNCORE_LOAD_AUXILIARY_FAILED);
+			filter.addAction(StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS);
+			filter.addAction(StaticClass.PWNCORE_AUTHENTICATION_FAILED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -454,19 +457,19 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	public void onReceive(Context context, Intent intent) {
     		String action = intent.getAction();
     		
-    		if (action == StaticsClass.PWNCORE_CONNECTION_TIMEOUT) {
+    		if (action == StaticClass.PWNCORE_CONNECTION_TIMEOUT) {
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
     		}   
-    		else if (action == StaticsClass.PWNCORE_AUTHENTICATION_FAILED) {
+    		else if (action == StaticClass.PWNCORE_AUTHENTICATION_FAILED) {
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
     					"AuthenticationFailed: Please check that your credentials are valid", 
     					Toast.LENGTH_SHORT).show();	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_SUCCESS) {
     			isConnected = true;
     			
     	    	invalidateOptionsMenu();
@@ -476,10 +479,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setNotification();
 
     			Intent tmpIntent = new Intent();
-    			tmpIntent.setAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
+    			tmpIntent.setAction(StaticClass.PWNCORE_LOAD_ALL_MODULES);
     			sendBroadcast(tmpIntent);	
     		}    		
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_FAILED) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_FAILED) {
     			Disconnect();		
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionFailed: " + intent.getStringExtra("error"), 
@@ -488,12 +491,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setNotification();
     		}		
   		
-    		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_EXPLOITS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch exploits list", 
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_EXPLOITS_SUCCESS) {
     			MainService.modulesMap.setList("exploit", databaseHandler.getAllModules("exploits")); 			
     			SidebarItems.get(0).setCount(databaseHandler.getModulesCount("exploits"));
     			SidebarAdapter.notifyDataSetChanged();
@@ -504,56 +507,56 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				MainService.modulesMap.switchAdapter("exploit");
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch payloads list",  
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
     			MainService.modulesMap.setList("payload", databaseHandler.getAllModules("payloads"));
     			SidebarItems.get(1).setCount(databaseHandler.getModulesCount("payloads"));
     			SidebarAdapter.notifyDataSetChanged();			
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_LOAD_POSTS_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_POSTS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch posts list",  
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_POSTS_SUCCESS) {
     			MainService.modulesMap.setList("post", databaseHandler.getAllModules("post"));
     			SidebarItems.get(2).setCount(databaseHandler.getModulesCount("post"));
     			SidebarAdapter.notifyDataSetChanged();    		
     		} 		
     		
-    		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch encoderss list",  
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
     			MainService.modulesMap.setList("encoder", databaseHandler.getAllModules("encoders"));
     			SidebarItems.get(3).setCount(databaseHandler.getModulesCount("encoders"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch auxiliary list",  
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
+    		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
     			MainService.modulesMap.setList("auxiliary", databaseHandler.getAllModules("auxiliary"));
     			SidebarItems.get(4).setCount(databaseHandler.getModulesCount("auxiliary"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_LOAD_NOPS_FAILED) {
+    		else if (action == StaticClass.PWNCORE_LOAD_NOPS_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"Failed to fetch nops list",  
     					Toast.LENGTH_SHORT).show();    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_NOPS_SUCCESS) {
     			MainService.modulesMap.setList("nop", databaseHandler.getAllModules("nops"));
     			SidebarItems.get(5).setCount(databaseHandler.getModulesCount("nops"));
     			SidebarAdapter.notifyDataSetChanged();
@@ -600,10 +603,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		} else if (con_txtPassword.equals("")) {
 			hasError = true;
 			error = "Password not set";			
-		} else if (!StaticsClass.isNumeric(con_txtPort)) {
+		} else if (!StaticClass.isNumeric(con_txtPort)) {
 			hasError = true;
 			error = "Port not valid";
-		} else if (!StaticsClass.validateIPAddress(con_txtHost, false)) {
+		} else if (!StaticClass.validateIPAddress(con_txtHost, false)) {
 			hasError = true;
 			error = "IP address not valid";			
 		}
@@ -632,19 +635,19 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	}
 	
 	private void loadSharedPreferences() {	
+		debug_mode 		= 	prefs.getBoolean("debug_mode", false);
         con_txtUsername	=	prefs.getString("connection_Username", "");
         con_txtPassword	=	prefs.getString("connection_Password", "");
         con_txtHost		=	prefs.getString("connection_Host", "");
         con_txtPort		=	prefs.getString("connection_Port", "55553"); 
         
 		if (!con_txtUsername.equals("") && 
-				StaticsClass.isNumeric(con_txtPort) && 
-				StaticsClass.validateIPAddress(con_txtHost, false)) {			
+				StaticClass.isNumeric(con_txtPort) && 
+				StaticClass.validateIPAddress(con_txtHost, false)) {			
 			getActionBar().setSubtitle(con_txtUsername + "@" + con_txtHost + ":" + con_txtPort);
 		}
 	}
 	    
-	
     private class DrawerItemClickListener implements OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -720,12 +723,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	@Override
 	public boolean onQueryTextSubmit(String s) {
-		//startActivity(new Intent(
-		//		getApplicationContext(), 
-		//		SearchModulesActivity.class
-		//		).putExtra("q", s));
-		//
-		//mnuSearch.collapseActionView();
 		return true;
 	}
     

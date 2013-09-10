@@ -2,7 +2,7 @@ package com.anwarelmakrahy.pwncore.activities;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.structures.TargetItem;
@@ -132,10 +132,10 @@ public class AttackHall2Activity extends Activity {
 	public void onResume() {
 		if (!conStatusReceiverRegistered) {
 			IntentFilter filter = new IntentFilter();	
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_FAILED);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_TIMEOUT);
-			filter.addAction(StaticsClass.PWNCORE_CONNECTION_LOST);
-			filter.addAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_FAILED);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_TIMEOUT);
+			filter.addAction(StaticClass.PWNCORE_CONNECTION_LOST);
+			filter.addAction(StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -172,24 +172,24 @@ public class AttackHall2Activity extends Activity {
     	public void onReceive(Context context, Intent intent) {
     		String action = intent.getAction();
     		
-    		if (action == StaticsClass.PWNCORE_CONNECTION_TIMEOUT) {		
+    		if (action == StaticClass.PWNCORE_CONNECTION_TIMEOUT) {		
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionTimeout: Please check that server is running", 
     					Toast.LENGTH_SHORT).show();
     		}  				
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_FAILED) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_FAILED) {
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionFailed: " + intent.getStringExtra("error"), 
     					Toast.LENGTH_SHORT).show();    	
     		}		
-    		else if (action == StaticsClass.PWNCORE_CONNECTION_LOST) {
+    		else if (action == StaticClass.PWNCORE_CONNECTION_LOST) {
     			prefs.edit().putBoolean("isConnected", false).commit();
     			Toast.makeText(getApplicationContext(), 
     					"ConnectionLost: Please check your network settings", 
     					Toast.LENGTH_SHORT).show();
     			finish();
     		}
-    		else if (action == StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
+    		else if (action == StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
     			mTargetsListAdapter.notifyDataSetChanged();
     			prepareTargetDetails(curListPosition);
     		}

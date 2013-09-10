@@ -6,7 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-public class StaticsClass {
+public class StaticClass {
 	
 	public static String PWNCORE_CONNECTION_SUCCESS = "CONNECTION_SUCCESS";
 	public static String PWNCORE_CONNECTION_TIMEOUT = "CONNECTION_TIMEOUT";

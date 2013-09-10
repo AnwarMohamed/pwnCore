@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
@@ -172,6 +172,9 @@ public class AttackHallActivity extends FragmentActivity {
             .create();
             builder.show(); 
         	return true;
+        case R.id.mnuTargetFindAttacks:
+        	MainService.mTargetHostList.get(info.position).findAttacks();
+        	return true;
         	
         	
         case R.id.mnuTargetLogin21:
@@ -256,7 +259,7 @@ public class AttackHallActivity extends FragmentActivity {
 	public void onResume() {
 		if (!conStatusReceiverRegistered) {
 			IntentFilter filter = new IntentFilter();	
-			filter.addAction(StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);	
+			filter.addAction(StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE);	
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}		
@@ -279,7 +282,7 @@ public class AttackHallActivity extends FragmentActivity {
     	public void onReceive(Context context, Intent intent) {
     		String action = intent.getAction();
     		
-    		if (action == StaticsClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
+    		if (action == StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
 				if (ConsolesFragment.listAdapter != null) {
 					ConsolesFragment.consoleArray.clear();
 					ConsolesFragment.consoleArray.addAll(MainService.sessionMgr.getConsoleListArray()); 

@@ -43,25 +43,25 @@ public class MainService extends Service {
 		modulesMap = new ModulesMap(getApplicationContext());
 		
 		IntentFilter filter = new IntentFilter();
-		filter.addAction(StaticsClass.PWNCORE_CONNECT);
-		filter.addAction(StaticsClass.PWNCORE_DISCONNECT);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_EXPLOITS);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_PAYLOADS);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_ENCODERS);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_NOPS);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_AUXILIARY);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_POSTS);
-		filter.addAction(StaticsClass.PWNCORE_LOAD_ALL_MODULES);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_CREATE);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_WRITE);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_READ);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_DESTROY);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_READ);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_WRITE);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_READ);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE);	
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY);
-		filter.addAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
+		filter.addAction(StaticClass.PWNCORE_CONNECT);
+		filter.addAction(StaticClass.PWNCORE_DISCONNECT);
+		filter.addAction(StaticClass.PWNCORE_LOAD_EXPLOITS);
+		filter.addAction(StaticClass.PWNCORE_LOAD_PAYLOADS);
+		filter.addAction(StaticClass.PWNCORE_LOAD_ENCODERS);
+		filter.addAction(StaticClass.PWNCORE_LOAD_NOPS);
+		filter.addAction(StaticClass.PWNCORE_LOAD_AUXILIARY);
+		filter.addAction(StaticClass.PWNCORE_LOAD_POSTS);
+		filter.addAction(StaticClass.PWNCORE_LOAD_ALL_MODULES);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_CREATE);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_WRITE);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_READ);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_DESTROY);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_SHELL_READ);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_SHELL_WRITE);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_METERPRETER_READ);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_METERPRETER_WRITE);	
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_SHELL_DESTROY);
+		filter.addAction(StaticClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
 		registerReceiver(mainReceiver, filter);
    
 		executor = Executors.newFixedThreadPool(30);
@@ -96,7 +96,7 @@ public class MainService extends Service {
 					Intent tmpIntent = new Intent();				
 		        	if (client.login(con_txtUsername, con_txtPassword)) {
 		        		isAuthenticated = true; 		        		
-		        		tmpIntent.setAction(StaticsClass.PWNCORE_CONNECTION_SUCCESS);
+		        		tmpIntent.setAction(StaticClass.PWNCORE_CONNECTION_SUCCESS);
 		        		sendBroadcast(tmpIntent);	        		
 		        		StatsMap = client.call(MsfRpcClient.singleOptCallList("core.module_stats"));
 		        		sessionMgr.updateJobsList();
@@ -124,22 +124,22 @@ public class MainService extends Service {
     	public void onReceive(Context context, final Intent intent) {
     		final String action = intent.getAction();
     		
-    		if (action == StaticsClass.PWNCORE_CONNECT) { 
+    		if (action == StaticClass.PWNCORE_CONNECT) { 
     			if (!isAuthenticated)
     				startConnection();
     		}
-    		else if (action == StaticsClass.PWNCORE_DISCONNECT) {		
+    		else if (action == StaticClass.PWNCORE_DISCONNECT) {		
 				isAuthenticated = false;
     		}
 
-    		else if (action == StaticsClass.PWNCORE_LOAD_ALL_MODULES && isAuthenticated) {
+    		else if (action == StaticClass.PWNCORE_LOAD_ALL_MODULES && isAuthenticated) {
 				String[] modules = {
-	        			StaticsClass.PWNCORE_LOAD_EXPLOITS,
-	        			StaticsClass.PWNCORE_LOAD_PAYLOADS,
-	        			StaticsClass.PWNCORE_LOAD_POSTS,
-	        			StaticsClass.PWNCORE_LOAD_AUXILIARY,
-						StaticsClass.PWNCORE_LOAD_NOPS,
-						StaticsClass.PWNCORE_LOAD_ENCODERS,
+	        			StaticClass.PWNCORE_LOAD_EXPLOITS,
+	        			StaticClass.PWNCORE_LOAD_PAYLOADS,
+	        			StaticClass.PWNCORE_LOAD_POSTS,
+	        			StaticClass.PWNCORE_LOAD_AUXILIARY,
+						StaticClass.PWNCORE_LOAD_NOPS,
+						StaticClass.PWNCORE_LOAD_ENCODERS,
 						};
 				
     			Intent tmpIntent = new Intent();        			
@@ -148,83 +148,83 @@ public class MainService extends Service {
     				sendBroadcast(tmpIntent); 
     			}
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_EXPLOITS && isAuthenticated) {			   				
+    		else if (action == StaticClass.PWNCORE_LOAD_EXPLOITS && isAuthenticated) {			   				
 				executor.execute(new NewThread(null) {
 					@Override public void run() {							
 						getModules(
 								"exploits", 
 								action, 
-								StaticsClass.PWNCORE_LOAD_EXPLOITS_SUCCESS, 
-								StaticsClass.PWNCORE_LOAD_EXPLOITS_FAILED
+								StaticClass.PWNCORE_LOAD_EXPLOITS_SUCCESS, 
+								StaticClass.PWNCORE_LOAD_EXPLOITS_FAILED
 								);
 						Thread.currentThread().interrupt();
 					}}); 			
     		}    		
-    		else if (action == StaticsClass.PWNCORE_LOAD_PAYLOADS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS) {
     			if (isAuthenticated) {   			
     				executor.execute(new NewThread(null) {
 						@Override public void run() {	
 							getModules(
 									"payloads", 
 									action, 
-									StaticsClass.PWNCORE_LOAD_PAYLOADS_SUCCESS, 
-									StaticsClass.PWNCORE_LOAD_PAYLOADS_FAILED
+									StaticClass.PWNCORE_LOAD_PAYLOADS_SUCCESS, 
+									StaticClass.PWNCORE_LOAD_PAYLOADS_FAILED
 									);
 						}});
     			}    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_POSTS) {
+    		else if (action == StaticClass.PWNCORE_LOAD_POSTS) {
     			if (isAuthenticated) {   			
     				executor.execute(new NewThread(null) {
 						@Override public void run() {								
 							getModules(
 									"post", 
 									action, 
-									StaticsClass.PWNCORE_LOAD_POSTS_SUCCESS, 
-									StaticsClass.PWNCORE_LOAD_POSTS_FAILED
+									StaticClass.PWNCORE_LOAD_POSTS_SUCCESS, 
+									StaticClass.PWNCORE_LOAD_POSTS_FAILED
 									);
 						}});
     			}    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_AUXILIARY) {
+    		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY) {
     			if (isAuthenticated) {   			
     				executor.execute(new NewThread(null) {
 						@Override public void run() {								
 							getModules(
 									"auxiliary", 
 									action, 
-									StaticsClass.PWNCORE_LOAD_AUXILIARY_SUCCESS, 
-									StaticsClass.PWNCORE_LOAD_AUXILIARY_FAILED
+									StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS, 
+									StaticClass.PWNCORE_LOAD_AUXILIARY_FAILED
 									);
 						}});
     			}     			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_NOPS && isAuthenticated) {
+    		else if (action == StaticClass.PWNCORE_LOAD_NOPS && isAuthenticated) {
     			if (isAuthenticated) {   			
     				executor.execute(new NewThread(null) {
 						@Override public void run() {								
 							getModules(
 									"nops", 
 									action, 
-									StaticsClass.PWNCORE_LOAD_NOPS_SUCCESS, 
-									StaticsClass.PWNCORE_LOAD_NOPS_FAILED
+									StaticClass.PWNCORE_LOAD_NOPS_SUCCESS, 
+									StaticClass.PWNCORE_LOAD_NOPS_FAILED
 									);
 						}});
     			}    			
     		}
-    		else if (action == StaticsClass.PWNCORE_LOAD_ENCODERS && isAuthenticated) {		
+    		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS && isAuthenticated) {		
 				executor.execute(new NewThread(null) {
 					@Override public void run() {								
 						getModules(
 								"encoders", 
 								action, 
-								StaticsClass.PWNCORE_LOAD_ENCODERS_SUCCESS, 
-								StaticsClass.PWNCORE_LOAD_ENCODERS_FAILED
+								StaticClass.PWNCORE_LOAD_ENCODERS_SUCCESS, 
+								StaticClass.PWNCORE_LOAD_ENCODERS_FAILED
 								);
 					}});	
     		}
     		
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_CREATE) {	
+    		else if (action == StaticClass.PWNCORE_CONSOLE_CREATE) {	
 				executor.execute(new NewThread(null) {
 					@Override public void run() {														
 	            		Map<String, Value> newConDes = 
@@ -236,7 +236,7 @@ public class MainService extends Service {
 		            				newConDes.get("prompt").asRawValue().getString());
 					}});	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_READ) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_READ) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -254,7 +254,7 @@ public class MainService extends Service {
 		            				newConDes.get("busy").asBooleanValue().getBoolean());  
 					}});	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_WRITE) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_WRITE) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -267,14 +267,15 @@ public class MainService extends Service {
 									intent.getStringExtra("id"));  
 					}});			
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_DESTROY) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_DESTROY) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("console.destroy");
 						params.add(intent.getStringExtra("msfId"));
 						Map<String, Value> newConDes = client.call(params);
-						if (newConDes.containsKey("result") &&
+						if (newConDes != null &&
+								newConDes.containsKey("result") &&
 								newConDes.get("result").asRawValue().
 								getString().equals("success")) {
 		        			sessionMgr.notifyDestroyedConsole(
@@ -283,7 +284,7 @@ public class MainService extends Service {
 						}
 					}});	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_METERPRETER_WRITE) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -296,7 +297,7 @@ public class MainService extends Service {
 									intent.getStringExtra("id"));  
 					}});			
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_WRITE) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_WRITE) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -309,7 +310,7 @@ public class MainService extends Service {
 									intent.getStringExtra("id"));  
 					}});			
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_READ) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_METERPRETER_READ) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -322,7 +323,7 @@ public class MainService extends Service {
 		            				newConDes.get("data").asRawValue().getString());  
 					}});	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_READ) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_READ) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
@@ -335,8 +336,8 @@ public class MainService extends Service {
 		            				newConDes.get("data").asRawValue().getString());  
 					}});	
     		}
-    		else if (action == StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY ||
-    				action == StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY) {
+    		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_DESTROY ||
+    				action == StaticClass.PWNCORE_CONSOLE_METERPRETER_DESTROY) {
 				executor.execute(new NewThread(null) {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();

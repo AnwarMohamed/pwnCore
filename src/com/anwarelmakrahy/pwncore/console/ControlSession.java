@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 
-import com.anwarelmakrahy.pwncore.StaticsClass;
+import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
@@ -80,8 +80,8 @@ public class ControlSession {
 						
 						Intent tmpIntent = new Intent();
 						tmpIntent.setAction( 
-								type.equals("shell") ? StaticsClass.PWNCORE_CONSOLE_SHELL_WRITE : 
-								type.equals("meterpreter") ? StaticsClass.PWNCORE_CONSOLE_METERPRETER_WRITE : 
+								type.equals("shell") ? StaticClass.PWNCORE_CONSOLE_SHELL_WRITE : 
+								type.equals("meterpreter") ? StaticClass.PWNCORE_CONSOLE_METERPRETER_WRITE : 
 									null);
 						
 						tmpIntent.putExtra("id", id);
@@ -106,8 +106,8 @@ public class ControlSession {
 	private void read() {	
 		Intent tmpIntent = new Intent();
 		tmpIntent.setAction( 
-				type.equals("shell") ? StaticsClass.PWNCORE_CONSOLE_SHELL_READ : 
-				type.equals("meterpreter") ? StaticsClass.PWNCORE_CONSOLE_METERPRETER_READ : 
+				type.equals("shell") ? StaticClass.PWNCORE_CONSOLE_SHELL_READ : 
+				type.equals("meterpreter") ? StaticClass.PWNCORE_CONSOLE_METERPRETER_READ : 
 					null);
 		
 		tmpIntent.putExtra("id", id);
@@ -178,7 +178,7 @@ public class ControlSession {
 		Intent tmpIntent = new Intent();
 		tmpIntent.putExtra("id", id);
 		//tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_SHELL_DESTROY);
-		tmpIntent.setAction(StaticsClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
+		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_METERPRETER_DESTROY);
 		context.sendBroadcast(tmpIntent);	
 	}
 	
