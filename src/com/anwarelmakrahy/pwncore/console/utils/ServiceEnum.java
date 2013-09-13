@@ -70,7 +70,7 @@ public class ServiceEnum extends ConsoleSession {
 				int seconds = target.getTcpPorts().size() * 10;
 				while(isScanning ) {
 					if (--seconds ==  0) {
-						target.scanPorts();
+						target.scanServices();
 						if (params == null)			
 							MainService.sessionMgr.destroyConsole(ServiceEnum.this);
 						break;

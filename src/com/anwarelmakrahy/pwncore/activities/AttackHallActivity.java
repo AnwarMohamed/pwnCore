@@ -8,6 +8,7 @@ import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
+import com.anwarelmakrahy.pwncore.console.utils.AttackFinder;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
@@ -33,7 +34,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
@@ -43,6 +43,8 @@ public class AttackHallActivity extends FragmentActivity {
 			new String[] { "TARGETS", "TARGET DETAILS", "CONSOLES", "SESSIONS", "JOBS" };
         
 	public static ViewPager pager;
+	
+	private int currentLongPosition = 0;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -172,10 +174,19 @@ public class AttackHallActivity extends FragmentActivity {
             .create();
             builder.show(); 
         	return true;
-        case R.id.mnuTargetFindAttacks:
-        	MainService.mTargetHostList.get(info.position).findAttacks();
-        	return true;
         	
+        case R.id.mnuTargetFindAttacks:
+        	currentLongPosition = info.position;
+        	return true;
+        case R.id.mnuFindAttacksOS:
+        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_OS);
+        	return true;
+        case R.id.mnuFindAttacksPorts:
+        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_PORTS);
+        	return true;
+        case R.id.mnuFindAttacksServices:
+        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
+        	return true;
         	
         case R.id.mnuTargetLogin21:
         	return true;

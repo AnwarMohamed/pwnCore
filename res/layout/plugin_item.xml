@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/pluginRoot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/pluginName"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:text="Needs Root"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ff0000"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/pluginPackage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/pluginName"
+        android:layout_alignRight="@+id/pluginRoot"
+        android:layout_below="@+id/pluginName"
+        android:text="package name"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:translationY="-2dp" />
+
+    <ImageView
+        android:id="@+id/pluginIcon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:scaleType="centerInside" />
+
+    <TextView
+        android:id="@+id/pluginName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/pluginIcon"
+        android:layout_toRightOf="@+id/pluginIcon"
+        android:text="Plugin Name"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#222222"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/pluginDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/pluginPackage"
+        android:layout_below="@+id/pluginPackage"
+        android:paddingBottom="3dp"
+        android:text="Description"
+        android:textColor="#555555" />
+
+</RelativeLayout>

@@ -16,6 +16,7 @@
     <item android:id="@+id/mnuNewConsole" android:title="New Console"></item>
     <item android:id="@+id/mnuConnection" android:title="Connect"></item>
     <item android:id="@+id/mnuRpcSettings" android:title="Settings"></item>
+    <item android:id="@+id/mnuPlugins" android:title="My Plugins"></item>
     <item android:id="@+id/mnuAbout" android:title="About"></item>
     <item android:id="@+id/mnuExit" android:title="Exit"></item>
 </menu>

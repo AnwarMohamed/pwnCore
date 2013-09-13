@@ -17,7 +17,6 @@ import org.msgpack.unpacker.Converter;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
-import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
@@ -25,7 +24,6 @@ import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
@@ -100,22 +98,25 @@ public class SessionManager {
 	}
 	
 	public void updateJobsList() {
-		new Runnable() {
-
-		@Override
-		public void run() {
-			List<Object> params = new ArrayList<Object>();
-			params.add("job.list");		
-			Map<String, Value> res = MainService.client.call(params);
+		List<Object> params = new ArrayList<Object>();
+		params.add("job.list");		
+		Map<String, Value> res = MainService.client.call(params);
+		if (res != null) {
 			String[] id = res.keySet().toArray(new String[res.size()]);
 			
 			jobsList.clear();
 			for (int i=0; i<res.size(); i++)
 				jobsList.add("[" + id[i] + "] " + res.get(id[i]).asRawValue().getString());	
 			
-			if (JobsFragment.listAdapter != null)
-				JobsFragment.listAdapter.notifyDataSetChanged();
-		}}.run();
+			try {
+				new Handler().post(new Runnable() {
+					@Override
+					public void run() {
+						if (JobsFragment.listAdapter != null)
+							JobsFragment.listAdapter.notifyDataSetChanged();	
+					}});			
+			} catch(Exception e) {}
+		}
 	}
 	
 	public void stopJob(String id) {
@@ -124,7 +125,8 @@ public class SessionManager {
 		params.add(id);	
 		Map<String, Value> res = MainService.client.call(params);
 		
-		if (res.containsKey("result") &&
+		if (res != null &&
+				res.containsKey("result") &&
 				res.get("result").asRawValue().getString().equals("success"))
 			updateJobsList();
 	}

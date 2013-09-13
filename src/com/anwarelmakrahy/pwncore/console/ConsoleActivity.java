@@ -207,7 +207,7 @@ public class ConsoleActivity extends Activity {
     	    	finish();
     	    }
     	})
-    	.setCancelable(false)
+    	.setCancelable(true)
     	.show();
 	}
 

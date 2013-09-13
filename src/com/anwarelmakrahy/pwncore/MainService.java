@@ -38,7 +38,7 @@ public class MainService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+		prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
 		sessionMgr = new SessionManager(getApplicationContext());
 		modulesMap = new ModulesMap(getApplicationContext());
 		
@@ -229,7 +229,9 @@ public class MainService extends Service {
 					@Override public void run() {														
 	            		Map<String, Value> newConDes = 
 	            				client.call(MsfRpcClient.singleOptCallList("console.create"));	        
-	            		if (newConDes != null)
+	            		if (newConDes != null &&
+	            				newConDes.containsKey("id") &&
+	            				newConDes.containsKey("id"))
 		            		sessionMgr.notifyNewConsole(
 		            				intent.getStringExtra("id"), 
 		            				newConDes.get("id").asRawValue().getString(), 

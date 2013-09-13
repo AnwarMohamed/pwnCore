@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.console.utils.AttackFinder;
 import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.console.utils.ServiceEnum;
 
@@ -17,16 +18,21 @@ public class TargetItem {
 	
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
-
+	private Map<String, Map<String, String>> suggestedAttacks = new HashMap<String, Map<String, String>>();
+	
 	private Context context;
+	
+	private AttackFinder attackFinder;
 	
 	public TargetItem(Context context) {
 		this.context = context;
+		attackFinder = new AttackFinder(this);
 	}
 	
 	public TargetItem(Context context, String host) {
 		this.host = host;
 		this.context = context;
+		attackFinder = new AttackFinder(this);
 	}
 	 
 	public void addPort(String type, String port, String details) {
@@ -92,16 +98,37 @@ public class TargetItem {
 		}).start();
 	}
 
-	public void findAttacks() {
+	public void findAttacks(final String attackFlag) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-			   
+				suggestedAttacks.clear();
+				suggestedAttacks.putAll(attackFinder.findAttacks(attackFlag));
 			}	
 		}).start();
 	}
 	
 	public boolean isUp() {
 		return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
+	}
+
+	public String[] getOSCodeName() {
+		if (os.toLowerCase().startsWith("windows"))
+			return new String[] { "multi", "windows" };
+		
+		else if (os.toLowerCase().startsWith("solaris"))
+			return new String[] { "solaris", "multi", "unix" };
+		
+		else if (os.toLowerCase().startsWith("linux"))
+			return new String[] { "linux", "multi", "unix"};
+		
+		else if (os.toLowerCase().startsWith("mac"))
+			return new String[] { "osx", "multi", "unix" };
+		
+		else if (os.toLowerCase().startsWith("freebsd"))
+			return new String[] { "freebsd", "multi", "unix" };
+		
+		else 
+			return new String[] {"multi", "unix"};
 	}	
 }

@@ -34,7 +34,7 @@
 	    android:layout_toRightOf="@+id/targetImage"
 	    android:gravity="center_vertical"
 	    android:text="test"
-	     android:translationY="3dp"
+	    android:translationY="3dp"
 	    android:textColor="#000000"
 	    android:textSize="18sp" />
 	

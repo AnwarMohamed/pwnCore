@@ -9,7 +9,13 @@
         </menu>
     </item>  
     
-    <item android:id="@+id/mnuTargetFindAttacks" android:visible="false" android:title="Find Attacks"/>
+    <item android:id="@+id/mnuTargetFindAttacks" android:visible="false" android:title="Find Attacks">
+        <menu>
+            <item android:id="@+id/mnuFindAttacksOS" android:title="Based on OS"/>
+            <item android:id="@+id/mnuFindAttacksServices" android:title="Based on Services"/>
+            <item android:id="@+id/mnuFindAttacksPorts" android:title="Based on Open Ports"/>
+        </menu>
+    </item>
     
      <item android:id="@+id/mnuTargetScanServices" android:visible="false" android:title="Scan Services"/>
      <item android:id="@+id/mnuTargetScanPorts" android:visible="false" android:title="Scan Ports"/>

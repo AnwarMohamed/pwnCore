@@ -65,7 +65,7 @@
         android:text="Use SSL Connection" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/pluginSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -91,8 +91,8 @@
         android:id="@+id/txtPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/textView4"
-        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignBaseline="@+id/pluginSize"
+        android:layout_alignBottom="@+id/pluginSize"
         android:layout_alignLeft="@+id/txtUsername"
         android:layout_alignParentRight="true"
         android:ems="10"
@@ -134,7 +134,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/cmdCancel"
         android:layout_alignBottom="@+id/cmdCancel"
-        android:layout_toRightOf="@+id/textView4"
+        android:layout_toRightOf="@+id/pluginSize"
         android:text="Save Settings" />
 
 </RelativeLayout>

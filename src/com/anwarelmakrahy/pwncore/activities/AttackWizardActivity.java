@@ -9,9 +9,6 @@ import java.net.URISyntaxException;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
-import com.anwarelmakrahy.pwncore.console.ConsoleSession;
-import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
-import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.structures.TargetItem;
 import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
 
@@ -67,33 +64,7 @@ public class AttackWizardActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) { 
 	    switch (item.getItemId()) {    	
-	        
-	    case R.id.mnuNmapComprehensive:
-	    	showNmapHostDlg(new String[] {	"-sS","-sU","-T4","-A","-v","-PE","-PP","-PS80,443","-PA3389",
-	    									"-PU40125","-PY","-g","53","--script", "default or (discovery and safe)","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapIntense:
-	    	showNmapHostDlg(new String[] {"-T4","-A","-v","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapIntenseUDP:
-	    	showNmapHostDlg(new String[] {"-sS","-sU","-T4","-A","-v","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapIntenseNoPing:
-	    	showNmapHostDlg(new String[] {"-T4","-A","-v","-Pn","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapIntenseTCP:
-	    	showNmapHostDlg(new String[] {"-p","1-65535","-T4","-A","-v","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapPing:
-	    	showNmapHostDlg(new String[] {"-sn","-v","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapQuick:
-	    	showNmapHostDlg(new String[] {"-T4","-F","-v","-oX","-"});
-	    	return true;
-	    case R.id.mnuNmapQuickOS:
-	    	showNmapHostDlg(new String[] {"-T4","-F","-O","-v","-oX","-"});
-	    	return true; 
-	    	
+	        	    	
 	    case R.id.mnuHostsManualFeed:
 	    	showManualHostDlg();
 	    	return true;  
@@ -110,41 +81,6 @@ public class AttackWizardActivity extends Activity {
 	    }
 	}
 	
-	private void showNmapHostDlg(final String[] args) {
-    	final EditText input = new EditText(this);
-    	input.setSingleLine(true);
-    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
-    	.setMessage("Enter scan range (eg. 10.0.0.0/24)")
-    	.setView(input)
-    	.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-	    	public void onClick(DialogInterface dialog, int whichButton) {
-	    	  String host = input.getText().toString();
-	    	  
-	    	  if (StaticClass.validateIPAddress(host, true))
-	    		  startNmapScan(args, host);
-	    	  else 
-	    		  showNmapHostDlg(args);
-	    	}
-    	})
-    	.setNegativeButton("Cancel", null);
-    	alert.show();
-    }
-	
-	private void startNmapScan(String[] args, String host) {
-
-		Intent tmpIntent = new Intent();
-		tmpIntent.setAction(StaticClass.PWNCORE_CONSOLE_CREATE);
-		tmpIntent.putExtra(StaticClass.PWNCORE_NMAP_SCAN_ARGS, args);
-		tmpIntent.putExtra(StaticClass.PWNCORE_NMAP_SCAN_HOST, host);
-		tmpIntent.putExtra(StaticClass.PWNCORE_CONSOLE_TYPE, StaticClass.PWNCORE_CONSOLE_TYPE_NMAP);
-		sendBroadcast(tmpIntent);
-		
-		Toast.makeText(getApplicationContext(), 
-				"Nmap scan started.", 
-				Toast.LENGTH_LONG).show();
-		
-		setProgressBar(true);
-    }
 	
 	private ListView mTargetHostListView;
 	private TargetsListAdapter mTargetHostListAdapter;

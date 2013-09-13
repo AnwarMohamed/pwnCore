@@ -4,6 +4,7 @@ import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +49,11 @@ public class JobsFragment extends Fragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser &&
 				listAdapter != null) {
-			MainService.sessionMgr.updateJobsList();
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					MainService.sessionMgr.updateJobsList();
+				}});//.run();
 			listAdapter.notifyDataSetChanged();
 		}
 	}

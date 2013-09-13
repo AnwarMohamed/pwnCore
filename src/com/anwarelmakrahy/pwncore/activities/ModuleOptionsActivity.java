@@ -153,7 +153,7 @@ public class ModuleOptionsActivity extends Activity {
 	}
 	
 	private void loadOptions() {
-		new Handler().postDelayed(new Runnable() {
+		new Handler().post(new Runnable() {
 			@Override public void run() {
 		        List<Object> params = new ArrayList<Object>();
 		        params.add("module.info");
@@ -166,7 +166,7 @@ public class ModuleOptionsActivity extends Activity {
 		        params.add(moduleType);
 		        params.add(moduleName); 
 		        parseOptions(MainService.client.call(params));		
-			}}, 0);
+			}});
 	}
 	
 	private void parseInfo(final Map<String, Value> info) {
@@ -174,7 +174,7 @@ public class ModuleOptionsActivity extends Activity {
 			finish();
 			return;
 		}
-		new Handler().postDelayed(new Runnable() {
+		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
 				
@@ -216,7 +216,7 @@ public class ModuleOptionsActivity extends Activity {
 					}
 				}
 				infoLoaded = true;
-			}}, 0);
+			}});
 	}
 	
 	public static Map<String, Map<String, Value>> moduleOptions = new HashMap<String, Map<String, Value>>();
@@ -226,7 +226,7 @@ public class ModuleOptionsActivity extends Activity {
 			return;
 		}
 		
-		new Handler().postDelayed(new Runnable() {
+		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
 				
@@ -282,7 +282,7 @@ public class ModuleOptionsActivity extends Activity {
 				
 				optsLoaded = true;
 			}
-		}, 0);
+		});
 	}
 	
 	public static Map<String, String> moduleParams = new HashMap<String, String>();

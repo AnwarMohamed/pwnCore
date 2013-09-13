@@ -69,6 +69,11 @@ public class StaticClass {
 	
 	public static String PWNCORE_NOTIFY_ADAPTER_UPDATE = "NOTIFY_ADAPTER_UPDATE";
 	
+	
+	public static String PWNCORE_NOT_IMPLEMENTED = "Sorry not implemented yet";
+	public static String PWNCORE_PACKAGE_NAME = "com.anwarelmakrahy.pwncore";
+	
+	
 	public static boolean isNumeric(String str) {  
 		try {  Double.parseDouble(str); } 
 		catch(NumberFormatException nfe) { return false; }  

@@ -221,6 +221,7 @@ public class MsfRpcClient {
 	private Template<Map<String, Value>> decodeAsMap = tMap(TString, TValue);
 	private Template<Map<Integer, Value>> decodeAsIntMap = tMap(TInteger, TValue);
 	
+	@SuppressWarnings("resource")
 	private Map<String, Value> decode(InputStream in) throws IOException {
 		MessagePack msgpack = new MessagePack();
 		Value tmpResult = msgpack.read(in);
