@@ -423,7 +423,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 					getApplicationContext(), 
 					"You have to be connected", 
 					Toast.LENGTH_SHORT).show();
-		else if (MainService.mTargetHostList.size() == 0)
+		else if (MainService.hostsList.size() == 0)
 			Toast.makeText(
 					getApplicationContext(), 
 					"You have no targets", 

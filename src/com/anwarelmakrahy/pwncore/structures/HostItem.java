@@ -1,6 +1,7 @@
 package com.anwarelmakrahy.pwncore.structures;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.MainService;
@@ -10,7 +11,7 @@ import com.anwarelmakrahy.pwncore.console.utils.ServiceEnum;
 
 import android.content.Context;
 
-public class TargetItem {
+public class HostItem {
 	
 	private String host;
 	private String os = "Unknown";
@@ -18,18 +19,18 @@ public class TargetItem {
 	
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
-	private Map<String, Map<String, String>> suggestedAttacks = new HashMap<String, Map<String, String>>();
+	private Map<String, List<String>> suggestedAttacks = new HashMap<String, List<String>>();
 	
 	private Context context;
 	
 	private AttackFinder attackFinder;
 	
-	public TargetItem(Context context) {
+	public HostItem(Context context) {
 		this.context = context;
 		attackFinder = new AttackFinder(this);
 	}
 	
-	public TargetItem(Context context, String host) {
+	public HostItem(Context context, String host) {
 		this.host = host;
 		this.context = context;
 		attackFinder = new AttackFinder(this);
@@ -81,7 +82,7 @@ public class TargetItem {
 			    PortScanner scanner = new PortScanner(context, "PortScanner " + getHost());
 			    MainService.sessionMgr.getNewConsole(scanner);
 			    if (scanner != null)
-			    	scanner.scan(TargetItem.this);
+			    	scanner.scan(HostItem.this);
 			}	
 		}).start();
 	}
@@ -93,7 +94,7 @@ public class TargetItem {
 			    ServiceEnum services = new ServiceEnum(context, "ServiceEnum " + getHost());
 			    MainService.sessionMgr.getNewConsole(services);
 			    if (services != null)
-			    	services.enumerate(TargetItem.this);
+			    	services.enumerate(HostItem.this);
 			}	
 		}).start();
 	}

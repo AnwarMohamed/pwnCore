@@ -31,7 +31,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="15dp"
-        android:text="Hello there! Before you launch your attack you have to choose your targets, so lets start importing hosts from file or by Nmap scan.\n\nTo add hosts select:  Menu -> Add Hosts"
+        android:text="Hello there! Before you launch your attack you have to add hosts, so lets start importing hosts from file or manually.\n\nTo add hosts select:  Menu -> Add Hosts"
         android:textSize="15sp"
         android:typeface="monospace" />
 
@@ -56,7 +56,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="15dp"
-        android:text="No Target Hosts"
+        android:text="No Hosts"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#777777"/>
     

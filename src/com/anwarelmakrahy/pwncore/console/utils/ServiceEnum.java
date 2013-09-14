@@ -7,12 +7,12 @@ import android.content.Context;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 
 public class ServiceEnum extends ConsoleSession {
 
-	private TargetItem target;
+	private HostItem target;
 	protected boolean isScanning = false;
 
 	public ServiceEnum(Context context, String title) {
@@ -23,7 +23,7 @@ public class ServiceEnum extends ConsoleSession {
 		super(context, params, title);
 	}
 	
-	public void enumerate(TargetItem target) {
+	public void enumerate(HostItem target) {
 		waitForReady();	
 		this.target = target;
 		

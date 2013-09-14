@@ -14,15 +14,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-public class TargetsListAdapter extends BaseAdapter {
+public class HostsAdapter extends BaseAdapter {
 
-	private static ArrayList<TargetItem> itemDetailsrrayList;
+	private static ArrayList<HostItem> itemDetailsrrayList;
 	private LayoutInflater l_Inflater;
 	private int selectedIndex;
 	private int selectedColor = Color.TRANSPARENT;
 	//private Context context;
 
-	public TargetsListAdapter(Context context, ArrayList<TargetItem> results) {
+	public HostsAdapter(Context context, ArrayList<HostItem> results) {
 		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
 		selectedIndex = -1;
@@ -46,7 +46,7 @@ public class TargetsListAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if (convertView == null) {
-			convertView = l_Inflater.inflate(R.layout.targethost_item, null);
+			convertView = l_Inflater.inflate(R.layout.host_item, null);
 			
 			holder = new ViewHolder();
 			holder.txt_itemHost = (TextView) convertView.findViewById(R.id.targetHost);

@@ -2,7 +2,7 @@ package com.anwarelmakrahy.pwncore.fragments;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,18 +14,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.ImageView;
 
-public class TargetDetailsFragment extends Fragment {
+public class HostDetailsFragment extends Fragment {
 	
 	private SharedPreferences prefs;
 	
-	public static final TargetDetailsFragment newInstance() {
-		TargetDetailsFragment fragment = new TargetDetailsFragment();
+	public static final HostDetailsFragment newInstance() {
+		HostDetailsFragment fragment = new HostDetailsFragment();
 		return fragment;
 	}
 	 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_targetdetails, container, false);	 
+		View view = inflater.inflate(R.layout.fragment_hostdetails, container, false);	 
 		return view;
 	}
 	 
@@ -42,7 +42,7 @@ public class TargetDetailsFragment extends Fragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			String id = prefs.getString("target_id", "0");
-			TargetItem item = MainService.mTargetHostList.get(Integer.parseInt(id));
+			HostItem item = MainService.hostsList.get(Integer.parseInt(id));
 			
 			if ((TextView)getActivity().findViewById(R.id.detailHost) != null) {
 				

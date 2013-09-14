@@ -13,13 +13,13 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-public class ModuleListAdapter extends BaseAdapter implements Filterable {
+public class ModulesAdapter extends BaseAdapter implements Filterable {
 	
 	private static List<ModuleItem> itemDetailsrrayList, originalFilter;
 	private LayoutInflater l_Inflater;
 	private Filter filter;
 
-	public ModuleListAdapter(Context context, List<ModuleItem> results) {
+	public ModulesAdapter(Context context, List<ModuleItem> results) {
 		itemDetailsrrayList = results;
 		originalFilter = results;
 		l_Inflater = LayoutInflater.from(context);

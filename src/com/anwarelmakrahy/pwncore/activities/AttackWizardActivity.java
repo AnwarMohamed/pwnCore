@@ -9,8 +9,8 @@ import java.net.URISyntaxException;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
-import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
+import com.anwarelmakrahy.pwncore.structures.HostsAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,11 +45,11 @@ public class AttackWizardActivity extends Activity {
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         
 		mTargetHostListView = (ListView)findViewById(R.id.targetsListView1);	
-		mTargetHostListAdapter = new TargetsListAdapter(this, MainService.mTargetHostList);
+		mTargetHostListAdapter = new HostsAdapter(this, MainService.hostsList);
 		mTargetHostListView.setAdapter(mTargetHostListAdapter);
 		mTargetHostListView.setEmptyView(findViewById(R.id.consolePrompt));
 		registerForContextMenu(mTargetHostListView);
-		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
+		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
 		
 		progress = (ProgressBar)findViewById(R.id.progress2);
 		setProgressBar(false);
@@ -72,7 +72,7 @@ public class AttackWizardActivity extends Activity {
 	    	showFileChooser();
 	    	return true;
 	    case R.id.mnuClearHosts:
-	    	MainService.mTargetHostList.clear();
+	    	MainService.hostsList.clear();
 	    	mTargetHostListAdapter.notifyDataSetChanged();
 	    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: 0");
 	    	return true;
@@ -83,27 +83,27 @@ public class AttackWizardActivity extends Activity {
 	
 	
 	private ListView mTargetHostListView;
-	private TargetsListAdapter mTargetHostListAdapter;
+	private HostsAdapter mTargetHostListAdapter;
 	private boolean conStatusReceiverRegistered = false;
 	private boolean isConnected = true;
 	private SharedPreferences prefs;
 	
-	private void addHostToTargetList(TargetItem item) {	
-		for (int i=0; i<MainService.mTargetHostList.size(); i++)
-			if (MainService.mTargetHostList.get(i).getHost().equals(item.getHost())) {
+	private void addHostToTargetList(HostItem item) {	
+		for (int i=0; i<MainService.hostsList.size(); i++)
+			if (MainService.hostsList.get(i).getHost().equals(item.getHost())) {
 				return;
 			}
 	    	
-    	MainService.mTargetHostList.add(0,item);
+    	MainService.hostsList.add(0,item);
     	mTargetHostListAdapter.notifyDataSetChanged();
 		item.scanPorts();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
     }
 	 
 	private void removeHostFromTargetList(int pos) {	
-		MainService.mTargetHostList.remove(pos);
+		MainService.hostsList.remove(pos);
     	mTargetHostListAdapter.notifyDataSetChanged();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.mTargetHostList.size());
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
     }
 
 	private void showManualHostDlg() {
@@ -119,7 +119,7 @@ public class AttackWizardActivity extends Activity {
 	    	  
     			for (int i=0; i<hosts.length; i++) {
     				if (StaticClass.validateIPAddress(hosts[i], false)) {
-    					addHostToTargetList(new TargetItem(getApplicationContext(), hosts[i]));				
+    					addHostToTargetList(new HostItem(getApplicationContext(), hosts[i]));				
     				}
     			}
     		}
@@ -155,7 +155,7 @@ public class AttackWizardActivity extends Activity {
 					String line;
 				    while ((line = br.readLine()) != null) {
 	    				if (StaticClass.validateIPAddress(line, false)) {
-	    					addHostToTargetList(new TargetItem(getApplicationContext(), line));				
+	    					addHostToTargetList(new HostItem(getApplicationContext(), line));				
 	    				}
 				    }				    
 				    br.close();
@@ -191,10 +191,10 @@ public class AttackWizardActivity extends Activity {
         }
         else if (item.getTitle().equals(target_contextmenu_titles[0])) {  	
         	AlertDialog builder = new AlertDialog.Builder(this)
-            .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
+            .setSingleChoiceItems(HostsAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
-	        		MainService.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
+	        		MainService.hostsList.get(info.position).setOS(HostsAdapter.osTitles[item]);
 	        		mTargetHostListAdapter.notifyDataSetChanged();	
                 }
             })
@@ -268,7 +268,7 @@ public class AttackWizardActivity extends Activity {
     public void launchAttack(View v) {
     	isConnected = prefs.getBoolean("isConnected", false);
     	
-    	if (MainService.mTargetHostList.size() == 0)
+    	if (MainService.hostsList.size() == 0)
 			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
     	
     	else if (isConnected) {

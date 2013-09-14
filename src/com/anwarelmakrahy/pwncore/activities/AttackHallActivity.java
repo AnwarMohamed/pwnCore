@@ -12,9 +12,9 @@ import com.anwarelmakrahy.pwncore.console.utils.AttackFinder;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
-import com.anwarelmakrahy.pwncore.fragments.TargetDetailsFragment;
-import com.anwarelmakrahy.pwncore.fragments.TargetsFragment;
-import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
+import com.anwarelmakrahy.pwncore.fragments.HostDetailsFragment;
+import com.anwarelmakrahy.pwncore.fragments.HostsFragment;
+import com.anwarelmakrahy.pwncore.structures.HostsAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.app.AlertDialog;
@@ -40,7 +40,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class AttackHallActivity extends FragmentActivity {
  
 	private static final String[] CONTENT = 
-			new String[] { "TARGETS", "TARGET DETAILS", "CONSOLES", "SESSIONS", "JOBS" };
+			new String[] { "HOSTS", "HOST DETAILS", "CONSOLES", "SESSIONS", "JOBS" };
         
 	public static ViewPager pager;
 	
@@ -63,8 +63,8 @@ public class AttackHallActivity extends FragmentActivity {
     private List<Fragment> getFragments(){
     	  List<Fragment> fList = new ArrayList<Fragment>();
     	 
-    	  fList.add(TargetsFragment.newInstance());
-    	  fList.add(TargetDetailsFragment.newInstance());
+    	  fList.add(HostsFragment.newInstance());
+    	  fList.add(HostDetailsFragment.newInstance());
     	  fList.add(ConsolesFragment.newInstance());
     	  fList.add(ControlSessionsFragment.newInstance());
     	  fList.add(JobsFragment.newInstance());
@@ -97,7 +97,9 @@ public class AttackHallActivity extends FragmentActivity {
         	menu.findItem(R.id.mnuTargetRemove).setVisible(true);
         	menu.findItem(R.id.mnuTargetOS).setVisible(true);
         	
-	        if ( MainService.mTargetHostList.get(position).isUp()) {
+        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+        	
+	        if ( MainService.hostsList.get(position).isUp()) {
 	        	menu.findItem(R.id.mnuTargetScanServices).setVisible(true);
 	        	//menu.findItem(R.id.mnuTargetLogin).setVisible(true);
 	        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
@@ -157,18 +159,18 @@ public class AttackHallActivity extends FragmentActivity {
         	removeHostFromTargetList(info.position);
         	return true;
         case R.id.mnuTargetScanPorts:
-        	MainService.mTargetHostList.get(info.position).scanPorts();
+        	MainService.hostsList.get(info.position).scanPorts();
         	return true;
         case R.id.mnuTargetScanServices:
-        	MainService.mTargetHostList.get(info.position).scanServices();
+        	MainService.hostsList.get(info.position).scanServices();
         	return true;
         case R.id.mnuTargetOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
-            .setSingleChoiceItems(TargetsListAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
+            .setSingleChoiceItems(HostsAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
-	        		MainService.mTargetHostList.get(info.position).setOS(TargetsListAdapter.osTitles[item]);
-	        		TargetsFragment.listAdapter.notifyDataSetChanged();	
+	        		MainService.hostsList.get(info.position).setOS(HostsAdapter.osTitles[item]);
+	        		HostsFragment.listAdapter.notifyDataSetChanged();	
                 }
             })
             .create();
@@ -179,13 +181,13 @@ public class AttackHallActivity extends FragmentActivity {
         	currentLongPosition = info.position;
         	return true;
         case R.id.mnuFindAttacksOS:
-        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_OS);
+        	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_OS);
         	return true;
         case R.id.mnuFindAttacksPorts:
-        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_PORTS);
+        	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_PORTS);
         	return true;
         case R.id.mnuFindAttacksServices:
-        	MainService.mTargetHostList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
+        	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
         	return true;
         	
         case R.id.mnuTargetLogin21:
@@ -223,10 +225,10 @@ public class AttackHallActivity extends FragmentActivity {
     }
     
     private void removeHostFromTargetList(int pos) {	
- 		MainService.mTargetHostList.remove(pos);
-     	if (MainService.mTargetHostList.size() == 0)
+ 		MainService.hostsList.remove(pos);
+     	if (MainService.hostsList.size() == 0)
      		finish();	
-     	TargetsFragment.listAdapter.notifyDataSetChanged();
+     	HostsFragment.listAdapter.notifyDataSetChanged();
      }
      
      @Override
@@ -239,12 +241,12 @@ public class AttackHallActivity extends FragmentActivity {
  	        return true;
  	        
  	    case R.id.mnuRemoveDeadHosts:
- 	    	for (int i=0; i<MainService.mTargetHostList.size(); i++)
- 	    		if (!MainService.mTargetHostList.get(i).isUp())
- 	    			MainService.mTargetHostList.remove(MainService.mTargetHostList.get(i)); 	
- 	    	if (MainService.mTargetHostList.size() == 0)
+ 	    	for (int i=0; i<MainService.hostsList.size(); i++)
+ 	    		if (!MainService.hostsList.get(i).isUp())
+ 	    			MainService.hostsList.remove(MainService.hostsList.get(i)); 	
+ 	    	if (MainService.hostsList.size() == 0)
  	    		finish();	
- 	    	TargetsFragment.listAdapter.notifyDataSetChanged();
+ 	    	HostsFragment.listAdapter.notifyDataSetChanged();
  	    	return true;
  	    	
  	    case R.id.mnuNewConsole:
@@ -300,8 +302,8 @@ public class AttackHallActivity extends FragmentActivity {
 					ConsolesFragment.listAdapter.notifyDataSetChanged();
 				}
 				
-				if (TargetsFragment.listAdapter != null) {
-					TargetsFragment.listAdapter.notifyDataSetChanged();
+				if (HostsFragment.listAdapter != null) {
+					HostsFragment.listAdapter.notifyDataSetChanged();
 				}
     		}   
     	}

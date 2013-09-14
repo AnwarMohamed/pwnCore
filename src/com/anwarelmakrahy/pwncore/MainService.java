@@ -17,7 +17,7 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import org.msgpack.type.Value;
 
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 
 public class MainService extends Service {
@@ -34,7 +34,7 @@ public class MainService extends Service {
 	public static MsfRpcClient client;
 	public static ModulesMap modulesMap;
 	
-	public static ArrayList<TargetItem> mTargetHostList = new ArrayList<TargetItem>();
+	public static ArrayList<HostItem> hostsList = new ArrayList<HostItem>();
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {

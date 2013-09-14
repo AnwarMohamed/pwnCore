@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
-import com.anwarelmakrahy.pwncore.structures.TargetItem;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 
 public class PortScanner extends ConsoleSession {
@@ -17,7 +17,7 @@ public class PortScanner extends ConsoleSession {
 		super(context, params, title);
 	}
 	
-	private TargetItem target;
+	private HostItem target;
 	private final String ports =     					
 			"50000, 21, 1720, 80, 143, 3306, 110, 5432, 25, 22, 23, 443, 1521, 50013, 161, 17185, 135, " + 
 			"8080, 4848, 1433, 5560, 512, 513, 514, 445, 5900, 5038, 111, 139, 49, 515, 7787, 2947, 7144, " + 
@@ -31,7 +31,7 @@ public class PortScanner extends ConsoleSession {
 			"69, 5800, 62514, 42, 5631, 902, 3389";
 	
 	private boolean isScanning = false;
-	public void scan(TargetItem target) {
+	public void scan(HostItem target) {
 		waitForReady();
 		this.target = target;
 		

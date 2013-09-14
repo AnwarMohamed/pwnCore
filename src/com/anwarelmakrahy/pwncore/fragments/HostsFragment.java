@@ -3,7 +3,7 @@ package com.anwarelmakrahy.pwncore.fragments;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
-import com.anwarelmakrahy.pwncore.structures.TargetsListAdapter;
+import com.anwarelmakrahy.pwncore.structures.HostsAdapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,29 +17,29 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TargetsFragment extends Fragment {
+public class HostsFragment extends Fragment {
 	
 	public static ListView listview;
-	public static TargetsListAdapter listAdapter;
+	public static HostsAdapter listAdapter;
 	private SharedPreferences prefs;
 
-	public static final TargetsFragment newInstance() {
-		TargetsFragment fragment = new TargetsFragment();
+	public static final HostsFragment newInstance() {
+		HostsFragment fragment = new HostsFragment();
 		return fragment;
 	}
 	 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_targets, container, false);
+		View view = inflater.inflate(R.layout.fragment_hosts, container, false);
 		 
 		listview = (ListView)view.findViewById(R.id.targetsFragmentListView);
-		listAdapter = new TargetsListAdapter(
+		listAdapter = new HostsAdapter(
 				getActivity().getApplicationContext(), 
-				MainService.mTargetHostList);
+				MainService.hostsList);
 		
 		listview.setAdapter(listAdapter);
 		
-		if (AttackHallActivity.getCurListPosition() + 1 > MainService.mTargetHostList.size())
+		if (AttackHallActivity.getCurListPosition() + 1 > MainService.hostsList.size())
 			AttackHallActivity.setCurListPosition(0);
 		
 		listAdapter.setSelectedIndex(AttackHallActivity.getCurListPosition());

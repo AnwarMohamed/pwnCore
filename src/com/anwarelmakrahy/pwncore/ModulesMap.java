@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
-import com.anwarelmakrahy.pwncore.structures.ModuleListAdapter;
+import com.anwarelmakrahy.pwncore.structures.ModulesAdapter;
 
 import android.content.Context;
 
@@ -19,10 +19,10 @@ public class ModulesMap {
 	
 	private List<ModuleItem> tmp = new ArrayList<ModuleItem>();
 	
-	public ModuleListAdapter modulesAdapter;
+	public ModulesAdapter modulesAdapter;
 	
 	ModulesMap(Context context) {
-		modulesAdapter = new ModuleListAdapter(context, tmp);
+		modulesAdapter = new ModulesAdapter(context, tmp);
 	}
 	
 	public void setList(String type, List<ModuleItem> list) {
