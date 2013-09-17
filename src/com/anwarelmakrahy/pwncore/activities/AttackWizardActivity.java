@@ -44,12 +44,12 @@ public class AttackWizardActivity extends Activity {
         
         prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
         
-		mTargetHostListView = (ListView)findViewById(R.id.targetsListView1);	
-		mTargetHostListAdapter = new HostsAdapter(this, MainService.hostsList);
-		mTargetHostListView.setAdapter(mTargetHostListAdapter);
-		mTargetHostListView.setEmptyView(findViewById(R.id.consolePrompt));
-		registerForContextMenu(mTargetHostListView);
-		((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
+		listView = (ListView)findViewById(R.id.targetsListView1);	
+		hostsAdapter = new HostsAdapter(this, MainService.hostsList);
+		listView.setAdapter(hostsAdapter);
+		listView.setEmptyView(findViewById(R.id.consolePrompt));
+		registerForContextMenu(listView);
+		((TextView)findViewById(R.id.targetsCount)).setText("Current Hosts: " + MainService.hostsList.size());
 		
 		progress = (ProgressBar)findViewById(R.id.progress2);
 		setProgressBar(false);
@@ -73,8 +73,8 @@ public class AttackWizardActivity extends Activity {
 	    	return true;
 	    case R.id.mnuClearHosts:
 	    	MainService.hostsList.clear();
-	    	mTargetHostListAdapter.notifyDataSetChanged();
-	    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: 0");
+	    	hostsAdapter.notifyDataSetChanged();
+	    	((TextView)findViewById(R.id.targetsCount)).setText("Current Hosts: 0");
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -82,28 +82,28 @@ public class AttackWizardActivity extends Activity {
 	}
 	
 	
-	private ListView mTargetHostListView;
-	private HostsAdapter mTargetHostListAdapter;
+	private ListView listView;
+	private HostsAdapter hostsAdapter;
 	private boolean conStatusReceiverRegistered = false;
 	private boolean isConnected = true;
 	private SharedPreferences prefs;
 	
-	private void addHostToTargetList(HostItem item) {	
+	private void addHostToList(HostItem item) {	
 		for (int i=0; i<MainService.hostsList.size(); i++)
 			if (MainService.hostsList.get(i).getHost().equals(item.getHost())) {
 				return;
 			}
 	    	
     	MainService.hostsList.add(0,item);
-    	mTargetHostListAdapter.notifyDataSetChanged();
+    	hostsAdapter.notifyDataSetChanged();
 		item.scanPorts();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Hosts: " + MainService.hostsList.size());
     }
 	 
-	private void removeHostFromTargetList(int pos) {	
+	private void removeHostFromList(int pos) {	
 		MainService.hostsList.remove(pos);
-    	mTargetHostListAdapter.notifyDataSetChanged();
-    	((TextView)findViewById(R.id.targetsCount)).setText("Current Targets: " + MainService.hostsList.size());
+    	hostsAdapter.notifyDataSetChanged();
+    	((TextView)findViewById(R.id.targetsCount)).setText("Current Hosts: " + MainService.hostsList.size());
     }
 
 	private void showManualHostDlg() {
@@ -119,7 +119,7 @@ public class AttackWizardActivity extends Activity {
 	    	  
     			for (int i=0; i<hosts.length; i++) {
     				if (StaticClass.validateIPAddress(hosts[i], false)) {
-    					addHostToTargetList(new HostItem(getApplicationContext(), hosts[i]));				
+    					addHostToList(new HostItem(getApplicationContext(), hosts[i]));				
     				}
     			}
     		}
@@ -155,7 +155,7 @@ public class AttackWizardActivity extends Activity {
 					String line;
 				    while ((line = br.readLine()) != null) {
 	    				if (StaticClass.validateIPAddress(line, false)) {
-	    					addHostToTargetList(new HostItem(getApplicationContext(), line));				
+	    					addHostToList(new HostItem(getApplicationContext(), line));				
 	    				}
 				    }				    
 				    br.close();
@@ -172,13 +172,13 @@ public class AttackWizardActivity extends Activity {
     
     
     
-    private static String[] target_contextmenu_titles = { "Change OS", "Remove Host" };
+    private static String[] host_contextmenu_titles = { "Change OS", "Remove Host" };
     
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (v == mTargetHostListView) {
-            menu.add(0, v.getId(), 0, target_contextmenu_titles[0]);
-        	menu.add(0, v.getId(), 0, target_contextmenu_titles[1]);
+        if (v == listView) {
+            menu.add(0, v.getId(), 0, host_contextmenu_titles[0]);
+        	menu.add(0, v.getId(), 0, host_contextmenu_titles[1]);
         }
     }
     
@@ -186,16 +186,16 @@ public class AttackWizardActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 
-        if (item.getTitle().equals(target_contextmenu_titles[1])) {
-        	removeHostFromTargetList(info.position);
+        if (item.getTitle().equals(host_contextmenu_titles[1])) {
+        	removeHostFromList(info.position);
         }
-        else if (item.getTitle().equals(target_contextmenu_titles[0])) {  	
+        else if (item.getTitle().equals(host_contextmenu_titles[0])) {  	
         	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(HostsAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
 	            	dialog.dismiss();
 	        		MainService.hostsList.get(info.position).setOS(HostsAdapter.osTitles[item]);
-	        		mTargetHostListAdapter.notifyDataSetChanged();	
+	        		hostsAdapter.notifyDataSetChanged();	
                 }
             })
             .create();
@@ -269,7 +269,7 @@ public class AttackWizardActivity extends Activity {
     	isConnected = prefs.getBoolean("isConnected", false);
     	
     	if (MainService.hostsList.size() == 0)
-			Toast.makeText(getApplicationContext(), "You have no targets", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "You have no hosts", Toast.LENGTH_SHORT).show();
     	
     	else if (isConnected) {
     		startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));

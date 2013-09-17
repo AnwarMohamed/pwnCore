@@ -1,6 +1,6 @@
 package com.anwarelmakrahy.pwncore.structures;
 
-public class ItemDetails {
+public class SidebarItem {
 
 	public String getTitle() {
 		return title;

@@ -12,12 +12,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ItemListBaseAdapter extends BaseAdapter {
+public class SidebarAdapter extends BaseAdapter {
 	
-	private static ArrayList<ItemDetails> itemDetailsrrayList;
+	private static ArrayList<SidebarItem> itemDetailsrrayList;
 	private LayoutInflater l_Inflater;
 
-	public ItemListBaseAdapter(Context context, ArrayList<ItemDetails> results) {
+	public SidebarAdapter(Context context, ArrayList<SidebarItem> results) {
 		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
 	}

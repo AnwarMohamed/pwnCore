@@ -172,6 +172,7 @@ public class MsfRpcClient {
 		if (authenticated) {
 			data.add(1, token);
 			HttpPost httpPost = newHttpPost(encode(data));
+			data.clear();
 			return getResponse(httpPost);
 		}
 		

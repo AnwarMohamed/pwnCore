@@ -73,6 +73,8 @@ public class StaticClass {
 	public static String PWNCORE_NOT_IMPLEMENTED = "Sorry not implemented yet";
 	public static String PWNCORE_PACKAGE_NAME = "com.anwarelmakrahy.pwncore";
 	
+	public static String PWNCORE_DATABASE_UPDATE_STARTED = "PWNCORE_DATABASE_UPDATE_STARTED";
+	public static String PWNCORE_DATABASE_UPDATE_STOPPED = "PWNCORE_DATABASE_UPDATE_STOPPED";
 	
 	public static boolean isNumeric(String str) {  
 		try {  Double.parseDouble(str); } 

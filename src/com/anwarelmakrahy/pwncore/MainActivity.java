@@ -9,28 +9,27 @@ import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
 import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.plugins.PluginsActivity;
-import com.anwarelmakrahy.pwncore.structures.ItemDetails;
-import com.anwarelmakrahy.pwncore.structures.ItemListBaseAdapter;
+import com.anwarelmakrahy.pwncore.structures.SidebarItem;
+import com.anwarelmakrahy.pwncore.structures.SidebarAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
+import com.navdrawer.SimpleSideDrawer;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.Settings;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -62,14 +61,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	
 	public static boolean debug_mode = false;
 	
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
-
-    private ItemListBaseAdapter SidebarAdapter;
-    private ArrayList<ItemDetails> SidebarItems = new ArrayList<ItemDetails>();
+	private SimpleSideDrawer sidebar;
 	
-    private DatabaseHandler databaseHandler;
+    private ListView leftSidebarList;
+
+    private SidebarAdapter SidebarAdapter;
+    private ArrayList<SidebarItem> SidebarItems = new ArrayList<SidebarItem>();
+	
+    private ProgressDialog pd;
     
    
     private ListView modulesList; 
@@ -78,16 +77,24 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     protected void onCreate(Bundle savedInstanceState) {  	
         super.onCreate(savedInstanceState); 
         setContentView(R.layout.activity_main);
+        sidebar = new SimpleSideDrawer(this);
+        
         activity = this;
         
         serviceIntent = new Intent(this, MainService.class);     
 		startService(serviceIntent);
 		
-		databaseHandler = DatabaseHandler.getInstance(this);
+		sidebar.setLeftBehindContentView(R.layout.sidebar_left);
+		getActionBar().setHomeButtonEnabled(true); 
+		
+        leftSidebarList = (ListView) findViewById(R.id.listview);
+        SidebarAdapter = new SidebarAdapter(this, SidebarItems);
+        leftSidebarList.setAdapter(SidebarAdapter); 
+        leftSidebarList.setOnItemClickListener(new ModulesListItemClickListener());   
+        
         
 		modulesList = (ListView)findViewById(R.id.modulesListView);
 		modulesList.setEmptyView(findViewById(R.id.imageView11));
-		
 		modulesList.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	
@@ -118,29 +125,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	        	}
 	        }
 		});
-        
-        /*
-         *  Prepare Sidebar
-         */
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        SidebarAdapter = new ItemListBaseAdapter(this, SidebarItems);
-        mDrawerList.setAdapter(SidebarAdapter); 
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());           
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);  
-        mDrawerToggle = new ActionBarDrawerToggle(this,  mDrawerLayout, R.drawable.ic_drawer,
-        		R.string.drawer_open,R.string.drawer_close) {   	
-            public void onDrawerClosed(View view) {
-                invalidateOptionsMenu();
-            }
-            public void onDrawerOpened(View drawerView) {
-                invalidateOptionsMenu();
-            }
-        };    
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        
         
         prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean("isConnected", false).commit();
@@ -194,11 +178,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			R.drawable.auxi, R.drawable.nop, R.drawable.plugin , R.drawable.icon, R.drawable.wizard,
     			R.drawable.gun, R.drawable.win };
     	
-	   	ItemDetails item; 
+	   	SidebarItem item; 
 	   	
     	for (int i=0; i<6; i++) {
     		
-    	   	item = new ItemDetails();      	
+    	   	item = new SidebarItem();      	
     	   	item.setTitle(titles[i]);
     	   	item.setImage(icons[i]);
     	   	item.setCount(0);
@@ -209,18 +193,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			SidebarAdapter.notifyDataSetChanged();
     }
     
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-	
+
     private MenuItem mnuSearch;
     
     @Override
@@ -257,11 +230,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-     
 	    switch (item.getItemId()) {    
+	    case android.R.id.home:
+            sidebar.toggleLeftDrawer();
+            return true;
+
 	    case R.id.mnuRpcSettings:
 	    	
 	    	if (!isConnected) {
@@ -294,13 +267,12 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    			if (!MainService.checkConnection(getApplicationContext()))
 	    				checkConDlgBuilder.show();
 	    			else {
+	    				
+	    				showConnectingProgress();
+	    				
 		    			Intent tmpIntent = new Intent();
 		    			tmpIntent.setAction(StaticClass.PWNCORE_CONNECT);
 		    			sendBroadcast(tmpIntent);
-		    			
-		    			Toast.makeText(getApplicationContext(), 
-		    					"Connecting to server. Please wait", 
-		    					Toast.LENGTH_SHORT).show();
 	    			}
 	    		}
 	    	}
@@ -356,6 +328,71 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	    }
 	}
         
+	private void showConnectingProgress() {
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {	
+
+			@Override
+			protected void onPreExecute() {				
+				pd = new ProgressDialog(activity);
+				pd.setMessage("Connecting to Server, Please wait.");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();
+			}
+				
+			@Override
+			protected Void doInBackground(Void... arg0) {
+				try {
+					while (pd != null)
+						Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(Void result) {
+				if (pd!=null) { pd.dismiss(); pd = null;}
+			}	
+		};
+		
+		task.execute((Void[])null);
+	}
+
+	private void showDbUpdateProgress() {
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {	
+			
+			
+			@Override
+			protected void onPreExecute() {				
+				pd = new ProgressDialog(activity);
+				pd.setMessage("Updating Database, Please wait.");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();
+			}
+				
+			@Override
+			protected Void doInBackground(Void... arg0) {
+				try {
+					while (MainService.modulesMap.ExploitItems.size() == 0)
+						Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(Void result) {
+				if (pd!=null) { pd.dismiss(); pd = null; }
+			}	
+		};
+		
+		task.execute((Void[])null);
+	}
+	
 	@Override
 	protected void onPause() {
 		if (conStatusReceiverRegistered) {
@@ -393,6 +430,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			filter.addAction(StaticClass.PWNCORE_LOAD_AUXILIARY_FAILED);
 			filter.addAction(StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS);
 			filter.addAction(StaticClass.PWNCORE_AUTHENTICATION_FAILED);
+			filter.addAction(StaticClass.PWNCORE_DATABASE_UPDATE_STARTED);
+			filter.addAction(StaticClass.PWNCORE_DATABASE_UPDATE_STOPPED);
 			registerReceiver(conStatusReceiver, filter);
 			conStatusReceiverRegistered = true;
 		}
@@ -426,7 +465,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		else if (MainService.hostsList.size() == 0)
 			Toast.makeText(
 					getApplicationContext(), 
-					"You have no targets", 
+					"You have no hosts", 
 					Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackHallActivity.class));
@@ -444,6 +483,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	 */
 	
 	private void Disconnect() {
+		if (pd != null) {
+			pd.dismiss();
+			pd = null;
+		}
+		
 		isConnected = false;	
 		invalidateOptionsMenu();
 		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
@@ -469,6 +513,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_CONNECTION_SUCCESS) {
     			isConnected = true;
+    			if (pd != null) {
+	    			pd.dismiss();
+	    			pd = null;
+    			}
     			
     	    	invalidateOptionsMenu();
     			main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.unplug);
@@ -495,14 +543,22 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_EXPLOITS_SUCCESS) {
-    			MainService.modulesMap.setList("exploit", databaseHandler.getAllModules("exploits")); 			
-    			SidebarItems.get(0).setCount(databaseHandler.getModulesCount("exploits"));
+    			if (pd != null) pd.dismiss();
+    			MainService.modulesMap.setList("exploit", MainService.databaseHandler.getAllModules("exploits")); 	
+    			
+    			//new Thread(new Runnable() {
+				//	@Override public void run() {				
+				//		MainService.modulesMap.loadModulesOptions("exploits");
+				//	}}).start();
+    			
+    			SidebarItems.get(0).setCount(MainService.databaseHandler.getModulesCount("exploits"));
     			SidebarAdapter.notifyDataSetChanged();
     			
     			modulesList.setAdapter(MainService.modulesMap.modulesAdapter);
     			
 				getActionBar().setTitle(titles[0]);
 				MainService.modulesMap.switchAdapter("exploit");
+				
     		}
     		
     		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS_FAILED) {
@@ -511,8 +567,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
-    			MainService.modulesMap.setList("payload", databaseHandler.getAllModules("payloads"));
-    			SidebarItems.get(1).setCount(databaseHandler.getModulesCount("payloads"));
+    			MainService.modulesMap.setList("payload", MainService.databaseHandler.getAllModules("payloads"));
+    			SidebarItems.get(1).setCount(MainService.databaseHandler.getModulesCount("payloads"));
     			SidebarAdapter.notifyDataSetChanged();			
     		}
     		
@@ -522,8 +578,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_POSTS_SUCCESS) {
-    			MainService.modulesMap.setList("post", databaseHandler.getAllModules("post"));
-    			SidebarItems.get(2).setCount(databaseHandler.getModulesCount("post"));
+    			MainService.modulesMap.setList("post", MainService.databaseHandler.getAllModules("post"));
+    			SidebarItems.get(2).setCount(MainService.databaseHandler.getModulesCount("post"));
     			SidebarAdapter.notifyDataSetChanged();    		
     		} 		
     		
@@ -533,8 +589,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
-    			MainService.modulesMap.setList("encoder", databaseHandler.getAllModules("encoders"));
-    			SidebarItems.get(3).setCount(databaseHandler.getModulesCount("encoders"));
+    			MainService.modulesMap.setList("encoder", MainService.databaseHandler.getAllModules("encoders"));
+    			SidebarItems.get(3).setCount(MainService.databaseHandler.getModulesCount("encoders"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
@@ -544,8 +600,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
-    			MainService.modulesMap.setList("auxiliary", databaseHandler.getAllModules("auxiliary"));
-    			SidebarItems.get(4).setCount(databaseHandler.getModulesCount("auxiliary"));
+    			MainService.modulesMap.setList("auxiliary", MainService.databaseHandler.getAllModules("auxiliary"));
+    			SidebarItems.get(4).setCount(MainService.databaseHandler.getModulesCount("auxiliary"));
     			SidebarAdapter.notifyDataSetChanged();
     		}
     		
@@ -555,9 +611,19 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     					Toast.LENGTH_SHORT).show();    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_NOPS_SUCCESS) {
-    			MainService.modulesMap.setList("nop", databaseHandler.getAllModules("nops"));
-    			SidebarItems.get(5).setCount(databaseHandler.getModulesCount("nops"));
+    			MainService.modulesMap.setList("nop", MainService.databaseHandler.getAllModules("nops"));
+    			SidebarItems.get(5).setCount(MainService.databaseHandler.getModulesCount("nops"));
     			SidebarAdapter.notifyDataSetChanged();
+    		}
+    		
+    		else if (action == StaticClass.PWNCORE_DATABASE_UPDATE_STARTED) {
+    				showDbUpdateProgress();
+    		}
+    		else if (action == StaticClass.PWNCORE_DATABASE_UPDATE_STOPPED) {
+    			//if (pd != null) {
+    			//	pd.dismiss();
+    			//	pd = null;
+    			//}
     		}
     	}
     };
@@ -646,14 +712,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		}
 	}
 	    
-    private class DrawerItemClickListener implements OnItemClickListener {
+    private class ModulesListItemClickListener implements OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             
-    		Object obj = mDrawerList.getItemAtPosition(position);
-        	ItemDetails objDetails = (ItemDetails)obj;
+    		Object obj = leftSidebarList.getItemAtPosition(position);
+        	SidebarItem objDetails = (SidebarItem)obj;
 
-        	mDrawerLayout.closeDrawer(mDrawerList);
+        	sidebar.toggleLeftDrawer();
         	
         	if (!objDetails.isHeader() && ( titlesHas(objDetails.getTitle()) || 
         			objDetails.getTitle().equals("pwnCore"))) {

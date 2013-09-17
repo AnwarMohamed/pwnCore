@@ -28,7 +28,7 @@ public class MainService extends Service {
 	private boolean isAuthenticated = false;	
 
 	private ExecutorService executor;
-	private DatabaseHandler databaseHandler;
+	public static DatabaseHandler databaseHandler;
 	
 	public static SessionManager sessionMgr;
 	public static MsfRpcClient client;
@@ -66,7 +66,7 @@ public class MainService extends Service {
    
 		executor = Executors.newFixedThreadPool(30);
 		
-		//deleteDatabase(DatabaseHandler.DATABASE_NAME);
+		deleteDatabase(DatabaseHandler.DATABASE_NAME);
 		databaseHandler = DatabaseHandler.getInstance(this);
 		return Service.START_NOT_STICKY;
 	}
@@ -133,6 +133,11 @@ public class MainService extends Service {
     		}
 
     		else if (action == StaticClass.PWNCORE_LOAD_ALL_MODULES && isAuthenticated) {
+    			
+    			Intent tmpIntent = new Intent();
+    			tmpIntent.setAction(StaticClass.PWNCORE_DATABASE_UPDATE_STARTED);
+    			sendBroadcast(tmpIntent);
+    			
 				String[] modules = {
 	        			StaticClass.PWNCORE_LOAD_EXPLOITS,
 	        			StaticClass.PWNCORE_LOAD_PAYLOADS,
@@ -142,7 +147,7 @@ public class MainService extends Service {
 						StaticClass.PWNCORE_LOAD_ENCODERS,
 						};
 				
-    			Intent tmpIntent = new Intent();        			
+    			tmpIntent = new Intent();  
     			for (int i=0; i<modules.length; i++) {
     				tmpIntent.setAction(modules[i]);
     				sendBroadcast(tmpIntent); 
@@ -371,19 +376,35 @@ public class MainService extends Service {
 	}
     
 	private void getModules(String type, String loadType, String success, String failed) {
+		
 		Intent tmpIntent = new Intent();
-		//int local = getCurModulesCount(type);
 		tmpIntent.setAction(success);		
 		if (StatsMap != null && 
 				StatsMap.containsKey(type) && 
 				StatsMap.get(type).asIntegerValue().getInt() > 
 				getCurModulesCount(type)) {		
 			String[] modules = client.getModules(loadType);	
-			if (modules != null)
+			if (modules != null) {
+				//databaseHandler.addModules(modules, type);
+				//List<String> alreadySaved = databaseHandler.getAllModulesString(type);
+				databaseHandler.recreateTable(databaseHandler.getTableIdByName(type));
 				databaseHandler.addModules(modules, type);
+				//for (int i=0; i<modules.length; i++) {
+					//if (!alreadySaved.contains(modules[i]))
+				//		databaseHandler.addModule(
+				//				modules[i],
+				//				/*new HashMap<String, Value>()*/null,
+				//				/*new HashMap<String, Value>()*/null,
+				//				type);
+				//}
+			}
 			else tmpIntent.setAction(failed);
 		}		
 		sendBroadcast(tmpIntent); 
+
+		tmpIntent = new Intent();
+		tmpIntent.setAction(StaticClass.PWNCORE_DATABASE_UPDATE_STOPPED);
+		sendBroadcast(tmpIntent);
 	}
 	
     abstract class NewThread implements Runnable {

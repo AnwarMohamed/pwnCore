@@ -1,7 +1,15 @@
 package com.anwarelmakrahy.pwncore.structures;
 
-public class ModuleItem {
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.msgpack.type.Value;
+
+public class ModuleItem implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	public ModuleItem() {
 		
 	}
@@ -17,7 +25,30 @@ public class ModuleItem {
 	
 	private long id;
 	private String path, type;
+	private Map<String, Value> options, info;
 
+	public Map<String, Value> getInfo() {
+		if (info != null)
+			return info;
+		else
+			return new HashMap<String, Value>();
+	}
+	
+	public void setInfo(Map<String, Value> info) {
+		this.info = info;
+	}
+
+	public Map<String, Value> getOptions() {
+		if (options != null)
+			return options;
+		else
+			return new HashMap<String, Value>();
+	}
+	
+	public void setOptions(Map<String, Value> options) {
+		this.options = options;
+	}
+	
 	public long getID() {
 	    return id;
 	}
