@@ -66,7 +66,7 @@ public class MainService extends Service {
    
 		executor = Executors.newFixedThreadPool(30);
 		
-		deleteDatabase(DatabaseHandler.DATABASE_NAME);
+		//deleteDatabase(DatabaseHandler.DATABASE_NAME);
 		databaseHandler = DatabaseHandler.getInstance(this);
 		return Service.START_NOT_STICKY;
 	}
@@ -81,7 +81,6 @@ public class MainService extends Service {
         con_txtPort		=	prefs.getString("connection_Port", "55553"); 
         
         if (!isAuthenticated) {
-        	
         	
 	        Map<String, Object> opts = new HashMap<String, Object>();
 	        opts.put("host", con_txtHost);
@@ -108,7 +107,7 @@ public class MainService extends Service {
     }
 	
 	@Override
-	public IBinder onBind(Intent arg0) {
+	public IBinder onBind(Intent intent) {
 		return null;
 	}
 	
@@ -154,7 +153,7 @@ public class MainService extends Service {
     			}
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_EXPLOITS && isAuthenticated) {			   				
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {							
 						getModules(
 								"exploits", 
@@ -167,7 +166,7 @@ public class MainService extends Service {
     		}    		
     		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS) {
     			if (isAuthenticated) {   			
-    				executor.execute(new NewThread(null) {
+    				executor.execute(new Thread() {
 						@Override public void run() {	
 							getModules(
 									"payloads", 
@@ -180,7 +179,7 @@ public class MainService extends Service {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_POSTS) {
     			if (isAuthenticated) {   			
-    				executor.execute(new NewThread(null) {
+    				executor.execute(new Thread() {
 						@Override public void run() {								
 							getModules(
 									"post", 
@@ -193,7 +192,7 @@ public class MainService extends Service {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY) {
     			if (isAuthenticated) {   			
-    				executor.execute(new NewThread(null) {
+    				executor.execute(new Thread() {
 						@Override public void run() {								
 							getModules(
 									"auxiliary", 
@@ -206,7 +205,7 @@ public class MainService extends Service {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_NOPS && isAuthenticated) {
     			if (isAuthenticated) {   			
-    				executor.execute(new NewThread(null) {
+    				executor.execute(new Thread() {
 						@Override public void run() {								
 							getModules(
 									"nops", 
@@ -218,7 +217,7 @@ public class MainService extends Service {
     			}    			
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS && isAuthenticated) {		
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {								
 						getModules(
 								"encoders", 
@@ -230,7 +229,7 @@ public class MainService extends Service {
     		}
     		
     		else if (action == StaticClass.PWNCORE_CONSOLE_CREATE) {	
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {														
 	            		Map<String, Value> newConDes = 
 	            				client.call(MsfRpcClient.singleOptCallList("console.create"));	        
@@ -244,7 +243,7 @@ public class MainService extends Service {
 					}});	
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_READ) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("console.read");
@@ -262,7 +261,7 @@ public class MainService extends Service {
 					}});	
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_WRITE) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("console.write");
@@ -275,7 +274,7 @@ public class MainService extends Service {
 					}});			
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_DESTROY) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("console.destroy");
@@ -292,7 +291,7 @@ public class MainService extends Service {
 					}});	
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_METERPRETER_WRITE) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("session.meterpreter_write");
@@ -305,7 +304,7 @@ public class MainService extends Service {
 					}});			
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_WRITE) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("session.shell_write");
@@ -318,7 +317,7 @@ public class MainService extends Service {
 					}});			
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_METERPRETER_READ) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("session.meterpreter_read");
@@ -331,7 +330,7 @@ public class MainService extends Service {
 					}});	
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_READ) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("session.shell_read");
@@ -345,7 +344,7 @@ public class MainService extends Service {
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_DESTROY ||
     				action == StaticClass.PWNCORE_CONSOLE_METERPRETER_DESTROY) {
-				executor.execute(new NewThread(null) {
+				executor.execute(new Thread() {
 					@Override public void run() {	
 						List<Object> params = new ArrayList<Object>();
 						params.add("session.stop");
@@ -407,17 +406,6 @@ public class MainService extends Service {
 		sendBroadcast(tmpIntent);
 	}
 	
-    abstract class NewThread implements Runnable {
-    	//private Map<String, Object> params = null;
-    	NewThread(Map<String, Object> params) {
-    		//this.params = params;
-    	}
-    	//public Map<String, Object> getParams() {
-    		//return params;
-    	//}
-    }
- 
- 
     public static boolean checkConnection(Context c) {
 		ConnectivityManager connManager = (ConnectivityManager)c.getSystemService(CONNECTIVITY_SERVICE);
 	    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

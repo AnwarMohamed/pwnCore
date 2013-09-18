@@ -153,7 +153,7 @@ public class ControlSession {
 	
 	private void appendToLog(final String data) {
 		if (isWindowActive && isWindowReady) {		
-			params.getAcivity().runOnUiThread(new Runnable() {  
+			params.getActivity().runOnUiThread(new Runnable() {  
                 @Override
                 public void run() {
                 	if (data != null)

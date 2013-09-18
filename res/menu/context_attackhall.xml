@@ -1,15 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" > 
-    <item android:id="@+id/mnuTargetLogin" android:visible="false" android:title="Login">
+    
+   	<item android:id="@+id/mnuHostMeterpreter" android:visible="false" android:title="Meterpreter">
         <menu>
-            <item android:id="@+id/mnuTargetLogin21" android:visible="false" android:title="Ftp"/>
-            <item android:id="@+id/mnuTargetLogin22" android:visible="false" android:title="Ssh"/>
-            <item android:id="@+id/mnuTargetLogin23" android:visible="false" android:title="Telnet"/>
-            <item android:id="@+id/mnuTargetLogin80" android:visible="false" android:title="Http"/>
-            <item android:id="@+id/mnuTargetLogin445" android:visible="false" android:title="Psexec"/>
+
+        </menu>
+    </item>
+    
+   	<item android:id="@+id/mnuHostShell" android:visible="false" android:title="Shell">
+        <menu>
+
+        </menu>
+    </item>
+   	
+    <item android:id="@+id/mnuHostLogin" android:visible="false" android:title="Login">
+        <menu>
+            <item android:id="@+id/mnuHostLogin21" android:visible="false" android:title="Ftp"/>
+            <item android:id="@+id/mnuHostLogin22" android:visible="false" android:title="Ssh"/>
+            <item android:id="@+id/mnuHostLogin23" android:visible="false" android:title="Telnet"/>
+            <item android:id="@+id/mnuHostLogin80" android:visible="false" android:title="Http"/>
+            <item android:id="@+id/mnuHostLogin445" android:visible="false" android:title="Psexec"/>
         </menu>
     </item>  
     
-    <item android:id="@+id/mnuTargetFindAttacks" android:visible="false" android:title="Find Attacks">
+    <item android:id="@+id/mnuHostFindAttacks" android:visible="false" android:title="Find Attacks">
         <menu>
             <item android:id="@+id/mnuFindAttacksOS" android:title="Based on OS"/>
             <item android:id="@+id/mnuFindAttacksServices" android:title="Based on Services"/>
@@ -17,11 +30,11 @@
         </menu>
     </item>
     
-     <item android:id="@+id/mnuTargetScanServices" android:visible="false" android:title="Scan Services"/>
-     <item android:id="@+id/mnuTargetScanPorts" android:visible="false" android:title="Scan Ports"/>
+     <item android:id="@+id/mnuHostScanServices" android:visible="false" android:title="Scan Services"/>
+     <item android:id="@+id/mnuHostScanPorts" android:visible="false" android:title="Scan Ports"/>
     
-    <item android:id="@+id/mnuTargetOS" android:visible="false" android:title="Change OS"/>
-    <item android:id="@+id/mnuTargetRemove" android:visible="false" android:title="Remove Host"/>
+    <item android:id="@+id/mnuHostOS" android:visible="false" android:title="Change OS"/>
+    <item android:id="@+id/mnuHostRemove" android:visible="false" android:title="Remove Host"/>
     
     <item android:id="@+id/mnuSessionKill" android:visible="false" android:title="Terminate Session"/>
     

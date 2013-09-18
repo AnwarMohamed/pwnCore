@@ -30,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -53,9 +54,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	private Notification noti;
 	
 	public static SharedPreferences prefs;
+	private Activity activity;
 
 	private String 	con_txtUsername, 
-					con_txtPassword, 
+					con_txtPassword,
 					con_txtHost, 
 					con_txtPort;
 	
@@ -120,7 +122,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	        	else {
 	    			Toast.makeText(
 	    					getApplicationContext(), 
-	    					"You have to be connected", 
+	    					R.string.pwncore_notconnected, 
 	    					Toast.LENGTH_SHORT).show();
 	        	}
 	        }
@@ -214,14 +216,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	MenuItem tmpItem = main_menu.findItem(R.id.mnuConnectionAction);
     	if (!isConnected) {
     		tmpItem.setIcon(R.drawable.plug);
-    		tmpItem.setTitle("Connect");	
-    		menu.findItem(R.id.mnuConnection).setTitle("Connect");
+    		tmpItem.setTitle(R.string.connect);	
+    		menu.findItem(R.id.mnuConnection).setTitle(R.string.connect);
     		menu.findItem(R.id.mnuNewConsole).setVisible(false);
     	}
     	else {
     		tmpItem.setIcon(R.drawable.unplug);
-    		tmpItem.setTitle("Disconnect");
-    		menu.findItem(R.id.mnuConnection).setTitle("Disconnect");
+    		tmpItem.setTitle(R.string.disconnect);
+    		menu.findItem(R.id.mnuConnection).setTitle(R.string.disconnect);
     		menu.findItem(R.id.mnuNewConsole).setVisible(true);
     	} 	    	
         return super.onPrepareOptionsMenu(menu);
@@ -253,7 +255,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 			AlertDialog dlg = new AlertDialog.Builder(this).create();
 			dlg.setMessage(msgbox_string);
-			dlg.setTitle("About pwnCore");
+			dlg.setTitle(R.string.about_pwncore);
 			dlg.setCancelable(true);
 			dlg.setButton(DialogInterface.BUTTON_POSITIVE, "Ok", (DialogInterface.OnClickListener) null);
 			dlg.show();
@@ -298,7 +300,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
 	    	builder
-	    	.setTitle("Exit pwnCore")	
+	    	.setTitle(R.string.exit_pwncore)	
 	    	.setMessage("Are you sure?")
 	    	.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
 	    	.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -491,7 +493,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		isConnected = false;	
 		invalidateOptionsMenu();
 		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
-		main_menu.findItem(R.id.mnuConnectionAction).setTitle("Connect");
+		main_menu.findItem(R.id.mnuConnectionAction).setTitle(R.string.connect);
 	}
 	
 	public BroadcastReceiver conStatusReceiver = new BroadcastReceiver() {
@@ -502,13 +504,13 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		if (action == StaticClass.PWNCORE_CONNECTION_TIMEOUT) {
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
-    					"ConnectionTimeout: Please check that server is running", 
+    					R.string.pwncore_connectiontimeout, 
     					Toast.LENGTH_SHORT).show();
     		}   
     		else if (action == StaticClass.PWNCORE_AUTHENTICATION_FAILED) {
     			Disconnect();
     			Toast.makeText(getApplicationContext(), 
-    					"AuthenticationFailed: Please check that your credentials are valid", 
+    					R.string.pwncore_authenticationfailed, 
     					Toast.LENGTH_SHORT).show();	
     		}
     		else if (action == StaticClass.PWNCORE_CONNECTION_SUCCESS) {
@@ -520,7 +522,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			
     	    	invalidateOptionsMenu();
     			main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.unplug);
-    			main_menu.findItem(R.id.mnuConnectionAction).setTitle("Disconnect");
+    			main_menu.findItem(R.id.mnuConnectionAction).setTitle(R.string.disconnect);
 		
     			setNotification();
 
@@ -529,9 +531,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			sendBroadcast(tmpIntent);	
     		}    		
     		else if (action == StaticClass.PWNCORE_CONNECTION_FAILED) {
-    			Disconnect();		
+    			Disconnect();	
+    			Log.e("ConnectionFailed", "" + intent.getStringExtra("error"));
     			Toast.makeText(getApplicationContext(), 
-    					"ConnectionFailed: " + intent.getStringExtra("error"), 
+    					R.string.pwncore_connectionfailed, 
     					Toast.LENGTH_SHORT).show();    	
   
     			setNotification();
@@ -710,6 +713,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				StaticClass.validateIPAddress(con_txtHost, false)) {			
 			getActionBar().setSubtitle(con_txtUsername + "@" + con_txtHost + ":" + con_txtPort);
 		}
+		
 	}
 	    
     private class ModulesListItemClickListener implements OnItemClickListener {
@@ -772,7 +776,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         		if (!loaded) 
     				Toast.makeText(
     						getApplicationContext(), 
-    						"Modules not loaded yet", 
+    						R.string.pwncore_modulesnotloaded, 
     						Toast.LENGTH_SHORT
     						).show();
         	}
@@ -790,9 +794,5 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		MainService.modulesMap.modulesAdapter.getFilter().filter(text);
 		return true;
 	}
-    
-	private static Activity activity;
-	public static Activity getActivity() {
-		return activity;
-	}
+   
 }

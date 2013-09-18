@@ -254,8 +254,8 @@ public class AttackHall2Activity extends Activity {
         int position = info.position;
         
         if ( MainService.hostsList.get(position).isUp()) {
-        	menu.findItem(R.id.mnuTargetLogin).setVisible(true);
-        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+        	menu.findItem(R.id.mnuHostLogin).setVisible(true);
+        	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
         }
         
         String[] tcpPorts = MainService.hostsList.get(position).getTcpPorts().
@@ -264,15 +264,15 @@ public class AttackHall2Activity extends Activity {
         
         for (int i=0; i<tcpPorts.length; i++)
         	if (tcpPorts[i].equals("21"))
-        		menu.findItem(R.id.mnuTargetLogin21).setVisible(true);
+        		menu.findItem(R.id.mnuHostLogin21).setVisible(true);
         	else if (tcpPorts[i].equals("22"))
-        		menu.findItem(R.id.mnuTargetLogin22).setVisible(true);
+        		menu.findItem(R.id.mnuHostLogin22).setVisible(true);
         	else if (tcpPorts[i].equals("23"))
-        		menu.findItem(R.id.mnuTargetLogin23).setVisible(true);
+        		menu.findItem(R.id.mnuHostLogin23).setVisible(true);
         	else if (tcpPorts[i].equals("80"))
-        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
+        		menu.findItem(R.id.mnuHostLogin80).setVisible(true);
         	else if (tcpPorts[i].equals("445"))
-        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);
+        		menu.findItem(R.id.mnuHostLogin445).setVisible(true);
     }
     
     @Override
@@ -282,13 +282,13 @@ public class AttackHall2Activity extends Activity {
         	curListPosition = info.position;
         
         switch (item.getItemId()) {
-        case R.id.mnuTargetRemove:
+        case R.id.mnuHostRemove:
         	removeHostFromTargetList(info.position);
         	return true;
-        //case R.id.mnuTargetScan:
+        //case R.id.mnuHostScan:
         //	scanTarget(MainService.mTargetHostList.get(info.position));
         //	return true;
-        case R.id.mnuTargetOS:
+        case R.id.mnuHostOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(HostsAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
@@ -301,11 +301,11 @@ public class AttackHall2Activity extends Activity {
             builder.show(); 
         	return true;
         	
-        case R.id.mnuTargetLogin21:
-        case R.id.mnuTargetLogin22:
-        case R.id.mnuTargetLogin23:
-        case R.id.mnuTargetLogin80:
-        case R.id.mnuTargetLogin445:
+        case R.id.mnuHostLogin21:
+        case R.id.mnuHostLogin22:
+        case R.id.mnuHostLogin23:
+        case R.id.mnuHostLogin80:
+        case R.id.mnuHostLogin445:
         default:
         	return false;
         }

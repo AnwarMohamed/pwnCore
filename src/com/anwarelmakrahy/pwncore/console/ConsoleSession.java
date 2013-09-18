@@ -1,12 +1,21 @@
 package com.anwarelmakrahy.pwncore.console;
 
+import static org.msgpack.template.Templates.TValue;
+import static org.msgpack.template.Templates.TString;
+import static org.msgpack.template.Templates.tMap;
+
 import java.util.ArrayList;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+import org.msgpack.type.Value;
+import org.msgpack.unpacker.Converter;
 
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
+import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,7 +52,6 @@ public class ConsoleSession {
 		this.params = params;
 		this.title = title;
 		this.isWindowReady = params.hasWindowViews();
-		setupSessionInteractDlg();
 	}
 	
 	public void setWindowActive(boolean flag, Activity activity) {
@@ -59,7 +67,7 @@ public class ConsoleSession {
 	AlertDialog.Builder newMeterpreterSessionDlg;
 	
 	private void setupSessionInteractDlg() {
-		newMeterpreterSessionDlg = new AlertDialog.Builder(params.getAcivity());
+		newMeterpreterSessionDlg = new AlertDialog.Builder(params.getActivity());
 		newMeterpreterSessionDlg
     	.setTitle("Meterpreter Session")
     	.setMessage("Meterpreter Session attached, Interact ?")
@@ -215,21 +223,52 @@ public class ConsoleSession {
 			@Override public void run() {
 
 				MainService.sessionMgr.updateSessionsRemoteInfo();
+				
 				String sessionId = data.split(" ")[3];
 				
 				if (MainService.sessionMgr.getSessionsRemoteInfo().containsKey(sessionId)) {
 					
+					try {
+						
+						Converter mapCon = new Converter(MainService.sessionMgr.getSessionsRemoteInfo().get(sessionId).asMapValue());
+						Map<String, Value> info = mapCon.read(tMap(TString,TValue));
+						mapCon.close();
+						
+						if (info.containsKey("tunnel_peer")) {
+							boolean wasFound = false;
+							String host = info.get("tunnel_peer").asRawValue().getString().split(":")[0];
+							for (HostItem item: MainService.hostsList) {
+								if (item.getHost().equals(host)) {
+									item.setPwned(true);
+									wasFound = true;
+									break;
+								}
+							}
+							
+							if (!wasFound) {
+								HostItem newHost = new HostItem(context, host);
+								newHost.setPwned(true);
+								newHost.scanPorts();
+								MainService.hostsList.add(newHost);
+							}
+						}
+						
+					}
+					catch (Exception e) {}
+					
+					
 					ConsoleSessionParams params = new ConsoleSessionParams();
 	    		    params.setCmdViewId(R.id.consoleRead);
 	    		    params.setPromptViewId(R.id.consolePrompt);
-	    		    params.setAcivity(MainActivity.getActivity());
+	    		    params.setAcivity(ConsoleActivity.getActivity());
 	    		    
 	    	    	MainService.sessionMgr.getNewSession(session, "meterpreter", sessionId, params);
 					session = MainService.sessionMgr.getSession(sessionId);
 					
-					if (isWindowActive && isWindowReady)				
-						params.getAcivity().runOnUiThread(new Runnable() {  
+					if (isWindowActive && isWindowReady && !(params.getActivity().isFinishing()))			
+						params.getActivity().runOnUiThread(new Runnable() {  
 			                @Override public void run() { 
+			                	setupSessionInteractDlg();
 			                	newMeterpreterSessionDlg.show(); 
 		                	}
 			            });	
@@ -261,7 +300,7 @@ public class ConsoleSession {
 	
 	private void appendToLog(final String data, final String prompt) {
 		if (isWindowActive && isWindowReady) {		
-			params.getAcivity().runOnUiThread(new Runnable() {  
+			params.getActivity().runOnUiThread(new Runnable() {  
                 @Override
                 public void run() {
                 	if (data != null)
@@ -316,7 +355,7 @@ public class ConsoleSession {
 			activity = a;
 		}	
 		
-		public Activity getAcivity() {
+		public Activity getActivity() {
 			return activity;
 		}
 		

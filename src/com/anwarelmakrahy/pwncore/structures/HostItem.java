@@ -15,7 +15,8 @@ public class HostItem {
 	
 	private String host;
 	private String os = "Unknown";
-	private boolean isPwned = false;
+	private boolean isPwned = false,
+					isUp = false;
 	
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
@@ -69,6 +70,9 @@ public class HostItem {
 	
 	public void setPwned(boolean isPwned) {
 		this.isPwned  = isPwned;
+		
+		if (isPwned)
+			this.isUp = true;
 	}
 	
 	public boolean isPwned() {
@@ -110,7 +114,9 @@ public class HostItem {
 	}
 	
 	public boolean isUp() {
-		return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
+		if (!isUp)
+			return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
+		else return true;
 	}
 
 	public String[] getOSCodeName() {

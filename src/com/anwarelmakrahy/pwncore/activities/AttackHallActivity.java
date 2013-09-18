@@ -93,16 +93,16 @@ public class AttackHallActivity extends FragmentActivity {
         switch (v.getId()) {
         case R.id.targetsFragmentListView:
         	
-        	menu.findItem(R.id.mnuTargetScanPorts).setVisible(true);
-        	menu.findItem(R.id.mnuTargetRemove).setVisible(true);
-        	menu.findItem(R.id.mnuTargetOS).setVisible(true);
+        	menu.findItem(R.id.mnuHostScanPorts).setVisible(true);
+        	menu.findItem(R.id.mnuHostRemove).setVisible(true);
+        	menu.findItem(R.id.mnuHostOS).setVisible(true);
         	
-        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+        	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
         	
 	        if ( MainService.hostsList.get(position).isUp()) {
-	        	menu.findItem(R.id.mnuTargetScanServices).setVisible(true);
-	        	//menu.findItem(R.id.mnuTargetLogin).setVisible(true);
-	        	menu.findItem(R.id.mnuTargetFindAttacks).setVisible(true);
+	        	menu.findItem(R.id.mnuHostScanServices).setVisible(true);
+	        	//menu.findItem(R.id.mnuHostLogin).setVisible(true);
+	        	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
 	        
 	        
 	        /*String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
@@ -111,15 +111,15 @@ public class AttackHallActivity extends FragmentActivity {
 	        
 	        for (int i=0; i<tcpPorts.length; i++)
 	        	if (tcpPorts[i].equals("21"))
-	        		menu.findItem(R.id.mnuTargetLogin21).setVisible(true);
+	        		menu.findItem(R.id.mnuHostLogin21).setVisible(true);
 	        	else if (tcpPorts[i].equals("22"))
-	        		menu.findItem(R.id.mnuTargetLogin22).setVisible(true);
+	        		menu.findItem(R.id.mnuHostLogin22).setVisible(true);
 	        	else if (tcpPorts[i].equals("23"))
-	        		menu.findItem(R.id.mnuTargetLogin23).setVisible(true);
+	        		menu.findItem(R.id.mnuHostLogin23).setVisible(true);
 	        	else if (tcpPorts[i].equals("80"))
-	        		menu.findItem(R.id.mnuTargetLogin80).setVisible(true);
+	        		menu.findItem(R.id.mnuHostLogin80).setVisible(true);
 	        	else if (tcpPorts[i].equals("445"))
-	        		menu.findItem(R.id.mnuTargetLogin445).setVisible(true);*/
+	        		menu.findItem(R.id.mnuHostLogin445).setVisible(true);*/
 	        
 	        }
 	        
@@ -155,16 +155,16 @@ public class AttackHallActivity extends FragmentActivity {
         	setCurListPosition(info.position);
         
         switch (item.getItemId()) {
-        case R.id.mnuTargetRemove:
+        case R.id.mnuHostRemove:
         	removeHostFromTargetList(info.position);
         	return true;
-        case R.id.mnuTargetScanPorts:
+        case R.id.mnuHostScanPorts:
         	MainService.hostsList.get(info.position).scanPorts();
         	return true;
-        case R.id.mnuTargetScanServices:
+        case R.id.mnuHostScanServices:
         	MainService.hostsList.get(info.position).scanServices();
         	return true;
-        case R.id.mnuTargetOS:
+        case R.id.mnuHostOS:
            	AlertDialog builder = new AlertDialog.Builder(this)
             .setSingleChoiceItems(HostsAdapter.osTitles, -1, new DialogInterface.OnClickListener() {
             	public void onClick(DialogInterface dialog, int item) {
@@ -177,7 +177,7 @@ public class AttackHallActivity extends FragmentActivity {
             builder.show(); 
         	return true;
         	
-        case R.id.mnuTargetFindAttacks:
+        case R.id.mnuHostFindAttacks:
         	currentLongPosition = info.position;
         	return true;
         case R.id.mnuFindAttacksOS:
@@ -190,15 +190,15 @@ public class AttackHallActivity extends FragmentActivity {
         	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
         	return true;
         	
-        case R.id.mnuTargetLogin21:
+        case R.id.mnuHostLogin21:
         	return true;
-        case R.id.mnuTargetLogin22:
+        case R.id.mnuHostLogin22:
         	return true;
-        case R.id.mnuTargetLogin23:
+        case R.id.mnuHostLogin23:
         	return true;
-        case R.id.mnuTargetLogin80:
+        case R.id.mnuHostLogin80:
         	return true;
-        case R.id.mnuTargetLogin445:
+        case R.id.mnuHostLogin445:
         	return true;
         	
         	
