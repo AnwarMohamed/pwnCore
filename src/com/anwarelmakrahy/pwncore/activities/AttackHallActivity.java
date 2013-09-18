@@ -104,7 +104,14 @@ public class AttackHallActivity extends FragmentActivity {
 	        	//menu.findItem(R.id.mnuHostLogin).setVisible(true);
 	        	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
 	        
-	        
+	        	if (MainService.hostsList.get(position).getActiveSessions().get("shell").size() > 0) {
+	        		menu.findItem(R.id.mnuHostShell).setVisible(true);
+	        	}
+	        	
+	        	if (MainService.hostsList.get(position).getActiveSessions().get("meterpreter").size() > 0) {
+	        		menu.findItem(R.id.mnuHostMeterpreter).setVisible(true);
+	        	}
+	        	
 	        /*String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
 	        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
 	        		                            getTcpPorts().size()]);
@@ -188,6 +195,13 @@ public class AttackHallActivity extends FragmentActivity {
         	return true;
         case R.id.mnuFindAttacksServices:
         	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
+        	return true;
+        	
+        case R.id.mnuHostShell:
+        	currentLongPosition = info.position;
+        	return true;
+        case R.id.mnuHostMeterpreter:
+        	currentLongPosition = info.position;
         	return true;
         	
         case R.id.mnuHostLogin21:

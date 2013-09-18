@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -95,9 +96,12 @@ public class ModuleOptionsActivity extends Activity {
     		}
    			
     		@Override protected Void doInBackground(Void... arg0) {
+    			int time = 30;
     			while (!infoLoaded || !optsLoaded) {
 	    			try {
-	    				Thread.sleep(50);
+	    				Thread.sleep(500);
+	    				if (--time == 0)
+	    					break;
 	    			} catch (InterruptedException e) {
 	    				if (!infoLoaded || !optsLoaded) finish();
 	    			}	
@@ -106,7 +110,7 @@ public class ModuleOptionsActivity extends Activity {
     		}
     		
     		@Override protected void onPostExecute(Void result) {
-    			if (pd!=null) { pd.dismiss(); }
+    			if (pd!=null) { pd.dismiss(); pd.cancel(); }
     		}  			
     	}
     	.execute((Void[])null);

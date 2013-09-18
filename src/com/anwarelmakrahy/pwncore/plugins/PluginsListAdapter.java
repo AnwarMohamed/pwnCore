@@ -56,14 +56,14 @@ public class PluginsListAdapter extends BaseAdapter {
 		}
 		
 		
-		holder.pluginPackage.setText(pluginsList.get(position).getPackageName());
+		/*holder.pluginPackage.setText(pluginsList.get(position).getPackageName());
 		holder.pluginName.setText(pluginsList.get(position).getTitle());
 		holder.pluginIcon.setImageDrawable(pluginsList.get(position).getIconDrawable());
 		
 		if (pluginsList.get(position).getDescription().length() == 0)
 			holder.pluginDescription.setVisibility(View.GONE);
 		else
-			holder.pluginDescription.setText(pluginsList.get(position).getDescription());
+			holder.pluginDescription.setText(pluginsList.get(position).getDescription());*/
 		
 		return convertView;
 	}

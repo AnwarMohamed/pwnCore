@@ -1,16 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" > 
     
-   	<item android:id="@+id/mnuHostMeterpreter" android:visible="false" android:title="Meterpreter">
-        <menu>
-
-        </menu>
-    </item>
-    
-   	<item android:id="@+id/mnuHostShell" android:visible="false" android:title="Shell">
-        <menu>
-
-        </menu>
-    </item>
+   	<item android:id="@+id/mnuHostMeterpreter" android:visible="false" android:title="Meterpreter"/>
+   	<item android:id="@+id/mnuHostShell" android:visible="false" android:title="Shell"/>
    	
     <item android:id="@+id/mnuHostLogin" android:visible="false" android:title="Login">
         <menu>

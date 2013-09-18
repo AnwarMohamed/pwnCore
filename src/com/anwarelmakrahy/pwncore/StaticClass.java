@@ -8,6 +8,9 @@ import android.net.Uri;
 
 public class StaticClass {
 	
+	public static String PWNCORE_WEB_TAG = "pwnCore-WebServer";
+	public static String PWNCORE_TAG = "pwnCore";
+	
 	public static String PWNCORE_CONNECTION_SUCCESS = "CONNECTION_SUCCESS";
 	public static String PWNCORE_CONNECTION_TIMEOUT = "CONNECTION_TIMEOUT";
 	public static String PWNCORE_CONNECTION_FAILED = "CONNECTION_FAILED";

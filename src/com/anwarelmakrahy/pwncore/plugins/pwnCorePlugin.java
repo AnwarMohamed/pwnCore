@@ -2,11 +2,11 @@ package com.anwarelmakrahy.pwncore.plugins;
 
 import android.graphics.drawable.Drawable;
 
-import com.anwarelmakrahy.plugindroid.PluginManager.PluginDetails;
+//import com.anwarelmakrahy.plugindroid.PluginManager.PluginDetails;
 
 public class pwnCorePlugin {
 
-	private PluginDetails packageDetails;
+	/*private PluginDetails packageDetails;
 	public pwnCorePlugin(PluginDetails packageDetails) {
 		this.packageDetails = packageDetails;
 	}
@@ -28,5 +28,5 @@ public class pwnCorePlugin {
 	public String getDescription() {
 		return packageDetails.getPackageInfo().applicationInfo.loadDescription(
 				packageDetails.getPackageManager()).toString();
-	}
+	}*/
 }

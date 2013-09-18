@@ -1,7 +1,7 @@
 package com.anwarelmakrahy.pwncore.activities;
 
-import com.anwarelmakrahy.plugindroid.PluginManager;
-import com.anwarelmakrahy.plugindroid.PluginManager.PackageTableChangeListener;
+//import com.anwarelmakrahy.plugindroid.PluginManager;
+//import com.anwarelmakrahy.plugindroid.PluginManager.PackageTableChangeListener;
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.R;
 import android.app.Activity;
@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
 		WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);    
         
-    	new Thread() {
+    	/*new Thread() {
 			@Override
 			public void run() {			
 			
@@ -40,7 +40,7 @@ public class SplashActivity extends Activity {
 					}});
 				
 			}
-		}.start();
+		}.start();*/
         
         long splashDelay = 1000;
 		new Handler().postDelayed(new Runnable() {

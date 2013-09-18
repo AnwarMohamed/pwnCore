@@ -1,5 +1,6 @@
 package com.anwarelmakrahy.pwncore.structures;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ public class HostItem {
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
 	private Map<String, List<String>> suggestedAttacks = new HashMap<String, List<String>>();
+	private Map<String, List<String>> activeSessions = new HashMap<String, List<String>>();
 	
 	private Context context;
 	
@@ -29,14 +31,25 @@ public class HostItem {
 	public HostItem(Context context) {
 		this.context = context;
 		attackFinder = new AttackFinder(this);
+		setupSessionsList();
 	}
 	
 	public HostItem(Context context, String host) {
 		this.host = host;
 		this.context = context;
 		attackFinder = new AttackFinder(this);
+		setupSessionsList();
 	}
-	 
+	
+	private void setupSessionsList() {
+		activeSessions.put("meterpreter", new ArrayList<String>());
+		activeSessions.put("shell", new ArrayList<String>());
+	}
+	
+	public Map<String, List<String>> getActiveSessions() {
+		return activeSessions;
+	}
+	
 	public void addPort(String type, String port, String details) {
 		if (type.toLowerCase().equals("tcp"))
 			tcpPorts.put(port, details);

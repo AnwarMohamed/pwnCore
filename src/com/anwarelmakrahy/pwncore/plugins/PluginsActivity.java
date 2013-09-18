@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.anwarelmakrahy.plugindroid.PluginManager;
-import com.anwarelmakrahy.plugindroid.PluginManager.PluginDetails;
+//import com.anwarelmakrahy.plugindroid.PluginManager;
+//import com.anwarelmakrahy.plugindroid.PluginManager.PluginDetails;
 import com.anwarelmakrahy.pwncore.R;
 
 import android.app.Activity;
@@ -25,13 +25,13 @@ public class PluginsActivity extends Activity {
         
         
         listView = (ListView)findViewById(R.id.listView1);
-        listAdapter = new PluginsListAdapter(
-        		getApplicationContext(),
-        		preparePluginsList());
-        listView.setAdapter(listAdapter);
+        //listAdapter = new PluginsListAdapter(
+        //		getApplicationContext(),
+        //		preparePluginsList());
+        //listView.setAdapter(listAdapter);
 	}
 	
-	private List<pwnCorePlugin> preparePluginsList() {
+	/*private List<pwnCorePlugin> preparePluginsList() {
 		plugins.clear();
 		
 		Map<String, PluginDetails> pluginsPkgs = PluginManager.getLoadedPlugins();
@@ -45,5 +45,5 @@ public class PluginsActivity extends Activity {
 		}
 		
 		return plugins;
-	}
+	}*/
 }

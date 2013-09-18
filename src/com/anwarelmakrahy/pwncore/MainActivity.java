@@ -12,6 +12,8 @@ import com.anwarelmakrahy.pwncore.plugins.PluginsActivity;
 import com.anwarelmakrahy.pwncore.structures.SidebarItem;
 import com.anwarelmakrahy.pwncore.structures.SidebarAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
+import com.anwarelmakrahy.pwncore.webserver.WebServer;
+import com.anwarelmakrahy.pwncore.webserver.WebServerService;
 import com.navdrawer.SimpleSideDrawer;
 
 import android.os.AsyncTask;
@@ -218,16 +220,23 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		tmpItem.setIcon(R.drawable.plug);
     		tmpItem.setTitle(R.string.connect);	
     		menu.findItem(R.id.mnuConnection).setTitle(R.string.connect);
-    		menu.findItem(R.id.mnuNewConsole).setVisible(false);
     	}
     	else {
     		tmpItem.setIcon(R.drawable.unplug);
     		tmpItem.setTitle(R.string.disconnect);
     		menu.findItem(R.id.mnuConnection).setTitle(R.string.disconnect);
     		menu.findItem(R.id.mnuNewConsole).setVisible(true);
-    	} 	    	
+    	} 	
+    	
+    	if (WebServer.RUNNING) 
+    		menu.findItem(R.id.mnuWeb).setTitle("Stop WebService");
+    	else
+    		menu.findItem(R.id.mnuWeb).setTitle("Start WebService");
+    	
         return super.onPrepareOptionsMenu(menu);
     }
+    
+    private Intent webServieIntent;
     
     @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -237,6 +246,14 @@ public class MainActivity extends Activity implements OnQueryTextListener {
             sidebar.toggleLeftDrawer();
             return true;
 
+	    case R.id.mnuWeb:
+	    	if (WebServer.RUNNING)
+	    		stopService(webServieIntent);
+	    	else {
+		    	webServieIntent = new Intent(getApplicationContext(), WebServerService.class);
+		    	startService(webServieIntent);
+	    	}
+	    	return true;
 	    case R.id.mnuRpcSettings:
 	    	
 	    	if (!isConnected) {
