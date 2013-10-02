@@ -1,6 +1,7 @@
 package com.anwarelmakrahy.pwncore.console;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 
 public class ControlSession {
@@ -31,8 +33,9 @@ public class ControlSession {
 	
 	private ArrayList<String> conversation = new ArrayList<String>();
 	private ArrayList<String> queryPool = new ArrayList<String>();
+	private ArrayList<String> availableCommands = new ArrayList<String>();
 	
-	ControlSession(Context context, String type, String id, Map<String, Value> info) {
+	public ControlSession(Context context, String type, String id, Map<String, Value> info) {
 		this.id = id;
 		this.context = context;
 		this.type = type;
@@ -205,5 +208,25 @@ public class ControlSession {
 			return info.get("via_payload").asRawValue().getString();
 		else
 			return "unknown";		
+	}
+
+	public void newRead(byte[] data) {
+		if (data.length > 0) {
+			conversation.add(data.length + " bytes recieved");
+			processIncomingDataBytes(data);	
+			appendToLog(data.length + " bytes recieved");
+		}
+	}
+
+	private void processIncomingDataBytes(byte[] data) {
+		
+	}
+	
+	public void updateAvailableCommands() {
+		availableCommands.clear();
+	}
+	
+	public List<String> getAvailableCommands() {
+		return availableCommands;
 	}
 }

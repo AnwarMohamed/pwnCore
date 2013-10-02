@@ -1,140 +1,169 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".SettingsActivity" >
+    android:layout_height="match_parent" >
+	
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingBottom="@dimen/activity_vertical_margin"
+	    android:paddingLeft="@dimen/activity_horizontal_margin"
+	    android:paddingRight="@dimen/activity_horizontal_margin"
+	    android:paddingTop="@dimen/activity_vertical_margin"
+	    tools:context=".SettingsActivity" >
+	
+	    <TextView
+	        android:id="@+id/count"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignParentTop="true"
+	        android:layout_marginTop="27dp"
+	        android:text="Host IP"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <EditText
+	        android:id="@+id/txtHost"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/count"
+	        android:layout_alignBottom="@+id/count"
+	        android:layout_alignParentRight="true"
+	        android:layout_marginLeft="18dp"
+	        android:layout_toRightOf="@+id/count"
+	        android:ems="10"
+	        android:singleLine="true" >
+	
+	        <requestFocus />
+	    </EditText>
+	
+	    <EditText
+	        android:id="@+id/txtPort"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/consolePrompt"
+	        android:layout_alignBottom="@+id/consolePrompt"
+	        android:layout_alignLeft="@+id/txtHost"
+	        android:layout_alignParentRight="true"
+	        android:ems="10"
+	        android:singleLine="true" />
+	
+	    <TextView
+	        android:id="@+id/consolePrompt"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignRight="@+id/count"
+	        android:layout_below="@+id/txtHost"
+	        android:layout_marginTop="18dp"
+	        android:text="Port"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <CheckBox
+	        android:id="@+id/chkSSL"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/txtPort"
+	        android:layout_alignRight="@+id/txtPort"
+	        android:layout_below="@+id/txtPort"
+	        android:layout_marginTop="18dp"
+	        android:text="Use SSL Connection" />
+	
+	    <TextView
+	        android:id="@+id/pluginSize"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_alignRight="@+id/sessionPayload"
+	        android:layout_below="@+id/sessionPayload"
+	        android:layout_marginTop="22dp"
+	        android:text="Password"
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        android:textSize="16dp" />
+	
+	    <EditText
+	        android:id="@+id/txtUsername"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/sessionPayload"
+	        android:layout_alignBottom="@+id/sessionPayload"
+	        android:layout_alignLeft="@+id/chkSSL"
+	        android:layout_alignParentRight="true"
+	        android:ems="10"
+	        android:singleLine="true" />
+	
+	    <EditText
+	        android:id="@+id/txtPassword"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/pluginSize"
+	        android:layout_alignBottom="@+id/pluginSize"
+	        android:layout_alignLeft="@+id/txtUsername"
+	        android:layout_alignParentRight="true"
+	        android:ems="10"
+	        android:password="true"
+	        android:singleLine="true" />
+	
+	    <TextView
+	        android:id="@+id/sessionPayload"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/count"
+	        android:layout_below="@+id/chkSSL"
+	        android:layout_marginTop="14dp"
+	        android:text="Username"
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        android:textSize="16dp" />
+	
+	    <CheckBox
+	        android:id="@+id/chkDebug"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@+id/txtPassword"
+	        android:layout_below="@+id/txtPassword"
+	        android:layout_marginTop="18dp"
+	        android:text="Debug Mode" />
+	
+	    <Button
+	        android:id="@+id/cmdCancel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/textView1"
+	        android:layout_marginTop="20dp"
+	        android:layout_toRightOf="@+id/cmdSaveSettings"
+	        android:text="Cancel" />
+	
+	    <Button
+	        android:id="@+id/cmdSaveSettings"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/cmdCancel"
+	        android:layout_alignBottom="@+id/cmdCancel"
+	        android:layout_toRightOf="@+id/pluginSize"
+	        android:text="Save Settings" />
 
-    <TextView
-        android:id="@+id/count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="27dp"
-        android:text="Host IP"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+	    <TextView
+	        android:id="@+id/textView1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_below="@+id/chkDebug"
+	        android:layout_marginTop="10dp"
+	        android:text="WebServer Port"
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        android:textSize="16sp" />
 
-    <EditText
-        android:id="@+id/txtHost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/count"
-        android:layout_alignBottom="@+id/count"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="18dp"
-        android:layout_toRightOf="@+id/count"
-        android:ems="10"
-        android:singleLine="true" >
+	    <EditText
+	        android:id="@+id/txtWebPort"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/textView1"
+	        android:layout_alignBottom="@+id/textView1"
+	        android:layout_alignRight="@+id/cmdCancel"
+	        android:layout_marginLeft="10dp"
+	        android:layout_toRightOf="@+id/textView1"
+	        android:ems="10"
+	        android:password="true"
+	        android:singleLine="true" />
 
-        <requestFocus />
-    </EditText>
-
-    <EditText
-        android:id="@+id/txtPort"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/consolePrompt"
-        android:layout_alignBottom="@+id/consolePrompt"
-        android:layout_alignLeft="@+id/txtHost"
-        android:layout_alignParentRight="true"
-        android:ems="10"
-        android:singleLine="true" />
-
-    <TextView
-        android:id="@+id/consolePrompt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/count"
-        android:layout_below="@+id/txtHost"
-        android:layout_marginTop="18dp"
-        android:text="Port"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <CheckBox
-        android:id="@+id/chkSSL"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtPort"
-        android:layout_alignRight="@+id/txtPort"
-        android:layout_below="@+id/txtPort"
-        android:layout_marginTop="18dp"
-        android:text="Use SSL Connection" />
-
-    <TextView
-        android:id="@+id/pluginSize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/sessionPayload"
-        android:layout_below="@+id/sessionPayload"
-        android:layout_marginTop="22dp"
-        android:text="Password"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="16dp" />
-
-    <EditText
-        android:id="@+id/txtUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/sessionPayload"
-        android:layout_alignBottom="@+id/sessionPayload"
-        android:layout_alignLeft="@+id/chkSSL"
-        android:layout_alignParentRight="true"
-        android:ems="10"
-        android:singleLine="true" />
-
-    <EditText
-        android:id="@+id/txtPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/pluginSize"
-        android:layout_alignBottom="@+id/pluginSize"
-        android:layout_alignLeft="@+id/txtUsername"
-        android:layout_alignParentRight="true"
-        android:ems="10"
-        android:password="true"
-        android:singleLine="true" />
-
-    <TextView
-        android:id="@+id/sessionPayload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/count"
-        android:layout_below="@+id/chkSSL"
-        android:layout_marginTop="14dp"
-        android:text="Username"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="16dp" />
-
-    <CheckBox
-        android:id="@+id/chkDebug"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/txtPassword"
-        android:layout_below="@+id/txtPassword"
-        android:layout_marginTop="18dp"
-        android:text="Debug Mode" />
-
-    <Button
-        android:id="@+id/cmdCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/chkDebug"
-        android:layout_marginTop="20dp"
-        android:layout_toRightOf="@+id/cmdSaveSettings"
-        android:text="Cancel" />
-
-    <Button
-        android:id="@+id/cmdSaveSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/cmdCancel"
-        android:layout_alignBottom="@+id/cmdCancel"
-        android:layout_toRightOf="@+id/pluginSize"
-        android:text="Save Settings" />
-
-</RelativeLayout>
+	</RelativeLayout>
+</ScrollView>

@@ -90,6 +90,18 @@ public class AttackHallActivity extends FragmentActivity {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         int position = info.position;
         
+        if (shellMenu || meterpreterMenu) {
+        	if (shellMenu) {
+        		shellMenu = false;
+        	}
+        	
+        	if (meterpreterMenu) {
+        		meterpreterMenu = false;
+        	}
+        	
+        	return; 
+        }
+        
         switch (v.getId()) {
         case R.id.targetsFragmentListView:
         	
@@ -154,6 +166,7 @@ public class AttackHallActivity extends FragmentActivity {
     }
     
     private static int curListPosition = 0;
+    private boolean shellMenu = false, meterpreterMenu = false;
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -198,9 +211,11 @@ public class AttackHallActivity extends FragmentActivity {
         	return true;
         	
         case R.id.mnuHostShell:
+        	shellMenu = true;
         	currentLongPosition = info.position;
         	return true;
         case R.id.mnuHostMeterpreter:
+        	meterpreterMenu = true;
         	currentLongPosition = info.position;
         	return true;
         	

@@ -8,7 +8,6 @@ import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
 import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
 import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
-import com.anwarelmakrahy.pwncore.plugins.PluginsActivity;
 import com.anwarelmakrahy.pwncore.structures.SidebarItem;
 import com.anwarelmakrahy.pwncore.structures.SidebarAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
@@ -32,9 +31,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnActionExpandListener;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -65,36 +68,55 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	
 	public static boolean debug_mode = false;
 	
-	private SimpleSideDrawer sidebar;
+	//private SimpleSideDrawer sidebar;
 	
-    private ListView leftSidebarList;
+    private ListView sidebarList;
 
-    private SidebarAdapter SidebarAdapter;
-    private ArrayList<SidebarItem> SidebarItems = new ArrayList<SidebarItem>();
+    private SidebarAdapter sidebarAdapter;
+    private ArrayList<SidebarItem> sidebarItems = new ArrayList<SidebarItem>();
+    private DrawerLayout sidebarLayout;
+    private ActionBarDrawerToggle sidebarToggle;
 	
     private ProgressDialog pd;
     
    
     private ListView modulesList; 
+    private WebServer webService;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {  	
         super.onCreate(savedInstanceState); 
-        setContentView(R.layout.activity_main);
-        sidebar = new SimpleSideDrawer(this);
-        
+        setContentView(R.layout.activity_main);      
         activity = this;
         
         serviceIntent = new Intent(this, MainService.class);     
 		startService(serviceIntent);
 		
-		sidebar.setLeftBehindContentView(R.layout.sidebar_left);
-		getActionBar().setHomeButtonEnabled(true); 
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
 		
-        leftSidebarList = (ListView) findViewById(R.id.listview);
-        SidebarAdapter = new SidebarAdapter(this, SidebarItems);
-        leftSidebarList.setAdapter(SidebarAdapter); 
-        leftSidebarList.setOnItemClickListener(new ModulesListItemClickListener());   
+		sidebarLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		sidebarToggle = new ActionBarDrawerToggle(
+				this, 
+				sidebarLayout, 
+				R.drawable.ic_drawer, 
+				R.string.drawer_open, 
+				R.string.drawer_close) {
+
+            public void onDrawerClosed(View view) {
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                invalidateOptionsMenu();
+            }
+        };
+		
+        sidebarLayout.setDrawerListener(sidebarToggle);
+		sidebarAdapter = new SidebarAdapter(this, sidebarItems);
+        sidebarList = (ListView) findViewById(R.id.listview);
+        sidebarList.setAdapter(sidebarAdapter); 
+        sidebarList.setOnItemClickListener(new ModulesListItemClickListener()); 
         
         
 		modulesList = (ListView)findViewById(R.id.modulesListView);
@@ -130,7 +152,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	        }
 		});
         
-        prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean("isConnected", false).commit();
         loadSharedPreferences();
         
@@ -168,6 +190,18 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		prepareSidebar(); 	
     } 
     
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        sidebarToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        sidebarToggle.onConfigurationChanged(newConfig);
+    }
+    
     private boolean titlesHas(String s) {
     	for (int i=0; i<titles.length; i++)
     		if (titles[i].equals(s))
@@ -190,11 +224,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	   	item.setTitle(titles[i]);
     	   	item.setImage(icons[i]);
     	   	item.setCount(0);
-        	SidebarItems.add(item);
+        	sidebarItems.add(item);
     	}
     	
-		if (SidebarAdapter != null)
-			SidebarAdapter.notifyDataSetChanged();
+		if (sidebarAdapter != null)
+			sidebarAdapter.notifyDataSetChanged();
     }
     
 
@@ -208,6 +242,21 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         mnuSearch = menu.findItem(R.id.mnuSearch);
         SearchView searchView = (SearchView) mnuSearch.getActionView();
         searchView.setOnQueryTextListener(this);
+        mnuSearch.setOnActionExpandListener(new OnActionExpandListener() {
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+            	MainService.modulesMap.modulesAdapter.getFilter().filter("");
+                return true;
+            }
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				return true;
+			}
+
+        });
+        
         return true;
     }
     
@@ -236,22 +285,45 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         return super.onPrepareOptionsMenu(menu);
     }
     
-    private Intent webServieIntent;
-    
     @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-	    switch (item.getItemId()) {    
-	    case android.R.id.home:
-            sidebar.toggleLeftDrawer();
+    	if (sidebarToggle.onOptionsItemSelected(item)) {
             return true;
+        }
+    	
+	    switch (item.getItemId()) {    
 
 	    case R.id.mnuWeb:
-	    	if (WebServer.RUNNING)
-	    		stopService(webServieIntent);
+	    	if (WebServer.RUNNING) {
+	    		new Thread(new Runnable() {
+					@Override
+					public void run() {
+			    		webService.stopServer();
+			    		webService = null;
+					}}).start();
+
+		    	Toast.makeText(
+		    			getApplicationContext(),
+		    			"WebServer Stopped", 
+		    			Toast.LENGTH_SHORT
+		    			).show();
+	    	}
 	    	else {
-		    	webServieIntent = new Intent(getApplicationContext(), WebServerService.class);
-		    	startService(webServieIntent);
+	    		new Thread(new Runnable() {
+					@Override
+					public void run() {
+			    		webService = new WebServer(
+			    				getApplicationContext(), 
+			    				prefs.getInt("webserver_port", 8080));
+			    		webService.startServer();
+					}}).start();
+
+		    	Toast.makeText(
+		    			getApplicationContext(),
+		    			"WebServer Started", 
+		    			Toast.LENGTH_SHORT
+		    			).show();
 	    	}
 	    	return true;
 	    case R.id.mnuRpcSettings:
@@ -308,10 +380,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     			setNotification();
 	    	}
 	    	return true;
-	    case R.id.mnuPlugins:
-	    	Intent intent = new Intent(this, PluginsActivity.class);
-	    	startActivity(intent);
-	    	return true;
+	    //case R.id.mnuPlugins:
+	    //	Intent intent = new Intent(this, PluginsActivity.class);
+	    //	startActivity(intent);
+	    //	return true;
 	    	
 	    case R.id.mnuExit:
 
@@ -571,8 +643,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				//		MainService.modulesMap.loadModulesOptions("exploits");
 				//	}}).start();
     			
-    			SidebarItems.get(0).setCount(MainService.databaseHandler.getModulesCount("exploits"));
-    			SidebarAdapter.notifyDataSetChanged();
+    			sidebarItems.get(0).setCount(MainService.databaseHandler.getModulesCount("exploits"));
+    			sidebarAdapter.notifyDataSetChanged();
     			
     			modulesList.setAdapter(MainService.modulesMap.modulesAdapter);
     			
@@ -588,8 +660,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_PAYLOADS_SUCCESS) {
     			MainService.modulesMap.setList("payload", MainService.databaseHandler.getAllModules("payloads"));
-    			SidebarItems.get(1).setCount(MainService.databaseHandler.getModulesCount("payloads"));
-    			SidebarAdapter.notifyDataSetChanged();			
+    			sidebarItems.get(1).setCount(MainService.databaseHandler.getModulesCount("payloads"));
+    			sidebarAdapter.notifyDataSetChanged();			
     		}
     		
     		else if (action == StaticClass.PWNCORE_LOAD_POSTS_FAILED) {
@@ -599,8 +671,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_POSTS_SUCCESS) {
     			MainService.modulesMap.setList("post", MainService.databaseHandler.getAllModules("post"));
-    			SidebarItems.get(2).setCount(MainService.databaseHandler.getModulesCount("post"));
-    			SidebarAdapter.notifyDataSetChanged();    		
+    			sidebarItems.get(2).setCount(MainService.databaseHandler.getModulesCount("post"));
+    			sidebarAdapter.notifyDataSetChanged();    		
     		} 		
     		
     		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS_FAILED) {
@@ -610,8 +682,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_ENCODERS_SUCCESS) {
     			MainService.modulesMap.setList("encoder", MainService.databaseHandler.getAllModules("encoders"));
-    			SidebarItems.get(3).setCount(MainService.databaseHandler.getModulesCount("encoders"));
-    			SidebarAdapter.notifyDataSetChanged();
+    			sidebarItems.get(3).setCount(MainService.databaseHandler.getModulesCount("encoders"));
+    			sidebarAdapter.notifyDataSetChanged();
     		}
     		
     		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY_FAILED) {
@@ -621,8 +693,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_AUXILIARY_SUCCESS) {  			
     			MainService.modulesMap.setList("auxiliary", MainService.databaseHandler.getAllModules("auxiliary"));
-    			SidebarItems.get(4).setCount(MainService.databaseHandler.getModulesCount("auxiliary"));
-    			SidebarAdapter.notifyDataSetChanged();
+    			sidebarItems.get(4).setCount(MainService.databaseHandler.getModulesCount("auxiliary"));
+    			sidebarAdapter.notifyDataSetChanged();
     		}
     		
     		else if (action == StaticClass.PWNCORE_LOAD_NOPS_FAILED) {
@@ -632,8 +704,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		}
     		else if (action == StaticClass.PWNCORE_LOAD_NOPS_SUCCESS) {
     			MainService.modulesMap.setList("nop", MainService.databaseHandler.getAllModules("nops"));
-    			SidebarItems.get(5).setCount(MainService.databaseHandler.getModulesCount("nops"));
-    			SidebarAdapter.notifyDataSetChanged();
+    			sidebarItems.get(5).setCount(MainService.databaseHandler.getModulesCount("nops"));
+    			sidebarAdapter.notifyDataSetChanged();
     		}
     		
     		else if (action == StaticClass.PWNCORE_DATABASE_UPDATE_STARTED) {
@@ -737,10 +809,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             
-    		Object obj = leftSidebarList.getItemAtPosition(position);
+    		Object obj = sidebarList.getItemAtPosition(position);
         	SidebarItem objDetails = (SidebarItem)obj;
 
-        	sidebar.toggleLeftDrawer();
+        	//sidebar.toggleLeftDrawer();
         	
         	if (!objDetails.isHeader() && ( titlesHas(objDetails.getTitle()) || 
         			objDetails.getTitle().equals("pwnCore"))) {

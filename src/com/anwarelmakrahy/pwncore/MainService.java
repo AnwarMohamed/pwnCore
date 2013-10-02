@@ -323,10 +323,18 @@ public class MainService extends Service {
 						params.add("session.meterpreter_read");
 						params.add(intent.getStringExtra("id"));
 	            		Map<String, Value> newConDes = client.call(params);
-	            		if (newConDes != null && newConDes.containsKey("data"))
-		            		sessionMgr.notifySessionNewRead(
-		            				intent.getStringExtra("id"), 
-		            				newConDes.get("data").asRawValue().getString());  
+	            		if (newConDes != null && newConDes.containsKey("data")) {
+	            			try {
+			            		sessionMgr.notifySessionNewRead(
+			            				intent.getStringExtra("id"), 
+			            				newConDes.get("data").asRawValue().getString());             				
+	            			}
+	            			catch (Exception e) {
+			            		sessionMgr.notifySessionNewRead(
+			            				intent.getStringExtra("id"), 
+			            				newConDes.get("data").asRawValue().getByteArray()); 
+	            			}
+	            		}
 					}});	
     		}
     		else if (action == StaticClass.PWNCORE_CONSOLE_SHELL_READ) {

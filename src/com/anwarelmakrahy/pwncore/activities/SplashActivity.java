@@ -1,9 +1,10 @@
 package com.anwarelmakrahy.pwncore.activities;
 
-//import com.anwarelmakrahy.plugindroid.PluginManager;
-//import com.anwarelmakrahy.plugindroid.PluginManager.PackageTableChangeListener;
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.R;
+import com.umeng.apf.ApfException;
+import com.umeng.apf.PluginManager;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,25 +23,6 @@ public class SplashActivity extends Activity {
 		WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);    
         
-    	/*new Thread() {
-			@Override
-			public void run() {			
-			
-				PluginManager.registerPlugin("com.anwarelmakrahy.pwncore.plugin");
-				PluginManager.loadPlugins(
-						getApplicationContext(),
-						"com.anwarelmakrahy.pwncore.plugin");
-				PluginManager.setPackageTableChangerListener(new PackageTableChangeListener() {
-
-					@Override
-					protected void packageTableChanged(String action,
-							String packageName) {
-						Log.i("PluginManager", action + " " + packageName);
-						
-					}});
-				
-			}
-		}.start();*/
         
         long splashDelay = 1000;
 		new Handler().postDelayed(new Runnable() {

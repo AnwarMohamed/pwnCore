@@ -270,6 +270,12 @@ public class SessionManager {
 			controlSessions.get(id).newRead(data);
 		}	
 	}
+	
+	public void notifySessionNewRead(String id, byte[] data) {
+		if (controlSessions.containsKey(id)) {
+			controlSessions.get(id).newRead(data);
+		}	
+	}
 
 	public void destroySession(String id) {
 		if (controlSessions.containsKey(id)) {

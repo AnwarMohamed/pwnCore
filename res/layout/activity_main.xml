@@ -1,86 +1,141 @@
-<RelativeLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:context=".MainActivity" >
-
-		<ImageView
-			android:id="@+id/imageView11"
-			android:layout_width="match_parent"
-			android:layout_height="282dp"
-			android:layout_gravity="center_vertical"
-			android:scaleType="centerInside"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
-			android:layout_alignParentBottom="true"
-			android:src="@drawable/logo" />
-            
-        <ListView
-            android:id="@+id/modulesListView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_above="@+id/detailStatus" />
-
-        <TextView
-            android:id="@+id/targetDetailsPwn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="17dp"
-            android:layout_marginLeft="60dp"
-            android:clickable="true"
-            android:onClick="launchAttackWizard"
-            android:text="Attack Wizard"
-            android:textColor="#444444"
-            android:textSize="18sp"
-            />
-
-        <TextView
-            android:id="@+id/consolePrompt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="17dp"
-            android:layout_marginRight="40dp"
-            android:clickable="true"
-            android:onClick="launchAttackHall"
-            android:text="Attack Hall"
-            android:textColor="#444444"
-            android:textSize="18sp"
-            />
-
-        <ImageView
-            android:id="@+id/detailStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/targetDetailsPwn"
-            android:layout_alignLeft="@+id/targetDetailsPwn"
-            android:layout_marginLeft="-30dp"
-            android:layout_marginTop="7dp"
-            android:clickable="true"
-            android:onClick="launchAttackWizard"
-            android:src="@drawable/wizard"
-            android:translationY="5dp" />
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/consolePrompt"
-            android:layout_alignLeft="@+id/consolePrompt"
-            android:layout_marginLeft="-30dp"
-            android:clickable="true"
-            android:onClick="launchAttackHall"
-            android:src="@drawable/gun"
-            android:translationY="5dp" />
-
-    </RelativeLayout>
-
-   
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+	<RelativeLayout
+	    android:id="@+id/content_frame"
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    xmlns:tools="http://schemas.android.com/tools"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    tools:context=".MainActivity" >
+	
+			<ImageView
+			    android:id="@+id/imageView11"
+			    android:layout_width="match_parent"
+			    android:layout_height="282dp"
+			    android:layout_alignParentBottom="true"
+			    android:layout_alignParentLeft="true"
+			    android:layout_alignParentRight="true"
+			    android:layout_alignParentTop="true"
+			    android:layout_gravity="center_vertical"
+			    android:scaleType="centerInside"
+			    android:src="@drawable/logo" />
+	            
+	        <ListView
+	            android:id="@+id/modulesListView"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentLeft="true"
+	            android:layout_alignParentRight="true"
+	            android:layout_alignParentTop="true"
+	            android:layout_above="@+id/detailStatus" />
+	
+	        <TextView
+	            android:id="@+id/targetDetailsPwn"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentBottom="true"
+	            android:layout_alignParentLeft="true"
+	            android:layout_marginBottom="17dp"
+	            android:layout_marginLeft="60dp"
+	            android:clickable="true"
+	            android:onClick="launchAttackWizard"
+	            android:text="Attack Wizard"
+	            android:textColor="#444444"
+	            android:textSize="18sp"
+	            />
+	
+	        <TextView
+	            android:id="@+id/consolePrompt"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignParentBottom="true"
+	            android:layout_alignParentRight="true"
+	            android:layout_marginBottom="17dp"
+	            android:layout_marginRight="40dp"
+	            android:clickable="true"
+	            android:onClick="launchAttackHall"
+	            android:text="Attack Hall"
+	            android:textColor="#444444"
+	            android:textSize="18sp"
+	            />
+	
+	        <ImageView
+	            android:id="@+id/detailStatus"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignBottom="@+id/targetDetailsPwn"
+	            android:layout_alignLeft="@+id/targetDetailsPwn"
+	            android:layout_marginLeft="-30dp"
+	            android:layout_marginTop="7dp"
+	            android:clickable="true"
+	            android:onClick="launchAttackWizard"
+	            android:src="@drawable/wizard"
+	            android:translationY="5dp" />
+	
+	        <ImageView
+	            android:id="@+id/imageView2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_alignBottom="@+id/consolePrompt"
+	            android:layout_alignLeft="@+id/consolePrompt"
+	            android:layout_marginLeft="-30dp"
+	            android:clickable="true"
+	            android:onClick="launchAttackHall"
+	            android:src="@drawable/gun"
+	            android:translationY="5dp" />
+	    </RelativeLayout>
+	    
+		<RelativeLayout 
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/left_drawer"
+		    android:layout_width="200dp"
+		    android:background="#ffffff"
+		    android:layout_height="match_parent"
+		    android:layout_gravity="start|bottom"
+		    android:orientation="vertical" >
+		
+		    <TextView
+		        android:id="@+id/textView1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginBottom="5dp"
+		        android:layout_marginLeft="10dp"
+		        android:layout_marginRight="10dp"
+		        android:layout_marginTop="15dp"
+		        android:text="Current Modules"
+		        android:textColor="#222222"
+		        android:textSize="16sp"
+		        android:textStyle="bold" />
+		
+		    <ListView
+		        android:id="@+id/listview"
+		        android:layout_width="200dp"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@+id/textView1"
+		        android:background="#ffffff"
+		        android:choiceMode="singleChoice"
+		        android:divider="#eeeeee"
+		        android:dividerHeight="1dp"
+		        android:listSelector="#a1d3f4" >
+		
+		    </ListView>
+		
+		    <TextView
+		        android:id="@+id/textView2"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignLeft="@+id/textView1"
+		        android:layout_below="@+id/listview"
+		        android:layout_marginBottom="5dp"
+		        android:layout_marginTop="15dp"
+		        android:text="Active Sessions"
+		        android:textColor="#222222"
+		        android:textSize="16sp"
+		        android:textStyle="bold" />
+		</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>	
+	   

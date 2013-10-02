@@ -15,6 +15,7 @@ import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
+import com.anwarelmakrahy.pwncore.plugins.MeterpreterActivity;
 import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 import android.app.Activity;
@@ -73,17 +74,28 @@ public class ConsoleSession {
     	.setMessage("Meterpreter Session attached, Interact ?")
     	.setIcon(android.R.drawable.ic_dialog_alert)
     	.setCancelable(false)
-    	.setNegativeButton("No",  new DialogInterface.OnClickListener() {
+    	.setNegativeButton("Cancel",  new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
     	    	dialog.dismiss();
     	    }
     	})
-    	.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    	.setPositiveButton("Console", new DialogInterface.OnClickListener() {
     	    public void onClick(DialogInterface dialog, int which) {
     	    	
     	    	Intent intent = new Intent(context, ConsoleActivity.class);
     	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     	    	intent.putExtra("type", "current.meterpreter");
+    	    	String id = session.getId();
+    	    	intent.putExtra("id", id);
+    	    	context.startActivity(intent);   
+    	    	
+    	    }
+    	})
+    	.setNeutralButton("GUI Commander", new DialogInterface.OnClickListener() {
+    	    public void onClick(DialogInterface dialog, int which) {
+    	    	
+    	    	Intent intent = new Intent(context, MeterpreterActivity.class);
+    	    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     	    	String id = session.getId();
     	    	intent.putExtra("id", id);
     	    	context.startActivity(intent);   

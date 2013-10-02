@@ -18,6 +18,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light">
         
+        
         <activity
             android:name="com.anwarelmakrahy.pwncore.activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"      
@@ -76,11 +77,13 @@
             android:label="Attack Hall"
             android:name="com.anwarelmakrahy.pwncore.activities.AttackHallActivity">
         </activity>
-               
+        
         <activity 
-            android:label="My Plugins"
-            android:name="com.anwarelmakrahy.pwncore.plugins.PluginsActivity">           
+            android:label="Meterpreter Session"
+            android:name=".plugins.MeterpreterActivity">
         </activity>
+        <service android:name=".webserver.WebServerService"></service>
+               
     </application>
 
 </manifest>

@@ -17,7 +17,7 @@ public class SettingsActivity extends Activity {
 	
 	private SharedPreferences prefs;
 	private CheckBox con_chkSSL, chkDebug;
-	private EditText con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
+	private EditText con_txtUsername, con_txtPassword, con_txtHost, con_txtPort, webserver_port;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +33,15 @@ public class SettingsActivity extends Activity {
         con_txtPassword = (EditText)findViewById(R.id.txtPassword);
         con_txtHost = (EditText)findViewById(R.id.txtHost);
         con_txtPort = (EditText)findViewById(R.id.txtPort);
+        webserver_port  = (EditText)findViewById(R.id.txtWebPort);
         
         chkDebug.setChecked(prefs.getBoolean("debug_mode", false));
         con_chkSSL.setChecked(prefs.getBoolean("connection_useSSL", false));
         con_txtUsername.setText(prefs.getString("connection_Username", ""));
         con_txtPassword.setText(prefs.getString("connection_Password", ""));
         con_txtHost.setText(prefs.getString("connection_Host", ""));
-        con_txtPort.setText(prefs.getString("connection_Port", "55553"));    
+        con_txtPort.setText(prefs.getString("connection_Port", "55553")); 
+        webserver_port.setText(prefs.getString("webserver_port", "8080"));
         
         Button button= (Button) findViewById(R.id.cmdCancel);
         button.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +95,15 @@ public class SettingsActivity extends Activity {
     	editor.putString("connection_Host", con_txtHost.getText().toString());
     	editor.putString("connection_Username", con_txtUsername.getText().toString());
     	editor.putString("connection_Password", con_txtPassword.getText().toString());
+    	
+    	int serverPort;
+    	try {
+    		serverPort = Integer.parseInt(webserver_port.getText().toString());
+    	} catch (Exception e) {
+    		serverPort = 8080;
+    	}
+    	
+    	editor.putInt("webserver_port", serverPort);
     	
     	editor.commit();
 	}
