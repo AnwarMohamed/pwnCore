@@ -41,7 +41,7 @@ public class SettingsActivity extends Activity {
         con_txtPassword.setText(prefs.getString("connection_Password", ""));
         con_txtHost.setText(prefs.getString("connection_Host", ""));
         con_txtPort.setText(prefs.getString("connection_Port", "55553")); 
-        webserver_port.setText(prefs.getString("webserver_port", "8080"));
+        webserver_port.setText(Integer.toString(prefs.getInt("webserver_port", 8080)));
         
         Button button= (Button) findViewById(R.id.cmdCancel);
         button.setOnClickListener(new View.OnClickListener() {

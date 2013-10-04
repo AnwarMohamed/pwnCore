@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
 
-import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
@@ -252,6 +251,9 @@ public class ConsoleSession {
 							for (HostItem item: MainService.hostsList) {
 								if (item.getHost().equals(host)) {
 									item.setPwned(true);
+									if(info.containsKey("type") && 
+											item.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
+										item.getActiveSessions().get(info.get("type").asRawValue().getString()).add(sessionId);
 									wasFound = true;
 									break;
 								}
@@ -260,6 +262,11 @@ public class ConsoleSession {
 							if (!wasFound) {
 								HostItem newHost = new HostItem(context, host);
 								newHost.setPwned(true);
+								
+								if(info.containsKey("type") && 
+										newHost.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
+									newHost.getActiveSessions().get(info.get("type").asRawValue().getString()).add(sessionId);
+								
 								newHost.scanPorts();
 								MainService.hostsList.add(newHost);
 							}

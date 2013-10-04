@@ -12,7 +12,6 @@ import com.anwarelmakrahy.pwncore.console.utils.AttackFinder;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
-import com.anwarelmakrahy.pwncore.fragments.HostDetailsFragment;
 import com.anwarelmakrahy.pwncore.fragments.HostsFragment;
 import com.anwarelmakrahy.pwncore.structures.HostsAdapter;
 import com.viewpagerindicator.TabPageIndicator;
@@ -40,7 +39,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class AttackHallActivity extends FragmentActivity {
  
 	private static final String[] CONTENT = 
-			new String[] { "HOSTS", "HOST DETAILS", "CONSOLES", "SESSIONS", "JOBS" };
+			new String[] { "HOSTS", "CONSOLES", "SESSIONS", "JOBS" };
         
 	public static ViewPager pager;
 	
@@ -64,7 +63,6 @@ public class AttackHallActivity extends FragmentActivity {
     	  List<Fragment> fList = new ArrayList<Fragment>();
     	 
     	  fList.add(HostsFragment.newInstance());
-    	  fList.add(HostDetailsFragment.newInstance());
     	  fList.add(ConsolesFragment.newInstance());
     	  fList.add(ControlSessionsFragment.newInstance());
     	  fList.add(JobsFragment.newInstance());
@@ -90,24 +88,13 @@ public class AttackHallActivity extends FragmentActivity {
     	AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         int position = info.position;
         
-        if (shellMenu || meterpreterMenu) {
-        	if (shellMenu) {
-        		shellMenu = false;
-        	}
-        	
-        	if (meterpreterMenu) {
-        		meterpreterMenu = false;
-        	}
-        	
-        	return; 
-        }
-        
         switch (v.getId()) {
         case R.id.targetsFragmentListView:
         	
         	menu.findItem(R.id.mnuHostScanPorts).setVisible(true);
         	menu.findItem(R.id.mnuHostRemove).setVisible(true);
         	menu.findItem(R.id.mnuHostOS).setVisible(true);
+        	menu.findItem(R.id.mnuHostDetails).setVisible(true);
         	
         	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
         	
@@ -116,13 +103,11 @@ public class AttackHallActivity extends FragmentActivity {
 	        	//menu.findItem(R.id.mnuHostLogin).setVisible(true);
 	        	menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
 	        
-	        	if (MainService.hostsList.get(position).getActiveSessions().get("shell").size() > 0) {
-	        		menu.findItem(R.id.mnuHostShell).setVisible(true);
+	        	if (MainService.hostsList.get(position).getActiveSessions().get("shell").size() > 0 ||
+        			MainService.hostsList.get(position).getActiveSessions().get("meterpreter").size() > 0) {
+	        		menu.findItem(R.id.mnuHostSessions).setVisible(true);
 	        	}
-	        	
-	        	if (MainService.hostsList.get(position).getActiveSessions().get("meterpreter").size() > 0) {
-	        		menu.findItem(R.id.mnuHostMeterpreter).setVisible(true);
-	        	}
+
 	        	
 	        /*String[] tcpPorts = MainService.mTargetHostList.get(position).getTcpPorts().
 	        		keySet().toArray(new String[MainService.mTargetHostList.get(position).
@@ -166,7 +151,6 @@ public class AttackHallActivity extends FragmentActivity {
     }
     
     private static int curListPosition = 0;
-    private boolean shellMenu = false, meterpreterMenu = false;
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -210,12 +194,10 @@ public class AttackHallActivity extends FragmentActivity {
         	MainService.hostsList.get(currentLongPosition).findAttacks(AttackFinder.FINDATTACKS_BY_SERVICES);
         	return true;
         	
-        case R.id.mnuHostShell:
-        	shellMenu = true;
-        	currentLongPosition = info.position;
-        	return true;
-        case R.id.mnuHostMeterpreter:
-        	meterpreterMenu = true;
+        case R.id.mnuHostSessions:
+        	startActivity(
+        			new Intent(this, HostSessionsActivity.class)
+        			.putExtra("hostId", info.position));
         	currentLongPosition = info.position;
         	return true;
         	

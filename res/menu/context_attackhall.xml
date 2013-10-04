@@ -1,7 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" > 
     
-   	<item android:id="@+id/mnuHostMeterpreter" android:visible="false" android:title="Meterpreter"/>
-   	<item android:id="@+id/mnuHostShell" android:visible="false" android:title="Shell"/>
+   	<item android:id="@+id/mnuHostSessions" android:visible="false" android:title="Get Sessions"/>
    	
     <item android:id="@+id/mnuHostLogin" android:visible="false" android:title="Login">
         <menu>
@@ -25,6 +24,7 @@
      <item android:id="@+id/mnuHostScanPorts" android:visible="false" android:title="Scan Ports"/>
     
     <item android:id="@+id/mnuHostOS" android:visible="false" android:title="Change OS"/>
+    <item android:id="@+id/mnuHostDetails" android:visible="false" android:title="Host Details"/>
     <item android:id="@+id/mnuHostRemove" android:visible="false" android:title="Remove Host"/>
     
     <item android:id="@+id/mnuSessionKill" android:visible="false" android:title="Terminate Session"/>

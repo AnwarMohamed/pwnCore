@@ -2,14 +2,11 @@ package com.anwarelmakrahy.pwncore.activities;
 
 import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.R;
-import com.umeng.apf.ApfException;
-import com.umeng.apf.PluginManager;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 

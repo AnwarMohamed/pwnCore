@@ -127,7 +127,7 @@
 	        android:id="@+id/cmdCancel"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/textView1"
+	        android:layout_below="@+id/sessionHost"
 	        android:layout_marginTop="20dp"
 	        android:layout_toRightOf="@+id/cmdSaveSettings"
 	        android:text="Cancel" />
@@ -142,7 +142,7 @@
 	        android:text="Save Settings" />
 
 	    <TextView
-	        android:id="@+id/textView1"
+	        android:id="@+id/sessionHost"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentLeft="true"
@@ -156,11 +156,11 @@
 	        android:id="@+id/txtWebPort"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignBaseline="@+id/textView1"
-	        android:layout_alignBottom="@+id/textView1"
+	        android:layout_alignBaseline="@+id/sessionHost"
+	        android:layout_alignBottom="@+id/sessionHost"
 	        android:layout_alignRight="@+id/cmdCancel"
 	        android:layout_marginLeft="10dp"
-	        android:layout_toRightOf="@+id/textView1"
+	        android:layout_toRightOf="@+id/sessionHost"
 	        android:ems="10"
 	        android:password="true"
 	        android:singleLine="true" />

@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -52,9 +51,7 @@ public class HostsFragment extends Fragment {
 		listview.setOnItemClickListener(new OnItemClickListener() {
 	        @Override
 	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
-	        	prefs.edit().putString("target_id", Integer.toString(position)).commit();      	
-        		listAdapter.setSelectedIndex(position);
-        		AttackHallActivity.pager.setCurrentItem(1);
+	        	getActivity().openContextMenu(view);
 	        }
 		});
 	}
@@ -63,7 +60,6 @@ public class HostsFragment extends Fragment {
 	public void onActivityCreated(Bundle savedState) {
 		super.onActivityCreated(savedState);
 		prefs = getActivity().getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
-		prefs.edit().putString("target_id", "0").commit();
 		registerForContextMenu(listview);
 	}
 

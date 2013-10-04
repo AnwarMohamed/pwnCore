@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
+import com.anwarelmakrahy.pwncore.activities.HostSessionsActivity;
 import com.anwarelmakrahy.pwncore.activities.ModuleOptionsActivity;
 import com.anwarelmakrahy.pwncore.activities.SettingsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
@@ -12,8 +13,6 @@ import com.anwarelmakrahy.pwncore.structures.SidebarItem;
 import com.anwarelmakrahy.pwncore.structures.SidebarAdapter;
 import com.anwarelmakrahy.pwncore.structures.ModuleItem;
 import com.anwarelmakrahy.pwncore.webserver.WebServer;
-import com.anwarelmakrahy.pwncore.webserver.WebServerService;
-import com.navdrawer.SimpleSideDrawer;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -51,35 +50,24 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	public static AlertDialog.Builder checkConDlgBuilder;
 	private boolean conStatusReceiverRegistered = false;
-	
 	public Menu main_menu;
-	private Intent serviceIntent;
-	
+	private Intent serviceIntent;	
 	private NotificationManager mNotificationManager;
 	private Notification noti;
-	
 	public static SharedPreferences prefs;
 	private Activity activity;
-
 	private String 	con_txtUsername, 
 					con_txtPassword,
 					con_txtHost, 
 					con_txtPort;
 	
 	public static boolean debug_mode = false;
-	
-	//private SimpleSideDrawer sidebar;
-	
     private ListView sidebarList;
-
     private SidebarAdapter sidebarAdapter;
     private ArrayList<SidebarItem> sidebarItems = new ArrayList<SidebarItem>();
     private DrawerLayout sidebarLayout;
-    private ActionBarDrawerToggle sidebarToggle;
-	
-    private ProgressDialog pd;
-    
-   
+    private ActionBarDrawerToggle sidebarToggle;	
+    private ProgressDialog pd; 
     private ListView modulesList; 
     private WebServer webService;
     
@@ -529,6 +517,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			
 		isConnected = prefs.getBoolean("isConnected", false);
 		
+		if (!isConnected)
+			Disconnect();
+		
 		loadSharedPreferences();
 		setNotification();
 		super.onResume();
@@ -567,11 +558,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			Toast.makeText(getApplicationContext(), "You have to be connected", Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(), AttackWizardActivity.class));
+		//startActivity(new Intent(getApplicationContext(), HostSessionsActivity.class).putExtra("hostId", 2));
 	}
-	
-	/*
-	 * Broadcast Receivers
-	 */
 	
 	private void Disconnect() {
 		if (pd != null) {
@@ -720,11 +708,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     	}
     };
     
-
-    /*
-     * Misc Functions
-     */
-    
 	private void setNotification() {
 		
 		String notiText;	
@@ -812,8 +795,6 @@ public class MainActivity extends Activity implements OnQueryTextListener {
     		Object obj = sidebarList.getItemAtPosition(position);
         	SidebarItem objDetails = (SidebarItem)obj;
 
-        	//sidebar.toggleLeftDrawer();
-        	
         	if (!objDetails.isHeader() && ( titlesHas(objDetails.getTitle()) || 
         			objDetails.getTitle().equals("pwnCore"))) {
         		
@@ -874,6 +855,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 	@Override
 	public boolean onQueryTextChange(String text) {
+		if (MainService.modulesMap.modulesAdapter != null)
 		MainService.modulesMap.modulesAdapter.getFilter().filter(text); 
 		return true;
 	}

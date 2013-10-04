@@ -1,0 +1,4 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+    <item android:id="@+id/mnuSessionSwitch" android:title="Switch"></item>
+    <item android:id="@+id/mnuSessionTerminate" android:title="Terminate Session"></item>
+</menu>

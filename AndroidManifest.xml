@@ -82,7 +82,13 @@
             android:label="Meterpreter Session"
             android:name=".plugins.MeterpreterActivity">
         </activity>
+        
         <service android:name=".webserver.WebServerService"></service>
+        
+        <activity 
+            android:label="Host Sessions"
+            android:name=".activities.HostSessionsActivity">
+        </activity>
                
     </application>
 

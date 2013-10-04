@@ -26,7 +26,7 @@ public class WebServer {
 	public int serverPort;
 
 
-	private static final String HOME_PATTERN = "/home.html";
+	//private static final String HOME_PATTERN = "/home.html";
 	private static final String API_PATTERN = "/api.json";
 
 	private Context context = null;

@@ -13,7 +13,6 @@ import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 
 public class ControlSession {
@@ -66,6 +65,10 @@ public class ControlSession {
 	
 	public String getId() {
 		return id;	
+	}
+	
+	public Map<String, Value> getInfo() {
+		return info;
 	}
 	
 	public boolean isReady() {
