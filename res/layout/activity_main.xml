@@ -125,7 +125,7 @@
 		    </ListView>
 		
 		    <TextView
-		        android:id="@+id/textView2"
+		        android:id="@+id/textSessionsActive"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_alignLeft="@+id/sessionHost"
@@ -135,7 +135,22 @@
 		        android:text="Active Sessions"
 		        android:textColor="#222222"
 		        android:textSize="16sp"
-		        android:textStyle="bold" />
+		        android:textStyle="bold"
+		        android:visibility="gone" />
+		    
+   		    <ListView
+   		        android:id="@+id/sidebarSessionsListview"
+   		        android:layout_width="200dp"
+   		        android:layout_height="wrap_content"
+   		        android:layout_below="@+id/textSessionsActive"
+   		        android:background="#ffffff"
+   		        android:choiceMode="singleChoice"
+   		        android:divider="#eeeeee"
+   		        android:dividerHeight="1dp"
+   		        android:listSelector="#a1d3f4"
+   		        android:visibility="gone" >
+		
+		    </ListView>
 		</RelativeLayout>
 </android.support.v4.widget.DrawerLayout>	
 	   

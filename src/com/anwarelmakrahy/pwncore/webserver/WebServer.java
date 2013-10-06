@@ -25,8 +25,7 @@ public class WebServer {
 	public static boolean RUNNING = false;
 	public int serverPort;
 
-
-	//private static final String HOME_PATTERN = "/home.html";
+	// private static final String HOME_PATTERN = "/home.html";
 	private static final String API_PATTERN = "/api.json";
 
 	private Context context = null;
@@ -39,7 +38,7 @@ public class WebServer {
 	public WebServer(Context context, int port) {
 		this.setContext(context);
 		this.serverPort = port;
-		
+
 		httpproc = new BasicHttpProcessor();
 		httpContext = new BasicHttpContext();
 
@@ -49,11 +48,12 @@ public class WebServer {
 		httpproc.addInterceptor(new ResponseConnControl());
 
 		httpService = new HttpService(httpproc,
-		    new DefaultConnectionReuseStrategy(), new DefaultHttpResponseFactory());
+				new DefaultConnectionReuseStrategy(),
+				new DefaultHttpResponseFactory());
 
 		registry = new HttpRequestHandlerRegistry();
 
-		//registry.register(HOME_PATTERN, new HomeCommandHandler(context));
+		// registry.register(HOME_PATTERN, new HomeCommandHandler(context));
 		registry.register(API_PATTERN, new WebAPIHandler(context));
 
 		httpService.setHandlerResolver(registry);

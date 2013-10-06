@@ -13,13 +13,14 @@ import android.util.Log;
 public class WebServerService extends Service {
 
 	private WebServer server = null;
-	private SharedPreferences prefs; 
+	private SharedPreferences prefs;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
-		prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME, Context.MODE_PRIVATE);
-		server = new WebServer(this,prefs.getInt("webserver_port", 8080));
+		prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME,
+				Context.MODE_PRIVATE);
+		server = new WebServer(this, prefs.getInt("webserver_port", 8080));
 		server.startServer();
 		return Service.START_NOT_STICKY;
 	}

@@ -14,13 +14,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class ControlSessionsListAdapter extends BaseAdapter {
-	
-	private static List<ControlSession> itemDetailsrrayList;
-	private LayoutInflater l_Inflater;
+public class SessionsListAdapter extends BaseAdapter {
 
-	public ControlSessionsListAdapter(Context context, List<ControlSession> results) {
-		itemDetailsrrayList = results;	
+	protected static List<ControlSession> itemDetailsrrayList;
+	protected LayoutInflater l_Inflater;
+
+	public SessionsListAdapter(Context context,
+			List<ControlSession> results) {
+		itemDetailsrrayList = results;
 		l_Inflater = LayoutInflater.from(context);
 	}
 
@@ -43,29 +44,35 @@ public class ControlSessionsListAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if (convertView == null) {
-			convertView = l_Inflater.inflate(R.layout.fragment_sessionlistitem, null);
-			
+			convertView = l_Inflater.inflate(R.layout.fragment_sessionlistitem,
+					null);
+
 			holder = new ViewHolder();
-			holder.sessionType = (TextView) convertView.findViewById(R.id.sessionType);
-			holder.sessionHandler = (TextView) convertView.findViewById(R.id.sessionHandler);
-			holder.sessionPayload = (TextView) convertView.findViewById(R.id.sessionPayload);
+			holder.sessionType = (TextView) convertView
+					.findViewById(R.id.sessionType);
+			holder.sessionHandler = (TextView) convertView
+					.findViewById(R.id.sessionHandler);
+			holder.sessionPayload = (TextView) convertView
+					.findViewById(R.id.sessionPayload);
 			convertView.setTag(holder);
-			
-		} else {		
+
+		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-		
-		holder.sessionPayload.setText(itemDetailsrrayList.get(position).getViaPayload());
-		holder.sessionHandler.setText("via " + itemDetailsrrayList.get(position).getViaExploit());
-		holder.sessionType.setText(
-				WordUtils.capitalize(itemDetailsrrayList.get(position).getType()) + 
-				" @ " + 
-				itemDetailsrrayList.get(position).getPeer());
-		
+
+		holder.sessionPayload.setText(itemDetailsrrayList.get(position)
+				.getViaPayload());
+		holder.sessionHandler.setText("via "
+				+ itemDetailsrrayList.get(position).getViaExploit());
+		holder.sessionType.setText(WordUtils.capitalize(itemDetailsrrayList
+				.get(position).getType())
+				+ " @ "
+				+ itemDetailsrrayList.get(position).getPeer());
+
 		return convertView;
 	}
 
-	static class ViewHolder {
+	private class ViewHolder {
 		TextView sessionType;
 		TextView sessionPayload;
 		TextView sessionHandler;

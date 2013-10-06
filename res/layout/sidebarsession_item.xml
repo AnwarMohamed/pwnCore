@@ -5,29 +5,24 @@
 	android:layout_height="fill_parent">
 
 	<TextView
-	    android:id="@+id/commandTitle"
+	    android:id="@+id/sessionType"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentTop="true"
 	    android:layout_marginLeft="10dp"
 	    android:layout_marginTop="5dp"
-	    android:gravity="top"
-	    android:height="45dp"
 	    android:text="Title"
 	    android:textColor="#555555"
-	    android:textSize="19dp" />
-	
+	    android:textSize="16sp" />
+
 	<TextView
-	    android:id="@+id/commandDisc"
+	    android:id="@+id/sessionPeer"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentTop="true"
-	    android:layout_marginLeft="10dp"
-	    android:layout_marginTop="13dp"
-	    android:gravity="bottom"
-	    android:height="30dp"
-	    android:text="Dir"
+	    android:layout_alignLeft="@+id/sessionType"
+	    android:layout_below="@+id/sessionType"
+	    android:paddingBottom="5dp"
+	    android:text="Disc"
 	    android:textAppearance="?android:attr/textAppearanceMedium"
 	    android:textColor="#999999"
 	    android:textSize="15dp" />

@@ -7,22 +7,22 @@ import java.util.Map;
 import org.msgpack.type.Value;
 
 public class ModuleItem implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public ModuleItem() {
-		
+
 	}
-	
+
 	public ModuleItem(String path) {
 		this.path = path;
 	}
-	
+
 	public ModuleItem(String path, String type) {
 		this.path = path;
 		this.type = type;
 	}
-	
+
 	private long id;
 	private String path, type;
 	private Map<String, Value> options, info;
@@ -33,7 +33,7 @@ public class ModuleItem implements Serializable {
 		else
 			return new HashMap<String, Value>();
 	}
-	
+
 	public void setInfo(Map<String, Value> info) {
 		this.info = info;
 	}
@@ -44,21 +44,21 @@ public class ModuleItem implements Serializable {
 		else
 			return new HashMap<String, Value>();
 	}
-	
+
 	public void setOptions(Map<String, Value> options) {
 		this.options = options;
 	}
-	
+
 	public long getID() {
-	    return id;
+		return id;
 	}
 
 	public void setID(long id) {
-	    this.id = id;
+		this.id = id;
 	}
 
 	public String getPath() {
-	    return path;
+		return path;
 	}
 
 	public void setPath(String path) {
@@ -66,13 +66,13 @@ public class ModuleItem implements Serializable {
 	}
 
 	public String getType() {
-	    return type;
+		return type;
 	}
 
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	@Override
 	public String toString() {
 		return path;

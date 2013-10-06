@@ -13,106 +13,107 @@ import com.anwarelmakrahy.pwncore.console.utils.ServiceEnum;
 import android.content.Context;
 
 public class HostItem {
-	
+
 	private String host;
 	private String os = "Unknown";
-	private boolean isPwned = false,
-					isUp = false;
-	
+	private boolean isPwned = false, isUp = false;
+
 	private Map<String, String> tcpPorts = new HashMap<String, String>();
 	private Map<String, String> udpPorts = new HashMap<String, String>();
 	private Map<String, List<String>> suggestedAttacks = new HashMap<String, List<String>>();
 	private Map<String, List<String>> activeSessions = new HashMap<String, List<String>>();
-	
+
 	private Context context;
-	
+
 	private AttackFinder attackFinder;
-	
+
 	public HostItem(Context context) {
 		this.context = context;
 		attackFinder = new AttackFinder(this);
 		setupSessionsList();
 	}
-	
+
 	public HostItem(Context context, String host) {
 		this.host = host;
 		this.context = context;
 		attackFinder = new AttackFinder(this);
 		setupSessionsList();
 	}
-	
+
 	private void setupSessionsList() {
 		activeSessions.put("meterpreter", new ArrayList<String>());
 		activeSessions.put("shell", new ArrayList<String>());
 	}
-	
+
 	public Map<String, List<String>> getActiveSessions() {
 		return activeSessions;
 	}
-	
+
 	public void addPort(String type, String port, String details) {
 		if (type.toLowerCase().equals("tcp"))
 			tcpPorts.put(port, details);
 		else if (type.toLowerCase().equals("udp"))
 			udpPorts.put(port, details);
 	}
-	
+
 	public Map<String, String> getTcpPorts() {
 		return tcpPorts;
 	}
-	
+
 	public Map<String, String> getUdpPorts() {
 		return udpPorts;
 	}
-	
+
 	public void setHost(String host) {
 		this.host = host;
 	}
-	
+
 	public String getHost() {
 		return host;
 	}
-	
+
 	public String getOS() {
 		return os;
 	}
-	
+
 	public void setOS(String os) {
 		this.os = os;
 	}
-	
+
 	public void setPwned(boolean isPwned) {
-		this.isPwned  = isPwned;
-		
+		this.isPwned = isPwned;
+
 		if (isPwned)
 			this.isUp = true;
 	}
-	
+
 	public boolean isPwned() {
 		return isPwned;
 	}
-	
+
 	public void scanPorts() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-			    PortScanner scanner = new PortScanner(context, "PortScanner " + getHost());
-			    MainService.sessionMgr.getNewConsole(scanner);
-			    if (scanner != null)
-			    	scanner.scan(HostItem.this);
-			}	
+				PortScanner scanner = new PortScanner(context, "PortScanner "
+						+ getHost());
+				MainService.sessionMgr.getNewConsole(scanner);
+				if (scanner != null)
+					scanner.scan(HostItem.this);
+			}
 		}).start();
 	}
-	
+
 	public void scanServices() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-			    ServiceEnum services = new ServiceEnum(context, "ServiceEnum " + getHost());
-			    MainService.sessionMgr.getNewConsole(services);
-			    if (services != null)
-			    	services.enumerate(HostItem.this);
-			}	
+				ServiceEnum services = new ServiceEnum(context, "ServiceEnum "
+						+ getHost());
+				MainService.sessionMgr.getNewConsole(services);
+				if (services != null)
+					services.enumerate(HostItem.this);
+			}
 		}).start();
 	}
 
@@ -122,33 +123,34 @@ public class HostItem {
 			public void run() {
 				suggestedAttacks.clear();
 				suggestedAttacks.putAll(attackFinder.findAttacks(attackFlag));
-			}	
+			}
 		}).start();
 	}
-	
+
 	public boolean isUp() {
 		if (!isUp)
 			return (tcpPorts.size() + udpPorts.size() == 0) ? false : true;
-		else return true;
+		else
+			return true;
 	}
 
 	public String[] getOSCodeName() {
 		if (os.toLowerCase().startsWith("windows"))
 			return new String[] { "multi", "windows" };
-		
+
 		else if (os.toLowerCase().startsWith("solaris"))
 			return new String[] { "solaris", "multi", "unix" };
-		
+
 		else if (os.toLowerCase().startsWith("linux"))
-			return new String[] { "linux", "multi", "unix"};
-		
+			return new String[] { "linux", "multi", "unix" };
+
 		else if (os.toLowerCase().startsWith("mac"))
 			return new String[] { "osx", "multi", "unix" };
-		
+
 		else if (os.toLowerCase().startsWith("freebsd"))
 			return new String[] { "freebsd", "multi", "unix" };
-		
-		else 
-			return new String[] {"multi", "unix"};
-	}	
+
+		else
+			return new String[] { "multi", "unix" };
+	}
 }

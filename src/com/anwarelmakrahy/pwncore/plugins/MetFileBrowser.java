@@ -11,11 +11,13 @@ import com.anwarelmakrahy.pwncore.console.ControlSession;
 
 public class MetFileBrowser extends ControlSession {
 
-	MetFileBrowser(Context context, String type, String id, Map<String, Value> info, ConsoleSessionParams params) {
+	MetFileBrowser(Context context, String type, String id,
+			Map<String, Value> info, ConsoleSessionParams params) {
 		super(context, type, id, info, params);
 	}
 
-	MetFileBrowser(Context context, String type, String id, Map<String, Value> info) {
+	MetFileBrowser(Context context, String type, String id,
+			Map<String, Value> info) {
 		super(context, type, id, info);
 	}
 

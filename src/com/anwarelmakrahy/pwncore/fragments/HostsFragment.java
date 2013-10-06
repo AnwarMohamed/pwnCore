@@ -17,7 +17,7 @@ import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class HostsFragment extends Fragment {
-	
+
 	public static ListView listview;
 	public static HostsAdapter listAdapter;
 	private SharedPreferences prefs;
@@ -26,48 +26,50 @@ public class HostsFragment extends Fragment {
 		HostsFragment fragment = new HostsFragment();
 		return fragment;
 	}
-	 
+
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_hosts, container, false);
-		 
-		listview = (ListView)view.findViewById(R.id.targetsFragmentListView);
-		listAdapter = new HostsAdapter(
-				getActivity().getApplicationContext(), 
+
+		listview = (ListView) view.findViewById(R.id.targetsFragmentListView);
+		listAdapter = new HostsAdapter(getActivity().getApplicationContext(),
 				MainService.hostsList);
-		
+
 		listview.setAdapter(listAdapter);
-		
-		if (AttackHallActivity.getCurListPosition() + 1 > MainService.hostsList.size())
+
+		if (AttackHallActivity.getCurListPosition() + 1 > MainService.hostsList
+				.size())
 			AttackHallActivity.setCurListPosition(0);
-		
+
 		listAdapter.setSelectedIndex(AttackHallActivity.getCurListPosition());
 
 		setupListViewListener();
 		return view;
 	}
-	
+
 	private void setupListViewListener() {
 		listview.setOnItemClickListener(new OnItemClickListener() {
-	        @Override
-	        public void onItemClick(AdapterView<?> parent, View view, int position, long id) { 	        	
-	        	getActivity().openContextMenu(view);
-	        }
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				getActivity().openContextMenu(view);
+			}
 		});
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedState) {
 		super.onActivityCreated(savedState);
-		prefs = getActivity().getSharedPreferences("com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
+		prefs = getActivity().getSharedPreferences(
+				"com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
 		registerForContextMenu(listview);
 	}
 
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		super.setUserVisibleHint(isVisibleToUser);
-		if (isVisibleToUser &&
-				listAdapter != null)
+		if (isVisibleToUser && listAdapter != null)
 			listAdapter.notifyDataSetChanged();
 	}
 }

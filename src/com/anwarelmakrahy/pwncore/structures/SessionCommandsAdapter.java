@@ -1,7 +1,9 @@
 package com.anwarelmakrahy.pwncore.structures;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.R;
 import android.content.Context;
@@ -13,13 +15,13 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-public class ModulesAdapter extends BaseAdapter implements Filterable {
+public class SessionCommandsAdapter extends BaseAdapter implements Filterable {
 
-	private static List<ModuleItem> itemDetailsrrayList, originalFilter;
+	private static Map<String, SessionCommand> itemDetailsrrayList, originalFilter;
 	private LayoutInflater l_Inflater;
 	private Filter filter;
 
-	public ModulesAdapter(Context context, List<ModuleItem> results) {
+	public SessionCommandsAdapter(Context context, Map<String, SessionCommand> results) {
 		itemDetailsrrayList = results;
 		originalFilter = results;
 		l_Inflater = LayoutInflater.from(context);
@@ -34,7 +36,7 @@ public class ModulesAdapter extends BaseAdapter implements Filterable {
 	}
 
 	public Object getItem(int position) {
-		return itemDetailsrrayList.get(position);
+		return itemDetailsrrayList.values().toArray()[position];
 	}
 
 	public long getItemId(int position) {
@@ -44,13 +46,11 @@ public class ModulesAdapter extends BaseAdapter implements Filterable {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if (convertView == null) {
-			convertView = l_Inflater.inflate(R.layout.mainlist_item, null);
+			convertView = l_Inflater.inflate(R.layout.sessioncommand_item, null);
 
 			holder = new ViewHolder();
-			holder.txt_itemTitle = (TextView) convertView
-					.findViewById(R.id.commandTitle);
-			holder.txt_itemDir = (TextView) convertView
-					.findViewById(R.id.commandDisc);
+			holder.txt_itemTitle = (TextView) convertView.findViewById(R.id.commandTitle);
+			holder.txt_itemDisc = (TextView) convertView.findViewById(R.id.commandDisc);
 
 			convertView.setTag(holder);
 
@@ -58,18 +58,15 @@ public class ModulesAdapter extends BaseAdapter implements Filterable {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		String[] path = itemDetailsrrayList.get(position).getPath().split("/");
-		Integer path_size = path.length;
-
-		holder.txt_itemTitle.setText(path[path_size - 1]);
-		holder.txt_itemDir.setText(itemDetailsrrayList.get(position).getPath());
+		holder.txt_itemTitle.setText(((SessionCommand)(itemDetailsrrayList.values().toArray()[position])).getTitle());
+		holder.txt_itemDisc.setText(((SessionCommand)(itemDetailsrrayList.values().toArray()[position])).getDescription());
 
 		return convertView;
 	}
 
 	static class ViewHolder {
 		TextView txt_itemTitle;
-		TextView txt_itemDir;
+		TextView txt_itemDisc;
 
 	}
 
@@ -88,7 +85,7 @@ public class ModulesAdapter extends BaseAdapter implements Filterable {
 						notifyDataSetChanged();
 						// notifyDataSetInvalidated();
 					} else {
-						itemDetailsrrayList = (List<ModuleItem>) results.values;
+						itemDetailsrrayList = (Map<String, SessionCommand>) results.values;
 						notifyDataSetChanged();
 					}
 				}
@@ -102,13 +99,13 @@ public class ModulesAdapter extends BaseAdapter implements Filterable {
 						newFilterResults.count = originalFilter.size();
 						newFilterResults.values = originalFilter;
 					} else {
-						List<ModuleItem> filteredList = new LinkedList<ModuleItem>();
+						Map<String, SessionCommand> filteredList = new HashMap<String, SessionCommand>();
 						for (int i = 0; i < originalFilter.size(); i++) {
-							ModuleItem item = originalFilter.get(i);
+							SessionCommand item = (SessionCommand)(originalFilter.values().toArray()[i]);
 
-							if (item.getPath().toLowerCase()
-									.contains(constraint)) {
-								filteredList.add(item);
+							if (item.getTitle().toLowerCase().contains(constraint) ||
+									item.getDescription().toLowerCase().contains(constraint)) {
+								filteredList.put(item.getCodename(), item);
 							}
 						}
 

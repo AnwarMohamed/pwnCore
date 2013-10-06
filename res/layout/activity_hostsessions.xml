@@ -24,11 +24,24 @@
         android:layout_below="@+id/sessionHost"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="Meterpreter @ 10.0.0.20:43243"
+        android:text="Please select session from list"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#555555"
         android:textSize="16sp"
         android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/sessionList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/sessionDetails"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/white"
+        android:maxHeight="100dp" >
+
+    </ListView>
 
     <ListView
         android:id="@+id/sessionCommandsList"
@@ -37,8 +50,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/sessionDetails"
-        android:layout_marginTop="20dp" >
+        android:layout_below="@+id/sessionList" >
 
     </ListView>
 

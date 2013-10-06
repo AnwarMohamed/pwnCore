@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SidebarAdapter extends BaseAdapter {
-	
+
 	private static ArrayList<SidebarItem> itemDetailsrrayList;
 	private LayoutInflater l_Inflater;
 
@@ -38,52 +38,61 @@ public class SidebarAdapter extends BaseAdapter {
 		ViewHolder holder;
 		if (convertView == null) {
 			convertView = l_Inflater.inflate(R.layout.layout_item, null);
-			
+
 			holder = new ViewHolder();
-			holder.txt_itemTitle = (TextView) convertView.findViewById(R.id.title);
+			holder.txt_itemTitle = (TextView) convertView
+					.findViewById(R.id.title);
 			holder.itemImage = (ImageView) convertView.findViewById(R.id.photo);
-			holder.txt_itemCounter = (TextView) convertView.findViewById(R.id.count);
-			holder.txt_itemHeader = (TextView) convertView.findViewById(R.id.header);
+			holder.txt_itemCounter = (TextView) convertView
+					.findViewById(R.id.count);
+			holder.txt_itemHeader = (TextView) convertView
+					.findViewById(R.id.header);
 
 			convertView.setTag(holder);
-			
+
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-		
+
 		if (itemDetailsrrayList.get(position).isHeader()) {
 			holder.txt_itemTitle.setVisibility(View.INVISIBLE);
 			holder.txt_itemCounter.setVisibility(View.INVISIBLE);
 			holder.itemImage.setVisibility(View.INVISIBLE);
 			holder.txt_itemHeader.setVisibility(View.VISIBLE);
-			
+
 			holder.txt_itemTitle.setHeight(0);
 			holder.txt_itemCounter.setHeight(0);
 			holder.itemImage.setMaxHeight(0);
 			holder.txt_itemHeader.setHeight(70);
-			
-			holder.txt_itemHeader.setText(itemDetailsrrayList.get(position).getTitle());
+
+			holder.txt_itemHeader.setText(itemDetailsrrayList.get(position)
+					.getTitle());
 		}
-		
+
 		else {
-			
-			holder.txt_itemTitle.setText(itemDetailsrrayList.get(position).getTitle());			
-			holder.itemImage.setBackgroundResource(itemDetailsrrayList.get(position).getImage());
+
+			holder.txt_itemTitle.setText(itemDetailsrrayList.get(position)
+					.getTitle());
+			holder.itemImage.setBackgroundResource(itemDetailsrrayList.get(
+					position).getImage());
 			holder.txt_itemHeader.setVisibility(View.INVISIBLE);
-			
+
 			if (itemDetailsrrayList.get(position).showCount())
-				holder.txt_itemCounter.setText(Integer.toString(itemDetailsrrayList.get(position).getCount()));
+				holder.txt_itemCounter
+						.setText(Integer.toString(itemDetailsrrayList.get(
+								position).getCount()));
 			else {
 				holder.txt_itemCounter.setVisibility(View.INVISIBLE);
 			}
 		}
-		
+
 		if (!itemDetailsrrayList.get(position).getClickable()) {
-			//convertView.setClickable(false);
-			//convertView.setFocusable(false);
-			//convertView.setEnabled(false);
-			//convertView.setEnabled(isEnabled(((Integer) convertView.getTag()).intValue()));
-			
+			// convertView.setClickable(false);
+			// convertView.setFocusable(false);
+			// convertView.setEnabled(false);
+			// convertView.setEnabled(isEnabled(((Integer)
+			// convertView.getTag()).intValue()));
+
 		}
 		return convertView;
 	}
