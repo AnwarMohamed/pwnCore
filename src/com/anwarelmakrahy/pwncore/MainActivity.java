@@ -92,19 +92,11 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				if (isConnected
 						&& MainService.checkConnection(MainActivity.this)) {
 					ControlSession session = (ControlSession)(sessionsList.getItemAtPosition(position));
-					
-					for (HostItem host: MainService.hostsList) {
-						if (host.getActiveSessions().get("shell").contains(session.getId()) ||
-								host.getActiveSessions().get("meterpreter").contains(session.getId())) {
-							startActivity(new Intent(getApplicationContext(), HostSessionsActivity.class)
-							.putExtra("hostId", MainService.hostsList.indexOf(host))
-							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));						
-							break;
-						}
-					}
+					startActivity(new Intent(getApplicationContext(), HostSessionsActivity.class)
+					.putExtra("hostId", session.getLinkedHostId())
+					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));	
+					sidebarLayout.closeDrawers();
 				}
-				
-				sidebarLayout.closeDrawers();
 			}
 		});
 		
@@ -119,17 +111,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 			public void onDrawerOpened(View drawerView) {
 				invalidateOptionsMenu();
-				if (sessionsAdapter != null) {
-					sessionsAdapter.notifyDataSetChanged();
-					if (MainService.sessionMgr.controlSessionsList.size() == 0) {
-						((TextView)findViewById(R.id.textSessionsActive)).setVisibility(View.GONE);
-						sessionsList.setVisibility(View.GONE);
-					}
-					else {
-						((TextView)findViewById(R.id.textSessionsActive)).setVisibility(View.VISIBLE);
-						sessionsList.setVisibility(View.VISIBLE);
-					}
-				}	
+				checkSidebarSessions();
 			}
 		};
 
@@ -220,6 +202,21 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		setNotification();
 
 		prepareSidebar();
+	}
+
+
+	protected void checkSidebarSessions() {
+		if (sessionsAdapter != null) {
+			sessionsAdapter.notifyDataSetChanged();
+			if (MainService.sessionMgr.controlSessionsList.size() == 0) {
+				((TextView)findViewById(R.id.textSessionsActive)).setVisibility(View.GONE);
+				sessionsList.setVisibility(View.GONE);
+			}
+			else {
+				((TextView)findViewById(R.id.textSessionsActive)).setVisibility(View.VISIBLE);
+				sessionsList.setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 
@@ -655,6 +652,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				Intent tmpIntent = new Intent();
 				tmpIntent.setAction(StaticClass.PWNCORE_LOAD_ALL_MODULES);
 				sendBroadcast(tmpIntent);
+				
+				checkSidebarSessions();
+				
 			} else if (action == StaticClass.PWNCORE_CONNECTION_FAILED) {
 				Disconnect();
 				Log.e("ConnectionFailed", "" + intent.getStringExtra("error"));

@@ -62,8 +62,7 @@ public class ConsoleSession {
 
 		if (flag)
 			if (params != null)
-				params.getCmdView().setText(
-						StringUtils.join(conversation.toArray()));
+				params.getCmdView().setText(StringUtils.join(conversation.toArray()));
 	}
 
 	AlertDialog.Builder newMeterpreterSessionDlg;
@@ -77,53 +76,32 @@ public class ConsoleSession {
 				.setCancelable(false)
 				.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
+							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
 							}
 						})
 				.setPositiveButton("Console",
 						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
+							public void onClick(DialogInterface dialog, int which) {
 
-								Intent intent = new Intent(context,
-										ConsoleActivity.class);
+								Intent intent = new Intent(context, ConsoleActivity.class);
 								intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 								intent.putExtra("type", "current.meterpreter");
 								String id = session.getId();
 								intent.putExtra("id", id);
 								context.startActivity(intent);
-
 							}
 						})
 				.setNeutralButton("VisualCommander",
 						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								
-								for (HostItem host: MainService.hostsList) {
-									if (host.getActiveSessions().get("shell").contains(session.getId()) ||
-											host.getActiveSessions().get("meterpreter").contains(session.getId())) {
-										context.startActivity(new Intent(context, HostSessionsActivity.class)
-										.putExtra("hostId", MainService.hostsList.indexOf(host))
-										.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-										
-										if (ConsoleActivity.getActivity() != null)
-											ConsoleActivity.getActivity().finish();
-										
-										break;
-									}
-								}
+							public void onClick(DialogInterface dialog, int which) {
 
+								context.startActivity(new Intent(context, HostSessionsActivity.class)
+								.putExtra("hostId", session.getLinkedHostId())
+								.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 								
-								/*Intent intent = new Intent(context,
-										MeterpreterActivity.class);
-								intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-								String id = session.getId();
-								intent.putExtra("id", id);
-								context.startActivity(intent);*/
-
+								if (ConsoleActivity.getActivity() != null)
+									ConsoleActivity.getActivity().finish();
 							}
 						}).setCancelable(true);
 	}
@@ -263,6 +241,7 @@ public class ConsoleSession {
 				MainService.sessionMgr.updateSessionsRemoteInfo();
 
 				String sessionId = data.split(" ")[3];
+				HostItem hostItem = null;
 
 				if (MainService.sessionMgr.getSessionsRemoteInfo().containsKey(
 						sessionId)) {
@@ -272,14 +251,13 @@ public class ConsoleSession {
 						Converter mapCon = new Converter(MainService.sessionMgr
 								.getSessionsRemoteInfo().get(sessionId)
 								.asMapValue());
-						Map<String, Value> info = mapCon.read(tMap(TString,
-								TValue));
+						Map<String, Value> info = mapCon.read(tMap(TString,TValue));
 						mapCon.close();
 
 						if (info.containsKey("tunnel_peer")) {
 							boolean wasFound = false;
-							String host = info.get("tunnel_peer").asRawValue()
-									.getString().split(":")[0];
+							String host = info.get("tunnel_peer").asRawValue().getString().split(":")[0];
+							
 							for (HostItem item : MainService.hostsList) {
 								if (item.getHost().equals(host)) {
 									item.setPwned(true);
@@ -294,28 +272,29 @@ public class ConsoleSession {
 														.asRawValue()
 														.getString())
 												.add(sessionId);
+									hostItem = item;
 									wasFound = true;
 									break;
 								}
 							}
 
 							if (!wasFound) {
-								HostItem newHost = new HostItem(context, host);
-								newHost.setPwned(true);
+								hostItem = new HostItem(context, host);
+								hostItem.setPwned(true);
 
 								if (info.containsKey("type")
-										&& newHost.getActiveSessions()
+										&& hostItem.getActiveSessions()
 												.containsKey(
 														info.get("type")
 																.asRawValue()
 																.getString()))
-									newHost.getActiveSessions()
+									hostItem.getActiveSessions()
 											.get(info.get("type").asRawValue()
 													.getString())
 											.add(sessionId);
 
-								newHost.scanPorts();
-								MainService.hostsList.add(newHost);
+								hostItem.scanPorts();
+								MainService.hostsList.add(hostItem);
 							}
 						}
 
@@ -330,6 +309,7 @@ public class ConsoleSession {
 					MainService.sessionMgr.getNewSession(session,
 							"meterpreter", sessionId, params);
 					session = MainService.sessionMgr.getSession(sessionId);
+					session.setLinkedHostId(MainService.hostsList.indexOf(hostItem));
 
 					if (isWindowActive && isWindowReady
 							&& !(params.getActivity().isFinishing()))

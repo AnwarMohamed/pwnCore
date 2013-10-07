@@ -82,17 +82,28 @@ public class StaticClass {
 	public static String PWNCORE_DATABASE_UPDATE_STOPPED = "DATABASE_UPDATE_STOPPED";
 
 	public static String PWNCORE_SESSION_GET_AVAILABLE_COMMANDS = "SESSION_GET_AVAILABLE_COMMANDS";
+	
 	public static String PWNCORE_SESSION_SCREENSHOT = "SESSION_SCREENSHOT";
 	public static String PWNCORE_SESSION_GET_SCREENSHOT_SIZE = "SESSION_GET_SCREENSHOT_SIZE";
 	public static String PWNCORE_SESSION_GET_SCREENSHOT_FILE = "SESSION_GET_SCREENSHOT_FILE";
+	
 	public static String PWNCORE_SESSION_WEBCAM_LIST = "SESSION_WEBCAM_LIST";
 	public static String PWNCORE_SESSION_WEBCAM_SNAP = "SESSION_WEBCAM_SNAP";
 	public static String PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE = "SESSION_GET_WEBCAM_SNAP_SIZE";
 	public static String PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE = "SESSION_GET_WEBCAM_SNAP_FILE";
 	
+	public static String PWNCORE_SESSION_GETUID = "SESSION_GETUID";
+	public static String PWNCORE_SESSION_SYSINFO = "SESSION_SYSINFO";
+	public static String PWNCORE_SESSION_IDLETIME = "SESSION_IDLETIME";
+	public static String PWNCORE_SESSION_PROCESSES = "SESSION_PROCESSES";
+	
 	public static String[] PWNCORE_SESSION_IMPLEMENTED_COMMANDS = {
 		"screenshot",
 		"webcam_snap",
+		"getuid",
+		"sysinfo",
+		"idletime",
+		"ps",
 	};
 	
 	public static List<String> getSessionImplCmds() {

@@ -16,7 +16,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/pluginPackage"
+        android:id="@+id/procId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/pluginName"
@@ -51,11 +51,11 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/pluginDescription"
+        android:id="@+id/procPath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/pluginPackage"
-        android:layout_below="@+id/pluginPackage"
+        android:layout_alignLeft="@+id/procId"
+        android:layout_below="@+id/procId"
         android:paddingBottom="3dp"
         android:text="Description"
         android:textColor="#555555" />

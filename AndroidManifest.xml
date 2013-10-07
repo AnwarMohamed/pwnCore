@@ -94,6 +94,7 @@
             android:name=".activities.HostSessionsActivity">
         </activity>
         <activity android:name=".plugins.ImageViewerActivity"></activity>
+        <activity android:name=".plugins.ProcessesActivity" android:label="Processes List"></activity>
                
     </application>
 

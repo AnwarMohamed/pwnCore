@@ -334,6 +334,7 @@ public class SessionManager {
 		Map<String, Value> info = null;
 		String host;
 		boolean wasFound;
+		HostItem hostItem = null;
 		
 		for (Map.Entry<String, Value> entry : sessionsRemoteInfo.entrySet()) {
 			
@@ -353,21 +354,22 @@ public class SessionManager {
 							if (info.containsKey("type")
 									&& item.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
 								item.getActiveSessions().get(info.get("type").asRawValue().getString()).add(entry.getKey());
+							hostItem = item;
 							wasFound = true;
 							break;
 						}
 					}
 
 					if (!wasFound) {
-						HostItem newHost = new HostItem(context, host);
-						newHost.setPwned(true);
+						hostItem = new HostItem(context, host);
+						hostItem.setPwned(true);
 
 						if (info.containsKey("type")
-								&& newHost.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
-							newHost.getActiveSessions().get(info.get("type").asRawValue().getString()).add(entry.getKey());
+								&& hostItem.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
+							hostItem.getActiveSessions().get(info.get("type").asRawValue().getString()).add(entry.getKey());
 
-						newHost.scanPorts();
-						MainService.hostsList.add(newHost);
+						hostItem.scanPorts();
+						MainService.hostsList.add(hostItem);
 					}
 				}
 
@@ -382,6 +384,7 @@ public class SessionManager {
 			ControlSession session = null;
 			MainService.sessionMgr.getNewSession(session, info.get("type").asRawValue().getString(), entry.getKey(), params);
 			session = MainService.sessionMgr.getSession(entry.getKey());
+			session.setLinkedHostId(MainService.hostsList.indexOf(hostItem));
 			info.clear();
 			
 		}

@@ -1,6 +1,5 @@
 package com.anwarelmakrahy.pwncore.console;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +8,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 
-import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.StaticClass;
-import com.anwarelmakrahy.pwncore.activities.HostSessionsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.plugins.Downloader;
 import com.anwarelmakrahy.pwncore.plugins.ImageViewerActivity;
+import com.anwarelmakrahy.pwncore.plugins.ProcessesActivity;
+import com.anwarelmakrahy.pwncore.plugins.ProcessesActivity.ProcessItem;
 import com.anwarelmakrahy.pwncore.structures.SessionCommand;
 
 import android.app.Activity;
@@ -22,7 +21,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
 public class ControlSession {
@@ -31,6 +29,7 @@ public class ControlSession {
 	private boolean queryPoolActive = false;
 
 	private String id, prompt, type;
+	private int linkedHostId;
 
 	private Context context;
 	private Activity activity;
@@ -72,9 +71,18 @@ public class ControlSession {
 		getAvailableCommands();
 	}
 
+	public void setLinkedHostId(int i) {
+		this.linkedHostId = i;
+	}
+	
+	public int getLinkedHostId() {
+		return linkedHostId;
+	}
+	
 	private void getAvailableCommands() {
+		startReadListener();
 		write("help");
-		cmdQueryPool.add(
+		addToQuery(
 				StaticClass.PWNCORE_SESSION_GET_AVAILABLE_COMMANDS);
 	}
 
@@ -160,17 +168,73 @@ public class ControlSession {
 	public void processVisualCommand(String cmd, Activity activity) {
 		this.activity = activity;
 		if (cmd.equals("screenshot")) {
-			write("screenshot");
-			cmdQueryPool.add(StaticClass.PWNCORE_SESSION_SCREENSHOT);
+			write(cmd);
+			addToQuery(StaticClass.PWNCORE_SESSION_SCREENSHOT);
 		}
 		
 		else if (cmd.equals("webcam_snap")) {
 			write("webcam_list");
-			cmdQueryPool.add(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
+			addToQuery(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
+		}
+		
+		else if (cmd.equals("getuid")) {
+			write(cmd);
+			addToQuery(StaticClass.PWNCORE_SESSION_GETUID);
+		}
+		
+		else if (cmd.equals("sysinfo")) {
+			write(cmd);
+			addToQuery(StaticClass.PWNCORE_SESSION_SYSINFO);
+		}
+		
+		else if (cmd.equals("idletime")) {
+			write(cmd);
+			addToQuery(StaticClass.PWNCORE_SESSION_IDLETIME);
+		}
+		 
+		else if (cmd.equals("ps")) {
+			context.startActivity(
+					new Intent(context, ProcessesActivity.class)
+					.putExtra("sessionId", id)
+					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+		}
+		
+		else if (cmd.equals("pslist")) {
+			write("ps");
+			addToQuery(StaticClass.PWNCORE_SESSION_PROCESSES);
 		}
 	}
 	
-	private void processIncomingData(final String data) {
+	private void addToQuery(String req) {
+		if (!cmdQueryPool.contains(req))
+			cmdQueryPool.add(req);
+	}
+
+	private void removeFromQuery(String req) {
+		while (cmdQueryPool.contains(req))
+			cmdQueryPool.remove(req);
+	}
+	
+	private void showMessageDialog(final String title, final String content) {
+		 if (activity != null)
+         	activity.runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						AlertDialog msgDialog;
+		                AlertDialog.Builder builder = new AlertDialog.Builder(activity != null ? activity: context);
+		                builder.setTitle(title);
+		                builder.setMessage("\n" + content);
+		                builder.setNeutralButton("Done", null);
+		                msgDialog = builder.create();
+		                msgDialog.show();
+					}
+				});
+	}
+	
+	private void processIncomingData(String data) {
+		Log.d("session", data.length() > 0 ? data : "");
+		data = data.replaceAll(" +", " ");
+		
 		if (type.equals("meterpreter")) {
 			if (cmdQueryPool.size() > 0) {
 				if (cmdQueryPool.contains(
@@ -178,7 +242,7 @@ public class ControlSession {
 						data.startsWith("\nCore Commands") &&
 						data.endsWith("\n\n")) {
 					parseAvailableCommands(data);
-					cmdQueryPool.remove(
+					removeFromQuery(
 							StaticClass.PWNCORE_SESSION_GET_AVAILABLE_COMMANDS);
 				}
 				
@@ -188,8 +252,8 @@ public class ControlSession {
 					
 					String path = data.split("\n")[0].trim().substring(21).trim();
 					write("ls " + path);
-					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
-					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_SCREENSHOT);
+					addToQuery(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_SCREENSHOT);
 				}
 				
 				else if (cmdQueryPool.contains(
@@ -198,8 +262,9 @@ public class ControlSession {
 					String[] args = data.replace("  ", " ").trim().split(" ");
 					downloader = new Downloader(args[6], Integer.parseInt(args[1]), "screenshot", true);
 					write(downloader.getDownloadCmd());
-					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
-					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
+					addToQuery(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
+					pingReadListener();
 				}
 				
 				else if (cmdQueryPool.contains(
@@ -218,8 +283,7 @@ public class ControlSession {
 				                builder.setSingleChoiceItems(webcams, -1, new DialogInterface.OnClickListener() {
 				                public void onClick(DialogInterface dialog, int item) {					               
 				                		write("webcam_snap -i " + Integer.toString(item + 1) + " -v false");
-				                		cmdQueryPool.add(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
-				                		cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
+				                		addToQuery(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
 				                    	dialog.dismiss();    
 			                		}
 				                });
@@ -227,6 +291,8 @@ public class ControlSession {
 								webcamsDialog.show();
 							}
 						});
+	                
+	                removeFromQuery(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
 				}
 				
 				else if (cmdQueryPool.contains(
@@ -237,8 +303,8 @@ public class ControlSession {
 						if (path.startsWith("Webcam shot saved to:")) {
 							path = path.trim().substring(21).trim();
 							write("ls " + path);
-							cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
-							cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
+							addToQuery(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
+							removeFromQuery(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
 							break;
 						}
 					}
@@ -250,11 +316,71 @@ public class ControlSession {
 					String[] args = data.replace("  ", " ").trim().split(" ");
 					downloader = new Downloader(args[6], Integer.parseInt(args[1]), "webcam_snap", true);
 					write(downloader.getDownloadCmd());
-					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
-					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
+					addToQuery(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
+					pingReadListener();
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_GETUID) &&
+						data.startsWith("Server ")) {
+					showMessageDialog("getuid", data);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_GETUID);
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_SYSINFO) &&
+						data.startsWith("Computer ")) {
+					showMessageDialog("sysinfo", data);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_SYSINFO);
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_IDLETIME) &&
+						data.startsWith("User has been idle")) {
+					showMessageDialog("idletime", data);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_IDLETIME);
+				}
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_PROCESSES) &&
+						data.startsWith("\nProcess List\n")) {
+					parseProcessList(data);
+					removeFromQuery(StaticClass.PWNCORE_SESSION_PROCESSES);
 				}
 			}
 		}
+	}
+
+	private void parseProcessList(String data) {
+		ProcessesActivity.processes.clear();
+		String[] lines = data.split("\n");
+		String proc;
+		ProcessItem process;
+		
+		for (int i=0; i<lines.length; i++) {
+			if (lines[i].trim().length() > 0 && 
+					lines[i].trim().startsWith("Process List")) {
+				i+=4;
+				continue;
+			}
+			else if (lines[i].trim().length() > 0) {
+				proc = lines[i].trim().replaceAll(" +", " ");
+				process = new ProcessItem();
+				process.setId(proc.split(" ")[0]);
+				process.setName(proc.split(" ")[2]);
+				ProcessesActivity.processes.add(process);
+			}
+		}
+		
+		if (ProcessesActivity.processesAdapter != null && 
+				activity != null)
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					ProcessesActivity.processesAdapter.notifyDataSetChanged();
+				}
+			});
+		ProcessesActivity.processesAdapter.notifyDataSetChanged();
 	}
 
 	Downloader downloader;
@@ -283,11 +409,26 @@ public class ControlSession {
 		}
 	}
 	
+	private void startReadListener() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						read();
+						Thread.sleep(30000);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		}).start();
+	}
+	
 	public void pingReadListener() {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < 10; i++) {
 					try {
 						read();
 						Thread.sleep(1000);
@@ -368,12 +509,14 @@ public class ControlSession {
 	}
 
 	protected void processIncomingDataBytes(byte[] data) {
+		Log.d("session", "got " + data.length + " bytes");
 		if (type.equals("meterpreter") && 
 				cmdQueryPool.size() > 0) {
 			
 			if (cmdQueryPool.contains(
 					StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE) &&
-					downloader != null) {
+					downloader != null &&
+					!downloader.hasFinished()) {
 				downloader.addToBuffer(data);
 				if (downloader.hasFinished()) {				
 					context.startActivity(
@@ -381,14 +524,16 @@ public class ControlSession {
 							.putExtra("type", "screenshot")
 							.putExtra("path", downloader.getFullPath())
 							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
+					downloader = null;
+					removeFromQuery(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
 				}
 				else pingReadListener();
 			}
 			
 			else if (cmdQueryPool.contains(
 					StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE) &&
-					downloader != null) {
+					downloader != null &&
+					!downloader.hasFinished()) {
 				downloader.addToBuffer(data);
 				if (downloader.hasFinished()) {				
 					context.startActivity(
@@ -396,7 +541,8 @@ public class ControlSession {
 							.putExtra("type", "webcam_snap")
 							.putExtra("path", downloader.getFullPath())
 							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
+					downloader = null;
+					removeFromQuery(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
 				}
 				else pingReadListener();		
 			}

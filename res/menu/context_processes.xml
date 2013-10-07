@@ -1,0 +1,4 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+    <item android:id="@+id/mnuProcessMigrate" android:title="Migrate to Process"></item>
+    <item android:id="@+id/mnuProcessKill" android:title="Kill Process"></item>
+</menu>

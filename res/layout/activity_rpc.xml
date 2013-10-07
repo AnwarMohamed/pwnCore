@@ -162,7 +162,6 @@
 	        android:layout_marginLeft="10dp"
 	        android:layout_toRightOf="@+id/sessionHost"
 	        android:ems="10"
-	        android:password="true"
 	        android:singleLine="true" />
 
 	</RelativeLayout>

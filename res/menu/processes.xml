@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+    <item 
+	   android:id="@+id/mnuSearch"
+	   android:showAsAction="ifRoom|collapseActionView"
+	   android:icon="@drawable/search"
+	   android:title="Search"
+	   android:actionViewClass="android.widget.SearchView" />
+    
+    <item android:id="@+id/mnuProcessesReload" android:title="Reload Processes"></item>
+</menu>
