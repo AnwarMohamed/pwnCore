@@ -3,7 +3,7 @@ package com.anwarelmakrahy.pwncore.structures;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class SessionCommand {
-	private boolean implemented = true;
+	private boolean implemented = false;
 	private String title, codename, description;
 
 	public SessionCommand(String codename, String title) {

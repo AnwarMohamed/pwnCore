@@ -1,10 +1,13 @@
 package com.anwarelmakrahy.pwncore;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 
 public class StaticClass {
 
@@ -75,11 +78,26 @@ public class StaticClass {
 	public static String PWNCORE_NOT_IMPLEMENTED = "Sorry not implemented yet";
 	public static String PWNCORE_PACKAGE_NAME = "com.anwarelmakrahy.pwncore";
 
-	public static String PWNCORE_DATABASE_UPDATE_STARTED = "PWNCORE_DATABASE_UPDATE_STARTED";
-	public static String PWNCORE_DATABASE_UPDATE_STOPPED = "PWNCORE_DATABASE_UPDATE_STOPPED";
+	public static String PWNCORE_DATABASE_UPDATE_STARTED = "DATABASE_UPDATE_STARTED";
+	public static String PWNCORE_DATABASE_UPDATE_STOPPED = "DATABASE_UPDATE_STOPPED";
 
+	public static String PWNCORE_SESSION_GET_AVAILABLE_COMMANDS = "SESSION_GET_AVAILABLE_COMMANDS";
+	public static String PWNCORE_SESSION_SCREENSHOT = "SESSION_SCREENSHOT";
+	public static String PWNCORE_SESSION_GET_SCREENSHOT_SIZE = "SESSION_GET_SCREENSHOT_SIZE";
+	public static String PWNCORE_SESSION_GET_SCREENSHOT_FILE = "SESSION_GET_SCREENSHOT_FILE";
+	public static String PWNCORE_SESSION_WEBCAM_LIST = "SESSION_WEBCAM_LIST";
+	public static String PWNCORE_SESSION_WEBCAM_SNAP = "SESSION_WEBCAM_SNAP";
+	public static String PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE = "SESSION_GET_WEBCAM_SNAP_SIZE";
+	public static String PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE = "SESSION_GET_WEBCAM_SNAP_FILE";
 	
-	public static String PWNCORE_SESSION_GET_AVAILABLE_COMMANDS = "GET_AVAILABLE_COMMANDS";
+	public static String[] PWNCORE_SESSION_IMPLEMENTED_COMMANDS = {
+		"screenshot",
+		"webcam_snap",
+	};
+	
+	public static List<String> getSessionImplCmds() {
+		return Arrays.asList(PWNCORE_SESSION_IMPLEMENTED_COMMANDS);
+	}
 	
 	public static boolean isNumeric(String str) {
 		try {
@@ -132,5 +150,24 @@ public class StaticClass {
 			return uri.getPath();
 		}
 		return null;
+	}
+	
+	/* Checks if external storage is available for read and write */
+	public static boolean isExternalStorageWritable() {
+	    String state = Environment.getExternalStorageState();
+	    if (Environment.MEDIA_MOUNTED.equals(state)) {
+	        return true;
+	    }
+	    return false;
+	}
+
+	/* Checks if external storage is available to at least read */
+	public static boolean isExternalStorageReadable() {
+	    String state = Environment.getExternalStorageState();
+	    if (Environment.MEDIA_MOUNTED.equals(state) ||
+	        Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+	        return true;
+	    }
+	    return false;
 	}
 }

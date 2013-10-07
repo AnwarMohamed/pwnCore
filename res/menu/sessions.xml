@@ -6,6 +6,7 @@
 		android:title="Search"
 		android:actionViewClass="android.widget.SearchView" />
    	
+   	<item android:id="@+id/mnuSessionDetails" android:title="Session Details"></item>
     <item android:id="@+id/mnuSessionReloadCmds" android:title="Reload Commands"></item>
     <item android:id="@+id/mnuSessionTerminate" android:title="Terminate Session"></item>
 </menu>

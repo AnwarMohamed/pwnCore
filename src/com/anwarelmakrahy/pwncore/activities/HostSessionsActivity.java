@@ -89,7 +89,9 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view,
 					int position, long itemId) {
-				session.processVisualCommand(position);
+				session.processVisualCommand(
+						((SessionCommand)(commands.values().toArray()[position])).getCodename(),
+						HostSessionsActivity.this);
 			}
 		});
 	}
@@ -97,6 +99,7 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 	private void setupOptionsMenu(boolean check) {
 		optionsMenu.findItem(R.id.mnuSessionTerminate).setVisible(check);
 		optionsMenu.findItem(R.id.mnuSessionReloadCmds).setVisible(check);
+		optionsMenu.findItem(R.id.mnuSessionDetails).setVisible(check);
 	}
 	
 	private void setupSessionsList() {
@@ -173,6 +176,9 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 				finish();
 			return true;
 
+		case R.id.mnuSessionDetails:
+			return true;
+			
 		default:
 			return super.onOptionsItemSelected(item);
 		}

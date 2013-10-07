@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.msgpack.type.Value;
+
 import com.anwarelmakrahy.pwncore.R;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -21,12 +23,23 @@ public class SessionCommandsAdapter extends BaseAdapter implements Filterable {
 	private LayoutInflater l_Inflater;
 	private Filter filter;
 
+	//private Map<String, SessionCommand> filtered = new HashMap<String, SessionCommand>();
+	
 	public SessionCommandsAdapter(Context context, Map<String, SessionCommand> results) {
-		itemDetailsrrayList = results;
-		originalFilter = results;
+		//filterMap(results);
+		itemDetailsrrayList = results;//filtered;
+		originalFilter = results;//filtered;
 		l_Inflater = LayoutInflater.from(context);
 	}
 
+	/*private void filterMap(Map<String, SessionCommand> all) {
+		filtered.clear();
+		for (Map.Entry<String, SessionCommand> entry : all.entrySet()) {
+			if (entry.getValue().isImplemented())
+				filtered.put(entry.getKey(), entry.getValue());
+		}
+	}*/
+	
 	public int getCount() {
 		try {
 			return itemDetailsrrayList.size();
