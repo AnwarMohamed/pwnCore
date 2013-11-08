@@ -31,10 +31,10 @@
 	            android:layout_alignParentLeft="true"
 	            android:layout_alignParentRight="true"
 	            android:layout_alignParentTop="true"
-	            android:layout_above="@+id/detailStatus" />
+	            android:layout_above="@+id/attackWizardIcon" />
 	
 	        <TextView
-	            android:id="@+id/targetDetailsPwn"
+	            android:id="@+id/attackWizard"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_alignParentBottom="true"
@@ -49,7 +49,7 @@
 	            />
 	
 	        <TextView
-	            android:id="@+id/consolePrompt"
+	            android:id="@+id/attackHall"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_alignParentBottom="true"
@@ -64,11 +64,11 @@
 	            />
 	
 	        <ImageView
-	            android:id="@+id/detailStatus"
+	            android:id="@+id/attackWizardIcon"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_alignBottom="@+id/targetDetailsPwn"
-	            android:layout_alignLeft="@+id/targetDetailsPwn"
+	            android:layout_alignBottom="@+id/attackWizard"
+	            android:layout_alignLeft="@+id/attackWizard"
 	            android:layout_marginLeft="-30dp"
 	            android:layout_marginTop="7dp"
 	            android:clickable="true"
@@ -77,11 +77,11 @@
 	            android:translationY="5dp" />
 	
 	        <ImageView
-	            android:id="@+id/imageView2"
+	            android:id="@+id/attackHallIcon"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_alignBottom="@+id/consolePrompt"
-	            android:layout_alignLeft="@+id/consolePrompt"
+	            android:layout_alignBottom="@+id/attackHall"
+	            android:layout_alignLeft="@+id/attackHall"
 	            android:layout_marginLeft="-30dp"
 	            android:clickable="true"
 	            android:onClick="launchAttackHall"
@@ -96,6 +96,7 @@
 		    android:background="#ffffff"
 		    android:layout_height="match_parent"
 		    android:layout_gravity="start|bottom"
+		    android:clickable="true"
 		    android:orientation="vertical" >
 		
 		    <TextView
@@ -119,9 +120,9 @@
 		        android:background="#ffffff"
 		        android:choiceMode="singleChoice"
 		        android:divider="#eeeeee"
-		        android:dividerHeight="1dp"
-		        android:listSelector="#a1d3f4" >
-		
+		        android:dividerHeight="1dp">
+		        
+			<!-- android:listSelector="#a1d3f4"--> 
 		    </ListView>
 		
 		    <TextView
@@ -147,9 +148,9 @@
    		        android:choiceMode="singleChoice"
    		        android:divider="#eeeeee"
    		        android:dividerHeight="1dp"
-   		        android:listSelector="#a1d3f4"
    		        android:visibility="gone" >
 		
+   		        <!-- android:listSelector="#a1d3f4"-->
 		    </ListView>
 		</RelativeLayout>
 </android.support.v4.widget.DrawerLayout>	

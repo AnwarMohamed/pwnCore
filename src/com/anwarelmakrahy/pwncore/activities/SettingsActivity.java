@@ -70,7 +70,7 @@ public class SettingsActivity extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setCancelable(false)
 				.setTitle("Save Settings")
-				.setMessage("Do you want to save current settings ?")
+				.setMessage("\nDo you want to save current settings ?\n")
 				.setIcon(android.R.drawable.ic_menu_preferences)
 				.setPositiveButton("Yes",
 						new DialogInterface.OnClickListener() {

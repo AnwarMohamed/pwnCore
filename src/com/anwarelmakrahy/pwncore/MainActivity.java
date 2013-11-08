@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	private ActionBarDrawerToggle sidebarToggle;
 	private ProgressDialog pd;
 	private ListView modulesList, sessionsList;
-	private WebServer webService;
+	//private WebServer webService;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +201,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setNotification();
 
+		showAttackMenu(false);
 		prepareSidebar();
 	}
 
@@ -307,10 +308,10 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			menu.findItem(R.id.mnuNewConsole).setVisible(true);
 		}
 
-		if (WebServer.RUNNING)
+		/*if (WebServer.RUNNING)
 			menu.findItem(R.id.mnuWeb).setTitle("Stop WebService");
 		else
-			menu.findItem(R.id.mnuWeb).setTitle("Start WebService");
+			menu.findItem(R.id.mnuWeb).setTitle("Start WebService"); */
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -324,7 +325,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 		switch (item.getItemId()) {
 
-		case R.id.mnuWeb:
+		/*case R.id.mnuWeb:
 			if (WebServer.RUNNING) {
 				new Thread(new Runnable() {
 					@Override
@@ -349,7 +350,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				Toast.makeText(getApplicationContext(), "WebServer Started",
 						Toast.LENGTH_SHORT).show();
 			}
-			return true;
+			return true; */
 		case R.id.mnuRpcSettings:
 
 			if (!isConnected) {
@@ -362,8 +363,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			return true;
 
 		case R.id.mnuAbout:
-			String msgbox_string = "pwnCore v1.0b\n"
-					+ "Android Cyber Attack Management tool for Metasploit\n\n"
+			String msgbox_string = "Version 1.0b\n\n"
+					+ "To be released at \nCairo Security Camp 2013\n\n"
 					+ "Anwar Mohamed\n" + "anwarelmakrahy@gmail.com";
 
 			AlertDialog dlg = new AlertDialog.Builder(this).create();
@@ -414,7 +415,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.exit_pwncore)
-					.setMessage("Are you sure?")
+					//.setMessage("Are you sure?")
 					.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
 					.setPositiveButton("Yes",
 							new DialogInterface.OnClickListener() {
@@ -423,7 +424,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 									finish();
 								}
 							}).setNegativeButton("No", null)
-					.setCancelable(false).show();
+					.setCancelable(true).show();
 
 			return true;
 
@@ -433,7 +434,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 			intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			intent1.putExtra("type", "new.console");
 			intent1.putExtra("cmd", "use multi/handler\n"
-					+ "set PAYLOAD windows/meterpreter/reverse_tcp\n"
+					+ "set PAYLOAD linux/x86/meterpreter/reverse_tcp\n"
 					+ "set LHOST " + con_txtHost + "\n" + "exploit -z");
 			startActivity(intent1);
 
@@ -452,7 +453,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 				pd.setMessage("Connecting to Server, Please wait.");
 				pd.setCancelable(false);
 				pd.setIndeterminate(true);
-				pd.show();
+				pd.show();		
 			}
 
 			@Override
@@ -610,6 +611,8 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		}
 
 		isConnected = false;
+		showAttackMenu(false);
+		
 		invalidateOptionsMenu();
 		main_menu.findItem(R.id.mnuConnectionAction).setIcon(R.drawable.plug);
 		main_menu.findItem(R.id.mnuConnectionAction).setTitle(R.string.connect);
@@ -636,6 +639,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 						Toast.LENGTH_SHORT).show();
 			} else if (action == StaticClass.PWNCORE_CONNECTION_SUCCESS) {
 				isConnected = true;
+				showAttackMenu(true);
 				if (pd != null) {
 					pd.dismiss();
 					pd = null;
@@ -866,65 +870,51 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 					&& (titlesHas(objDetails.getTitle()) || objDetails
 							.getTitle().equals("pwnCore"))) {
 
-				boolean loaded = false;
-
 				if (objDetails.getTitle().equals(titles[0])) {
 					if (MainService.modulesMap.ExploitItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("exploit");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				} else if (objDetails.getTitle().equals(titles[1])) {
 					if (MainService.modulesMap.PayloadItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("payload");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				} else if (objDetails.getTitle().equals(titles[2])) {
 					if (MainService.modulesMap.PostItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("post");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				} else if (objDetails.getTitle().equals(titles[3])) {
 					if (MainService.modulesMap.EncoderItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("encoder");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				} else if (objDetails.getTitle().equals(titles[4])) {
 					if (MainService.modulesMap.AuxiliaryItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("auxiliary");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				} else if (objDetails.getTitle().equals(titles[5])) {
 					if (MainService.modulesMap.NopItems.size() > 0) {
 						getActionBar().setTitle(objDetails.getTitle());
 						MainService.modulesMap.switchAdapter("nop");
-						sessionsList.clearChoices();
-						loaded = true;
 					}
 				}
 
-				if (!loaded)
+				if (MainService.modulesMap.modulesAdapter.getCount() == 0)
 					Toast.makeText(getApplicationContext(),
 							R.string.pwncore_modulesnotloaded,
 							Toast.LENGTH_SHORT).show();
-				else
-					sidebarLayout.closeDrawers();
+				sidebarLayout.closeDrawers();
 			}
 		}
 	}
 
 	@Override
 	public boolean onQueryTextChange(String text) {
-		if (MainService.modulesMap.modulesAdapter != null)
+		if (MainService.modulesMap != null &&
+				MainService.modulesMap.modulesAdapter != null)
 			MainService.modulesMap.modulesAdapter.getFilter().filter(text);
 		return true;
 	}
@@ -936,4 +926,18 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		return true;
 	}
 
+	private void showAttackMenu(boolean bool) {
+		if (bool) {
+			findViewById(R.id.attackHall).setVisibility(View.VISIBLE);
+			findViewById(R.id.attackHallIcon).setVisibility(View.VISIBLE);
+			findViewById(R.id.attackWizard).setVisibility(View.VISIBLE);
+			findViewById(R.id.attackWizardIcon).setVisibility(View.VISIBLE);
+		}
+		else {
+			findViewById(R.id.attackHall).setVisibility(View.GONE);
+			findViewById(R.id.attackHallIcon).setVisibility(View.GONE);
+			findViewById(R.id.attackWizard).setVisibility(View.GONE);
+			findViewById(R.id.attackWizardIcon).setVisibility(View.GONE);	
+		}
+	}
 }

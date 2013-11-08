@@ -25,7 +25,7 @@
         android:text="Launch Attack" />
 
     <TextView
-        android:id="@+id/targetDetailsPwn"
+        android:id="@+id/attackWizard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -40,18 +40,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/cmdLaunchAttack"
-        android:layout_below="@+id/targetDetailsPwn"
+        android:layout_below="@+id/attackWizard"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp" >
 
     </ListView>
 
  		    <TextView
-        android:id="@+id/consolePrompt"
+        android:id="@+id/attackHall"
         android:gravity="center"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/targetDetailsPwn"
+        android:layout_below="@+id/attackWizard"
         android:layout_above="@+id/cmdLaunchAttack"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/cmdLaunchAttack"
         android:layout_alignBottom="@+id/cmdLaunchAttack"
-        android:layout_alignLeft="@+id/targetDetailsPwn"
+        android:layout_alignLeft="@+id/attackWizard"
         android:text="TextView" />
 
 </RelativeLayout>

@@ -48,7 +48,7 @@ public class AttackWizardActivity extends Activity {
 		listView = (ListView) findViewById(R.id.targetsListView1);
 		hostsAdapter = new HostsAdapter(this, MainService.hostsList);
 		listView.setAdapter(hostsAdapter);
-		listView.setEmptyView(findViewById(R.id.consolePrompt));
+		listView.setEmptyView(findViewById(R.id.attackHall));
 		registerForContextMenu(listView);
 		((TextView) findViewById(R.id.targetsCount)).setText("Current Hosts: "
 				+ MainService.hostsList.size());

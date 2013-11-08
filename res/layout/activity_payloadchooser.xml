@@ -3,18 +3,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/sessionType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:text="Select Payload"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#555555"
-        android:textStyle="bold" />
-
     <ListView
         android:id="@+id/payloadList"
         android:layout_width="match_parent"

@@ -6,7 +6,7 @@
     tools:context=".SplashActivity" >
 
     <ImageView
-        android:id="@+id/detailStatus"
+        android:id="@+id/attackWizardIcon"
         android:layout_width="match_parent"
         android:layout_height="282dp"
         android:layout_gravity="center_vertical"
@@ -15,7 +15,7 @@
         android:src="@drawable/logo" />
 
     <TextView
-        android:id="@+id/consolePrompt"
+        android:id="@+id/attackHall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"

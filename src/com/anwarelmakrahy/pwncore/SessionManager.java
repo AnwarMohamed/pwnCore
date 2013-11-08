@@ -378,7 +378,7 @@ public class SessionManager {
 			
 			ConsoleSessionParams params = new ConsoleSessionParams();
 			params.setCmdViewId(R.id.consoleRead);
-			params.setPromptViewId(R.id.consolePrompt);
+			params.setPromptViewId(R.id.attackHall);
 			params.setAcivity(ConsoleActivity.getActivity());
 
 			ControlSession session = null;

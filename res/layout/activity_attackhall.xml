@@ -65,7 +65,7 @@
                         android:textSize="15sp" />
 
                     <TextView
-                        android:id="@+id/targetDetailsPwn"
+                        android:id="@+id/attackWizard"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignBaseline="@+id/targetDetailsHost"

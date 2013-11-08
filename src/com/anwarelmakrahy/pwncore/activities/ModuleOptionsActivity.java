@@ -16,6 +16,7 @@ import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,8 +41,6 @@ public class ModuleOptionsActivity extends Activity {
 
 	private String moduleName = null;
 	private String moduleType = null;
-	boolean infoLoaded = false;
-	boolean optsLoaded = false;
 
 	private Spinner spinner;
 	private GridLayout layout;
@@ -60,10 +59,7 @@ public class ModuleOptionsActivity extends Activity {
 		moduleType = intent.getStringExtra("type");
 
 		if (moduleType == null || moduleName == null) {
-			Toast.makeText(getApplicationContext(),
-					"Error launching module options", Toast.LENGTH_SHORT)
-					.show();
-			finish();
+			errorDlg();
 			return;
 		}
 
@@ -77,32 +73,25 @@ public class ModuleOptionsActivity extends Activity {
 			moduleType = "nop";
 		else if (moduleType.contains("posts"))
 			moduleType = "post";
+		
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected void onPreExecute() {
-				pd = ProgressDialog.show(ModuleOptionsActivity.this, null,
-						"Loading Module Options", true, true,
-						new DialogInterface.OnCancelListener() {
-							@Override
-							public void onCancel(DialogInterface dialog) {
-								cancel(true);
-							}
-						});
+				pd = new ProgressDialog(activity);
+				pd.setMessage("Loading Module Options");
+				pd.setCancelable(false);
+				pd.setIndeterminate(true);
+				pd.show();		
 			}
 
 			@Override
 			protected Void doInBackground(Void... arg0) {
-				int time = 30;
-				while (!infoLoaded || !optsLoaded) {
-					try {
+				try {
+					while (pd != null)
 						Thread.sleep(500);
-						if (--time == 0)
-							break;
-					} catch (InterruptedException e) {
-						if (!infoLoaded || !optsLoaded)
-							finish();
-					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -111,10 +100,13 @@ public class ModuleOptionsActivity extends Activity {
 			protected void onPostExecute(Void result) {
 				if (pd != null) {
 					pd.dismiss();
-					pd.cancel();
+					pd = null;
 				}
 			}
-		}.execute((Void[]) null);
+		};
+
+		task.execute((Void[]) null);
+		
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
@@ -184,7 +176,7 @@ public class ModuleOptionsActivity extends Activity {
 
 	private void parseInfo(final Map<String, Value> info) {
 		if (info == null) {
-			finish();
+			errorDlg();
 			return;
 		}
 		new Handler().post(new Runnable() {
@@ -203,8 +195,8 @@ public class ModuleOptionsActivity extends Activity {
 								.getInstance());
 				((TextView) findViewById(R.id.moduleOptDesc)).setText(info
 						.containsKey("description") ? info.get("description")
-						.asRawValue().getString().replace("\t", "")
-						.replace("\n", " ").trim() : "Description not set");
+						.asRawValue().getString().replaceAll("\t", "")
+						.replaceAll("\n", " ").trim().replaceAll(" +", " ") : "Description not set");
 				((TextView) findViewById(R.id.moduleOptPath))
 						.setText(moduleName);
 
@@ -240,16 +232,34 @@ public class ModuleOptionsActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
-				infoLoaded = true;
 			}
 		});
 	}
 
 	public static Map<String, Map<String, Value>> moduleOptions = new HashMap<String, Map<String, Value>>();
 
+	private void errorDlg() {
+		AlertDialog dlg = new AlertDialog.Builder(this).create();
+		dlg.setTitle("Connection Error");
+		dlg.setMessage("Error retrieving module options");
+		dlg.setCancelable(false);
+		dlg.setButton(DialogInterface.BUTTON_POSITIVE, "Ok",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						finish();
+					}});
+		if (pd != null) {
+			pd.dismiss();
+			pd = null;
+		}
+
+		dlg.show();
+	}
+	
 	private void parseOptions(final Map<String, Value> opts) {
 		if (opts == null) {
-			finish();
+			errorDlg();
 			return;
 		}
 
@@ -311,7 +321,10 @@ public class ModuleOptionsActivity extends Activity {
 				for (int i = 0; i < advancedView.size(); i++)
 					layout.addView(advancedView.get(i));
 
-				optsLoaded = true;
+				if (pd != null) {
+					pd.dismiss();
+					pd = null;
+				}
 			}
 		});
 	}
@@ -423,7 +436,7 @@ public class ModuleOptionsActivity extends Activity {
 			ConsoleSessionParams consoleParams = new ConsoleSessionParams();
 			consoleParams.setAcivity(this);
 			consoleParams.setCmdViewId(R.id.consoleRead);
-			consoleParams.setPromptViewId(R.id.consolePrompt);
+			consoleParams.setPromptViewId(R.id.attackHall);
 
 			ConsoleSession console = new ConsoleSession(
 					getApplicationContext(), consoleParams, moduleName);

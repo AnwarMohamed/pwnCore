@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
 
+import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.MeterpreterCommander;
 import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.plugins.Downloader;
@@ -47,6 +49,8 @@ public class ControlSession {
 	private ArrayList<String> implCommands = new ArrayList<String>();
 	private Map<String, SessionCommand> structCommands = new HashMap<String, SessionCommand>();
 
+	private MeterpreterCommander metCmd;
+	
 	public ControlSession(Context context, String type, String id,
 			Map<String, Value> info) {
 		this.id = id;
@@ -54,6 +58,10 @@ public class ControlSession {
 		this.type = type;
 		this.prompt = type + " > ";
 		this.info = info;
+		
+		if (type.equals("meterpreter")) {
+			metCmd = new MeterpreterCommander(MainService.client, this);
+		}
 		
 		getAvailableCommands();
 	}
@@ -68,6 +76,10 @@ public class ControlSession {
 		this.info = info;
 		this.isWindowReady = params.hasWindowViews();
 
+		if (type.equals("meterpreter")) {
+			metCmd = new MeterpreterCommander(MainService.client, this);
+		}
+		
 		getAvailableCommands();
 	}
 
@@ -178,30 +190,50 @@ public class ControlSession {
 		}
 		
 		else if (cmd.equals("getuid")) {
-			write(cmd);
-			addToQuery(StaticClass.PWNCORE_SESSION_GETUID);
+			showMessageDialog(cmd, metCmd.getUid());
 		}
 		
 		else if (cmd.equals("sysinfo")) {
-			write(cmd);
-			addToQuery(StaticClass.PWNCORE_SESSION_SYSINFO);
+			showMessageDialog(cmd, metCmd.getSystemInfo());
 		}
 		
 		else if (cmd.equals("idletime")) {
-			write(cmd);
-			addToQuery(StaticClass.PWNCORE_SESSION_IDLETIME);
+			showMessageDialog(cmd, metCmd.getIdletime());
 		}
 		 
 		else if (cmd.equals("ps")) {
-			context.startActivity(
-					new Intent(context, ProcessesActivity.class)
-					.putExtra("sessionId", id)
-					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+			List<String> procList = metCmd.getProcList();
+			if (procList != null) {
+				ProcessItem process;
+				ProcessesActivity.processes.clear();
+				for (String proc: procList) {
+					process = new ProcessItem();
+					process.setId(proc.split(":")[0]);
+					process.setName(proc.split(":")[1]);
+					ProcessesActivity.processes.add(process);
+				}
+				
+				if (ProcessesActivity.processesAdapter != null && 
+						activity != null)
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							ProcessesActivity.processesAdapter.notifyDataSetChanged();
+						}
+					});
+				ProcessesActivity.processesAdapter.notifyDataSetChanged();
+				
+				context.startActivity(
+						new Intent(context, ProcessesActivity.class)
+						.putExtra("sessionId", id)
+						.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+			}
 		}
 		
-		else if (cmd.equals("pslist")) {
-			write("ps");
-			addToQuery(StaticClass.PWNCORE_SESSION_PROCESSES);
+		
+		else if (cmd.startsWith("kill")) {
+			write("kill " + ProcessesActivity.processes.get(Integer.parseInt(cmd.split(" ")[2])).getId());
+			addToQuery(StaticClass.PWNCORE_SESSION_KILL_PROCESS);
 		}
 	}
 	
@@ -321,67 +353,30 @@ public class ControlSession {
 					pingReadListener();
 				}
 				
-				else if (cmdQueryPool.contains(
-						StaticClass.PWNCORE_SESSION_GETUID) &&
-						data.startsWith("Server ")) {
-					showMessageDialog("getuid", data);
-					removeFromQuery(StaticClass.PWNCORE_SESSION_GETUID);
-				}
+
 				
 				else if (cmdQueryPool.contains(
-						StaticClass.PWNCORE_SESSION_SYSINFO) &&
-						data.startsWith("Computer ")) {
-					showMessageDialog("sysinfo", data);
-					removeFromQuery(StaticClass.PWNCORE_SESSION_SYSINFO);
+						StaticClass.PWNCORE_SESSION_KILL_PROCESS)) {
+					String[] lines = data.split("\n");
+					String[] args;
+					
+					if (lines.length == 2 &&
+							(args = lines[1].split(" ")).length > 4 &&
+							args[1].equals("stdapi_sys_process_kill:") &&
+							args[3].contains("failed")) {
+						
+					}
+					else if (lines.length == 1) {
+						
+					}
+
+					removeFromQuery(StaticClass.PWNCORE_SESSION_KILL_PROCESS);
 				}
 				
-				else if (cmdQueryPool.contains(
-						StaticClass.PWNCORE_SESSION_IDLETIME) &&
-						data.startsWith("User has been idle")) {
-					showMessageDialog("idletime", data);
-					removeFromQuery(StaticClass.PWNCORE_SESSION_IDLETIME);
-				}
-				else if (cmdQueryPool.contains(
-						StaticClass.PWNCORE_SESSION_PROCESSES) &&
-						data.startsWith("\nProcess List\n")) {
-					parseProcessList(data);
-					removeFromQuery(StaticClass.PWNCORE_SESSION_PROCESSES);
-				}
 			}
 		}
 	}
 
-	private void parseProcessList(String data) {
-		ProcessesActivity.processes.clear();
-		String[] lines = data.split("\n");
-		String proc;
-		ProcessItem process;
-		
-		for (int i=0; i<lines.length; i++) {
-			if (lines[i].trim().length() > 0 && 
-					lines[i].trim().startsWith("Process List")) {
-				i+=4;
-				continue;
-			}
-			else if (lines[i].trim().length() > 0) {
-				proc = lines[i].trim().replaceAll(" +", " ");
-				process = new ProcessItem();
-				process.setId(proc.split(" ")[0]);
-				process.setName(proc.split(" ")[2]);
-				ProcessesActivity.processes.add(process);
-			}
-		}
-		
-		if (ProcessesActivity.processesAdapter != null && 
-				activity != null)
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					ProcessesActivity.processesAdapter.notifyDataSetChanged();
-				}
-			});
-		ProcessesActivity.processesAdapter.notifyDataSetChanged();
-	}
 
 	Downloader downloader;
 	private void parseAvailableCommands(String data) {

@@ -41,15 +41,15 @@
 	        android:id="@+id/txtPort"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignBaseline="@+id/consolePrompt"
-	        android:layout_alignBottom="@+id/consolePrompt"
+	        android:layout_alignBaseline="@+id/attackHall"
+	        android:layout_alignBottom="@+id/attackHall"
 	        android:layout_alignLeft="@+id/txtHost"
 	        android:layout_alignParentRight="true"
 	        android:ems="10"
 	        android:singleLine="true" />
 	
 	    <TextView
-	        android:id="@+id/consolePrompt"
+	        android:id="@+id/attackHall"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignRight="@+id/count"

@@ -8,7 +8,7 @@
     android:padding="1dp" >
     
     <TextView
-        android:id="@+id/consolePrompt"
+        android:id="@+id/attackHall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/consolePrompt"
+        android:layout_toRightOf="@+id/attackHall"
         android:background="#00000000"
         android:ems="10"
         android:imeOptions="actionNone|flagNoExtractUi"
@@ -43,7 +43,7 @@
         android:id="@+id/textAreaScroller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/consolePrompt"
+        android:layout_above="@+id/attackHall"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"

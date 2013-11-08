@@ -101,7 +101,7 @@ public class ConsoleActivity extends Activity {
 		ConsoleSessionParams params = new ConsoleSessionParams();
 		params.setAcivity(getActivity());
 		params.setCmdViewId(R.id.consoleRead);
-		params.setPromptViewId(R.id.consolePrompt);
+		params.setPromptViewId(R.id.attackHall);
 
 		console = new ConsoleSession(getApplicationContext(), params,
 				"New Console");

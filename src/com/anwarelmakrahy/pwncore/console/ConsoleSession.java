@@ -6,6 +6,7 @@ import static org.msgpack.template.Templates.tMap;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.msgpack.type.Value;
@@ -24,6 +25,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.TextView;
 
 public class ConsoleSession {
@@ -131,7 +133,9 @@ public class ConsoleSession {
 	}
 
 	public void setPrompt(final String p) {
-		this.prompt = p;
+		this.prompt = p.replaceAll("[^\\p{Punct}\\w]", " ")
+				.replaceAll(" +", " ").trim()
+				.replaceAll("\\s+(?=[^()]*\\))", "") + " > ";
 		appendToLog(null, p);
 	}
 
@@ -177,8 +181,11 @@ public class ConsoleSession {
 		context.sendBroadcast(tmpIntent);
 	}
 
+
 	public void newRead(final String data, final String prompt, boolean busy) {
-		this.prompt = prompt;
+		this.prompt = prompt.replaceAll("[^\\p{Punct}\\w]", " ")
+				.replaceAll(" +", " ").trim()
+				.replaceAll("\\s+(?=[^()]*\\))", "") + " > ";
 
 		if (data.trim().length() > 0) {
 			conversation.add(data);
@@ -186,7 +193,9 @@ public class ConsoleSession {
 			if (!logoLoaded)
 				logoLoaded = true;
 
-			appendToLog(data, prompt);
+			appendToLog(data, prompt.replaceAll("[^\\p{Punct}\\w]", " ")
+					.replaceAll(" +", " ").trim()
+					.replaceAll("\\s+(?=[^()]*\\))", "") + " > ");
 		}
 
 		if (busy) {
@@ -303,7 +312,7 @@ public class ConsoleSession {
 
 					ConsoleSessionParams params = new ConsoleSessionParams();
 					params.setCmdViewId(R.id.consoleRead);
-					params.setPromptViewId(R.id.consolePrompt);
+					params.setPromptViewId(R.id.attackHall);
 					params.setAcivity(ConsoleActivity.getActivity());
 
 					MainService.sessionMgr.getNewSession(session,

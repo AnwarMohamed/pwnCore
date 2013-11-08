@@ -18,6 +18,7 @@ import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -39,44 +40,39 @@ public class PayloadChooserActivity extends Activity {
 
 	private Intent intent;
 	private String payloadName;
+	private Activity activity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_payloadchooser);
 
+		activity = this;
 		intent = getIntent();
 		if (intent == null || !intent.hasExtra("exploit")
 				|| !intent.hasExtra("target")) {
-			Toast.makeText(getApplicationContext(),
-					"Error launching payload options", Toast.LENGTH_SHORT)
-					.show();
-			finish();
+			errorDlg();
 			return;
 		}
+		
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
-		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected void onPreExecute() {
-				pd = ProgressDialog.show(PayloadChooserActivity.this, null,
-						"Loading Payloads", true, true,
-						new DialogInterface.OnCancelListener() {
-							@Override
-							public void onCancel(DialogInterface dialog) {
-								cancel(true);
-							}
-						});
+				pd = new ProgressDialog(activity);
+				pd.setMessage("Loading Payloads");
+				pd.setCancelable(true);
+				pd.setIndeterminate(true);
+				pd.show();		
 			}
 
 			@Override
 			protected Void doInBackground(Void... arg0) {
-				while (!payloadsLoaded) {
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						if (!payloadsLoaded)
-							finish();
-					}
+				try {
+					while (pd != null)
+						Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 				return null;
 			}
@@ -85,22 +81,44 @@ public class PayloadChooserActivity extends Activity {
 			protected void onPostExecute(Void result) {
 				if (pd != null) {
 					pd.dismiss();
+					pd = null;
 				}
 			}
-		}.execute((Void[]) null);
+		};
 
-		new Handler().postDelayed(new Runnable() {
+		task.execute((Void[]) null);
+
+		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
 				layout = (GridLayout) findViewById(R.id.payloadOptLayout);
 				loadPayloads(intent.getStringExtra("exploit"),
 						intent.getStringExtra("target"));
 			}
-		}, 0);
+		});
 	}
 
 	private ProgressDialog pd = null;
 
+	private void errorDlg() {
+		AlertDialog dlg = new AlertDialog.Builder(this).create();
+		dlg.setTitle("Connection Error");
+		dlg.setMessage("Error retrieving payload options");
+		dlg.setCancelable(false);
+		dlg.setButton(DialogInterface.BUTTON_POSITIVE, "Ok",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						finish();
+					}});
+		if (pd != null) {
+			pd.dismiss();
+			pd = null;
+		}
+
+		dlg.show();
+	}
+	
 	private void loadPayloads(String name, String target) {
 		List<Object> params = new ArrayList<Object>();
 		params.add("module.target_compatible_payloads");
@@ -110,7 +128,7 @@ public class PayloadChooserActivity extends Activity {
 		Map<String, Value> payloads = MainService.client.call(params);
 
 		if (payloads == null || !payloads.containsKey("payloads")) {
-			finish();
+			errorDlg();
 			return;
 		}
 
@@ -132,7 +150,7 @@ public class PayloadChooserActivity extends Activity {
 						int position, long id) {
 					payloadName = (String) list.getItemAtPosition(position);
 
-					new Handler().postDelayed(new Runnable() {
+					new Handler().post(new Runnable() {
 						@Override
 						public void run() {
 							List<Object> params = new ArrayList<Object>();
@@ -141,7 +159,7 @@ public class PayloadChooserActivity extends Activity {
 							params.add(payloadName);
 							parseOptions(MainService.client.call(params));
 						}
-					}, 0);
+					});
 				}
 			});
 
@@ -149,22 +167,25 @@ public class PayloadChooserActivity extends Activity {
 			finish();
 			return;
 		}
-		payloadsLoaded = true;
+
+		if (pd != null) {
+			pd.dismiss();
+			pd = null;
+		}
 	}
 
 	private GridLayout layout;
 	private Map<String, View> optionsView = new HashMap<String, View>();
-	private boolean payloadsLoaded = false;
 
 	public static Map<String, Map<String, Value>> moduleOptions = new HashMap<String, Map<String, Value>>();
 
 	private void parseOptions(final Map<String, Value> opts) {
 		if (opts == null) {
-			finish();
+			errorDlg();
 			return;
 		}
 
-		new Handler().postDelayed(new Runnable() {
+		new Handler().post(new Runnable() {
 			@Override
 			public void run() {
 
@@ -213,9 +234,10 @@ public class PayloadChooserActivity extends Activity {
 					} catch (Exception e) {
 					}
 				}
+				
 
 			}
-		}, 0);
+		});
 	}
 
 	private EditText getEditText() {
