@@ -1,6 +1,7 @@
 package com.anwarelmakrahy.pwncore.console.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
@@ -8,13 +9,12 @@ import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 public class PortScanner extends ConsoleSession {
 
-	public PortScanner(Context context, String title) {
-		super(context, title);
+	public PortScanner(Context context) {
+		super(context);
 	}
 
-	public PortScanner(Context context, ConsoleSessionParams params,
-			String title) {
-		super(context, params, title);
+	public PortScanner(Context context, ConsoleSessionParams params) {
+		super(context, params);
 	}
 
 	private HostItem target;
@@ -70,9 +70,10 @@ public class PortScanner extends ConsoleSession {
 
 	@Override
 	protected void processDataLine(String data) {
-		if (data.endsWith("- TCP OPEN"))
-			addPortToHost(data.split(" ")[1].split(":")[1], "TCP",
-					"Unknown Service");
+		if (data.endsWith("- TCP OPEN")) {
+			Log.d("Ports", data.split(" ")[1].split(":")[1]);
+			addPortToHost(data.split(" ")[1].split(":")[1], "TCP", "Unknown Service");
+		}
 
 		else if (data.startsWith("[*] Auxiliary module execution completed")) {
 			isScanning = false;

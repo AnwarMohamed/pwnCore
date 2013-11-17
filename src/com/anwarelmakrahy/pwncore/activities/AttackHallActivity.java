@@ -18,13 +18,16 @@ import com.anwarelmakrahy.pwncore.structures.HostItem;
 import com.anwarelmakrahy.pwncore.structures.HostsAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -46,11 +49,18 @@ public class AttackHallActivity extends FragmentActivity {
 	public static ViewPager pager;
 	private int currentLongPosition = 0;
 
+	private static Activity activity;
+	public static Activity getActivity() {
+		return activity;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_hall);
 
+		activity = this;
+		
 		List<Fragment> fragments = getFragments();
 		FragmentPagerAdapter adapter = new AttackHallAdapter(
 				getSupportFragmentManager(), fragments);
@@ -180,7 +190,21 @@ public class AttackHallActivity extends FragmentActivity {
 
 		switch (item.getItemId()) {
 		case R.id.mnuHostRemove:
-			removeHostFromTargetList(info.position);
+			
+			AlertDialog.Builder rmDlg = new AlertDialog.Builder(this);
+			rmDlg.setTitle("Remove Host")
+			.setMessage("Are you sure that you want to remove this host ? Note that all active sessions associated with this host will be destroyed")
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setCancelable(true)
+			.setPositiveButton("Yes",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							removeHostFromTargetList(info.position);
+						}
+					})
+			.setNegativeButton("No", null)
+			.show();
+			
 			return true;
 		case R.id.mnuHostScanPorts:
 			MainService.hostsList.get(info.position).scanPorts();
@@ -190,13 +214,13 @@ public class AttackHallActivity extends FragmentActivity {
 			return true;
 		case R.id.mnuHostOS:
 			AlertDialog builder = new AlertDialog.Builder(this)
-					.setSingleChoiceItems(HostsAdapter.osTitles, -1,
+					.setSingleChoiceItems(StaticClass.osTitles, -1,
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int item) {
 									dialog.dismiss();
 									MainService.hostsList.get(info.position)
-											.setOS(HostsAdapter.osTitles[item]);
+											.setOS(StaticClass.osTitles[item]);
 									HostsFragment.listAdapter
 											.notifyDataSetChanged();
 								}
@@ -262,9 +286,17 @@ public class AttackHallActivity extends FragmentActivity {
 	}
 
 	private void removeHostFromTargetList(int pos) {
+		for (String sessionId: 
+			MainService.hostsList.get(pos).getActiveSessions().get("meterpreter")) {
+			MainService.sessionMgr.destroySession(sessionId);
+		}
+		
+		for (String sessionId: 
+			MainService.hostsList.get(pos).getActiveSessions().get("shell")) {
+			MainService.sessionMgr.destroySession(sessionId);
+		}
+		
 		MainService.hostsList.remove(pos);
-		if (MainService.hostsList.size() == 0)
-			finish();
 		HostsFragment.listAdapter.notifyDataSetChanged();
 	}
 
@@ -282,8 +314,6 @@ public class AttackHallActivity extends FragmentActivity {
 			for (int i = 0; i < MainService.hostsList.size(); i++)
 				if (!MainService.hostsList.get(i).isUp())
 					MainService.hostsList.remove(MainService.hostsList.get(i));
-			if (MainService.hostsList.size() == 0)
-				finish();
 			HostsFragment.listAdapter.notifyDataSetChanged();
 			return true;
 
@@ -335,12 +365,7 @@ public class AttackHallActivity extends FragmentActivity {
 			String action = intent.getAction();
 
 			if (action == StaticClass.PWNCORE_NOTIFY_ADAPTER_UPDATE) {
-				if (ConsolesFragment.listAdapter != null) {
-					ConsolesFragment.consoleArray.clear();
-					ConsolesFragment.consoleArray.addAll(MainService.sessionMgr
-							.getConsoleListArray());
-					ConsolesFragment.listAdapter.notifyDataSetChanged();
-				}
+				ConsolesFragment.UpdateConsoleRecords();
 
 				if (HostsFragment.listAdapter != null) {
 					HostsFragment.listAdapter.notifyDataSetChanged();

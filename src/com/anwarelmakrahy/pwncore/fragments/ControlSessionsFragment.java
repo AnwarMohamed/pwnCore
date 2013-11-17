@@ -3,6 +3,7 @@ package com.anwarelmakrahy.pwncore.fragments;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 
+import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.structures.SessionsListAdapter;
@@ -22,6 +23,19 @@ public class ControlSessionsFragment extends Fragment {
 	private ListView listview;
 	public static SessionsListAdapter listAdapter;
 
+	public static void UpdateSessionsRecords() {
+
+		if (listAdapter != null && AttackHallActivity.getActivity() != null) {
+			
+			AttackHallActivity.getActivity().runOnUiThread(new Runnable() {  
+                @Override
+                public void run() {
+    				listAdapter.notifyDataSetChanged();
+                }
+            });
+		}
+	}
+	
 	public static final ControlSessionsFragment newInstance() {
 		ControlSessionsFragment fragment = new ControlSessionsFragment();
 		return fragment;

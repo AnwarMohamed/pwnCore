@@ -10,4 +10,14 @@
         android:layout_height="fill_parent" >
     </ListView>
 
+    <TextView
+      	android:id="@+id/targetsFragmentListViewEmpty"
+      	android:layout_height="fill_parent"
+      	android:text="No Hosts"
+      	android:gravity="center"
+      	android:background="#FFFFFF"
+      	android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#777777"
+      	android:layout_width="fill_parent" >
+    </TextView>
 </LinearLayout>

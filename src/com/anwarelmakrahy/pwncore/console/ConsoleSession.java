@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.Converter;
 
@@ -16,22 +17,27 @@ import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
 import com.anwarelmakrahy.pwncore.StaticClass;
+import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.activities.HostSessionsActivity;
 import com.anwarelmakrahy.pwncore.plugins.MeterpreterActivity;
 import com.anwarelmakrahy.pwncore.structures.HostItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.TextView;
 
 public class ConsoleSession {
 
 	protected static final long WAIT_TIMEOUT = 10000;
-	private String title = "";
 	private boolean queryPoolActive = false;
 	private String msfId = null;
 	private String id, prompt;
@@ -44,16 +50,13 @@ public class ConsoleSession {
 
 	private ArrayList<String> queryPool = new ArrayList<String>();
 
-	public ConsoleSession(Context context, String title) {
+	public ConsoleSession(Context context) {
 		this.context = context;
-		this.title = title;
 	}
 
-	public ConsoleSession(Context context, ConsoleSessionParams params,
-			String title) {
+	public ConsoleSession(Context context, ConsoleSessionParams params) {
 		this.context = context;
 		this.params = params;
-		this.title = title;
 		this.isWindowReady = params.hasWindowViews();
 	}
 
@@ -305,6 +308,9 @@ public class ConsoleSession {
 								hostItem.scanPorts();
 								MainService.hostsList.add(hostItem);
 							}
+							
+							if (info.containsKey("platform"))
+								hostItem.setOS(info.get("platform").asRawValue().getString());	
 						}
 
 					} catch (Exception e) {
@@ -329,6 +335,35 @@ public class ConsoleSession {
 								newMeterpreterSessionDlg.show();
 							}
 						});
+					else if (MainService.service != null) {
+						
+						
+						Context context = MainService.service.getApplicationContext();
+						
+						Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+						vibrator.vibrate(1000);
+						
+						Intent intent = new Intent(context, ConsoleActivity.class);
+						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						intent.putExtra("type", "current." + session.getType());
+						intent.putExtra("id", session.getId());
+						PendingIntent pIntent = PendingIntent.getActivity(context, 0, intent, 0);
+						
+
+						Notification noti = new NotificationCompat.Builder(context)
+						.setTicker("New " + WordUtils.capitalize(type) + " Session")
+					    .setContentTitle(WordUtils.capitalize(type) + " session")
+					    .setContentText(session.getPeer())
+						.setContentIntent(pIntent)
+						.setSmallIcon(R.drawable.ic_launcher).build();
+	
+						NotificationManager notificationManager = 
+								(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+						
+						noti.defaults |= Notification.DEFAULT_SOUND;
+						noti.flags |= Notification.FLAG_AUTO_CANCEL;				
+						notificationManager.notify(1, noti);
+					}
 				}
 			}
 		}).start();
@@ -421,6 +456,6 @@ public class ConsoleSession {
 	}
 
 	public String getTitle() {
-		return title;
+		return prompt.split(" >")[0];
 	}
 }

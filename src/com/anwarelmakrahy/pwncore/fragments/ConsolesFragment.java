@@ -3,8 +3,10 @@ package com.anwarelmakrahy.pwncore.fragments;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.anwarelmakrahy.pwncore.MainActivity;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.activities.AttackHallActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession;
 
@@ -26,6 +28,21 @@ public class ConsolesFragment extends Fragment {
 	public static ArrayAdapter<String> listAdapter = null;
 	public static List<String> consoleArray = new ArrayList<String>();
 
+	public static void UpdateConsoleRecords() {
+
+		if (listAdapter != null && AttackHallActivity.getActivity() != null) {
+			
+			AttackHallActivity.getActivity().runOnUiThread(new Runnable() {  
+                @Override
+                public void run() {
+    				consoleArray.clear();
+    				consoleArray.addAll(MainService.sessionMgr.getConsoleListArray());
+    				listAdapter.notifyDataSetChanged();
+                }
+            });
+		}
+	}
+	
 	public static final ConsolesFragment newInstance() {
 		ConsolesFragment fragment = new ConsolesFragment();
 		return fragment;

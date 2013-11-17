@@ -109,15 +109,13 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 		for (int i = 0; i < host.getActiveSessions().get("meterpreter").size(); i++) {
 			sessionId = host.getActiveSessions().get("meterpreter").get(i);
 			if ((session = MainService.sessionMgr.getSession(sessionId)) != null)
-				sessions.add("[" + sessionId + "] Meterpreter @ "
-						+ session.getViaPayload());
+				sessions.add("[" + sessionId + "] " + session.getViaPayload());
 		}
 
 		for (int i = 0; i < host.getActiveSessions().get("shell").size(); i++) {
 			sessionId = host.getActiveSessions().get("shell").get(i);
 			if ((session = MainService.sessionMgr.getSession(sessionId)) != null)
-				sessions.add("[" + sessionId + "] Shell @ "
-						+ session.getViaPayload());
+				sessions.add("[" + sessionId + "] " + session.getViaPayload());
 		}
 		sessionsAdapter.notifyDataSetChanged();
 	}

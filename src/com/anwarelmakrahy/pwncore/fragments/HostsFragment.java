@@ -20,7 +20,6 @@ public class HostsFragment extends Fragment {
 
 	public static ListView listview;
 	public static HostsAdapter listAdapter;
-	private SharedPreferences prefs;
 
 	public static final HostsFragment newInstance() {
 		HostsFragment fragment = new HostsFragment();
@@ -33,6 +32,7 @@ public class HostsFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_hosts, container, false);
 
 		listview = (ListView) view.findViewById(R.id.targetsFragmentListView);
+		listview.setEmptyView(view.findViewById(R.id.targetsFragmentListViewEmpty));
 		listAdapter = new HostsAdapter(getActivity().getApplicationContext(),
 				MainService.hostsList);
 
@@ -61,8 +61,6 @@ public class HostsFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedState) {
 		super.onActivityCreated(savedState);
-		prefs = getActivity().getSharedPreferences(
-				"com.anwarelmakrahy.pwncore", Context.MODE_PRIVATE);
 		registerForContextMenu(listview);
 	}
 

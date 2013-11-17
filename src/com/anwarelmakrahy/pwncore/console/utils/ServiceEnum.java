@@ -14,13 +14,12 @@ public class ServiceEnum extends ConsoleSession {
 	private HostItem target;
 	protected boolean isScanning = false;
 
-	public ServiceEnum(Context context, String title) {
-		super(context, title);
+	public ServiceEnum(Context context) {
+		super(context);
 	}
 
-	public ServiceEnum(Context context, ConsoleSessionParams params,
-			String title) {
-		super(context, params, title);
+	public ServiceEnum(Context context, ConsoleSessionParams params) {
+		super(context, params);
 	}
 
 	public void enumerate(HostItem target) {

@@ -64,9 +64,7 @@ public class SessionManager {
 			controlSessions.put(id, newSession);
 			controlSessionsList.add(newSession);
 
-			if (ControlSessionsFragment.listAdapter != null) {
-				ControlSessionsFragment.listAdapter.notifyDataSetChanged();
-			}
+			ControlSessionsFragment.UpdateSessionsRecords();
 
 		} catch (Exception e) {
 		}
@@ -227,6 +225,8 @@ public class SessionManager {
 			consoleSessions.get(id).setWindowActive(false, null);
 			currentConsoleWindowId = null;
 		}
+		
+		ConsolesFragment.UpdateConsoleRecords();
 	}
 
 	public void destroyConsole(ConsoleSession c) {
@@ -235,11 +235,7 @@ public class SessionManager {
 			currentConsoleWindowId = null;
 		consoleSessions.remove(c.getId());
 
-		if (ConsolesFragment.listAdapter != null) {
-			ConsolesFragment.consoleArray.clear();
-			ConsolesFragment.consoleArray.addAll(getConsoleListArray());
-			// ConsolesFragment.mConsolesListAdapter.notifyDataSetChanged();
-		}
+		ConsolesFragment.UpdateConsoleRecords();
 	}
 
 	public ConsoleSession getConsole(String id) {
@@ -309,9 +305,7 @@ public class SessionManager {
 					break;
 				}
 
-			if (ControlSessionsFragment.listAdapter != null) {
-				ControlSessionsFragment.listAdapter.notifyDataSetChanged();
-			}
+			ControlSessionsFragment.UpdateSessionsRecords();
 		}
 	}
 
@@ -371,6 +365,9 @@ public class SessionManager {
 						hostItem.scanPorts();
 						MainService.hostsList.add(hostItem);
 					}
+					
+					if (info.containsKey("platform"))
+						hostItem.setOS(info.get("platform").asRawValue().getString());
 				}
 
 			} catch (Exception e) {

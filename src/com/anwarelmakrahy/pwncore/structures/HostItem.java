@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.anwarelmakrahy.pwncore.MainService;
+import com.anwarelmakrahy.pwncore.StaticClass;
 import com.anwarelmakrahy.pwncore.console.utils.AttackFinder;
 import com.anwarelmakrahy.pwncore.console.utils.PortScanner;
 import com.anwarelmakrahy.pwncore.console.utils.ServiceEnum;
 
 import android.content.Context;
+import android.util.Log;
 
 public class HostItem {
 
@@ -77,7 +79,16 @@ public class HostItem {
 	}
 
 	public void setOS(String os) {
-		this.os = os;
+		for (int i=0; i<StaticClass.osTitles.length; i++) {
+			Log.d("OS", os);
+			if (StaticClass.osTitles[i].toLowerCase().contains(os.toLowerCase()) ||
+				os.toLowerCase().contains(StaticClass.osTitles[i].toLowerCase())) {
+				this.os = StaticClass.osTitles[i];
+				return;
+			}
+		}
+		
+		this.os = StaticClass.osTitles[StaticClass.osTitles.length-1];
 	}
 
 	public void setPwned(boolean isPwned) {
@@ -95,8 +106,7 @@ public class HostItem {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				PortScanner scanner = new PortScanner(context, "PortScanner "
-						+ getHost());
+				PortScanner scanner = new PortScanner(context);
 				MainService.sessionMgr.getNewConsole(scanner);
 				if (scanner != null)
 					scanner.scan(HostItem.this);
@@ -108,8 +118,7 @@ public class HostItem {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				ServiceEnum services = new ServiceEnum(context, "ServiceEnum "
-						+ getHost());
+				ServiceEnum services = new ServiceEnum(context);
 				MainService.sessionMgr.getNewConsole(services);
 				if (services != null)
 					services.enumerate(HostItem.this);
@@ -135,19 +144,19 @@ public class HostItem {
 	}
 
 	public String[] getOSCodeName() {
-		if (os.toLowerCase().startsWith("windows"))
+		if (os.toLowerCase().contains("windows"))
 			return new String[] { "multi", "windows" };
 
-		else if (os.toLowerCase().startsWith("solaris"))
+		else if (os.toLowerCase().contains("solaris"))
 			return new String[] { "solaris", "multi", "unix" };
 
-		else if (os.toLowerCase().startsWith("linux"))
+		else if (os.toLowerCase().contains("linux"))
 			return new String[] { "linux", "multi", "unix" };
 
-		else if (os.toLowerCase().startsWith("mac"))
+		else if (os.toLowerCase().contains("mac"))
 			return new String[] { "osx", "multi", "unix" };
 
-		else if (os.toLowerCase().startsWith("freebsd"))
+		else if (os.toLowerCase().contains("freebsd"))
 			return new String[] { "freebsd", "multi", "unix" };
 
 		else

@@ -585,9 +585,9 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		if (!isConnected || !MainService.checkConnection(this))
 			Toast.makeText(getApplicationContext(), "You have to be connected",
 					Toast.LENGTH_SHORT).show();
-		else if (MainService.hostsList.size() == 0)
-			Toast.makeText(getApplicationContext(), "You have no hosts",
-					Toast.LENGTH_SHORT).show();
+		//else if (MainService.hostsList.size() == 0)
+		//	Toast.makeText(getApplicationContext(), "You have no hosts",
+		//			Toast.LENGTH_SHORT).show();
 		else
 			startActivity(new Intent(getApplicationContext(),
 					AttackHallActivity.class));

@@ -15,6 +15,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.os.Vibrator;
+
 import org.msgpack.type.Value;
 
 import com.anwarelmakrahy.pwncore.structures.HostItem;
@@ -37,6 +39,7 @@ public class MainService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		service = this;
 		prefs = this.getSharedPreferences(StaticClass.PWNCORE_PACKAGE_NAME,
 				Context.MODE_PRIVATE);
 		sessionMgr = new SessionManager(getApplicationContext());
@@ -73,6 +76,7 @@ public class MainService extends Service {
 		return Service.START_NOT_STICKY;
 	}
 
+	public static Service service;
 	private Map<String, Value> StatsMap;
 
 	private void startConnection() {

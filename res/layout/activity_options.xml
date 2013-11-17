@@ -121,7 +121,8 @@
 	        android:layout_alignLeft="@+id/txtPassword"
 	        android:layout_below="@+id/txtPassword"
 	        android:layout_marginTop="18dp"
-	        android:text="Debug Mode" />
+	        android:text="Debug Mode"
+	        android:visibility="gone" />
 	
 	    <Button
 	        android:id="@+id/cmdCancel"
@@ -150,7 +151,8 @@
 	        android:layout_marginTop="10dp"
 	        android:text="WebServer Port"
 	        android:textAppearance="?android:attr/textAppearanceMedium"
-	        android:textSize="16sp" />
+	        android:textSize="16sp"
+	        android:visibility="gone" />
 
 	    <EditText
 	        android:id="@+id/txtWebPort"
@@ -162,7 +164,8 @@
 	        android:layout_marginLeft="10dp"
 	        android:layout_toRightOf="@+id/sessionHost"
 	        android:ems="10"
-	        android:singleLine="true" />
+	        android:singleLine="true"
+	        android:visibility="gone" />
 
 	</RelativeLayout>
 </ScrollView>

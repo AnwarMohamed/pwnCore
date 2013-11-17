@@ -23,7 +23,7 @@ public class SettingsActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_rpc);
+		setContentView(R.layout.activity_options);
 
 		prefs = this.getSharedPreferences("com.anwarelmakrahy.pwncore",
 				Context.MODE_PRIVATE);

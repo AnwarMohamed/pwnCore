@@ -103,8 +103,7 @@ public class ConsoleActivity extends Activity {
 		params.setCmdViewId(R.id.consoleRead);
 		params.setPromptViewId(R.id.attackHall);
 
-		console = new ConsoleSession(getApplicationContext(), params,
-				"New Console");
+		console = new ConsoleSession(getApplicationContext(), params);
 		MainService.sessionMgr.getNewConsole(console);
 		MainService.sessionMgr.switchWindow("console", console.getId(), this);
 
@@ -239,7 +238,6 @@ public class ConsoleActivity extends Activity {
 	}
 
 	private static Activity activity;
-
 	public static Activity getActivity() {
 		return activity;
 	}

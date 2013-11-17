@@ -37,6 +37,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class AttackWizardActivity extends Activity {
 	private ProgressBar progress;
 
+
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -197,13 +199,13 @@ public class AttackWizardActivity extends Activity {
 			removeHostFromList(info.position);
 		} else if (item.getTitle().equals(host_contextmenu_titles[0])) {
 			AlertDialog builder = new AlertDialog.Builder(this)
-					.setSingleChoiceItems(HostsAdapter.osTitles, -1,
+					.setSingleChoiceItems(StaticClass.osTitles, -1,
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int item) {
 									dialog.dismiss();
 									MainService.hostsList.get(info.position)
-											.setOS(HostsAdapter.osTitles[item]);
+											.setOS(StaticClass.osTitles[item]);
 									hostsAdapter.notifyDataSetChanged();
 								}
 							}).create();
