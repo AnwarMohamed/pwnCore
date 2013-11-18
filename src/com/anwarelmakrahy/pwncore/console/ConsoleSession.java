@@ -54,6 +54,11 @@ public class ConsoleSession {
 		this.context = context;
 	}
 
+	public void clearHistory() {
+		conversation.clear();
+		params.getCmdView().setText("");
+	}
+	
 	public ConsoleSession(Context context, ConsoleSessionParams params) {
 		this.context = context;
 		this.params = params;

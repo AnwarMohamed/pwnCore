@@ -94,19 +94,6 @@ public class StaticClass {
 	
 	public static String PWNCORE_SESSION_KILL_PROCESS = "SESSION_KILL_PROCESS";
 	
-	public static String[] PWNCORE_SESSION_IMPLEMENTED_COMMANDS = {
-		"screenshot",
-		"webcam_snap",
-		"getuid",
-		"sysinfo",
-		"idletime",
-		"ps",
-	};
-	
-	public static List<String> getSessionImplCmds() {
-		return Arrays.asList(PWNCORE_SESSION_IMPLEMENTED_COMMANDS);
-	}
-	
 	public static boolean isNumeric(String str) {
 		try {
 			Double.parseDouble(str);

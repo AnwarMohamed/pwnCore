@@ -20,6 +20,7 @@ import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.fragments.ConsolesFragment;
 import com.anwarelmakrahy.pwncore.fragments.ControlSessionsFragment;
+import com.anwarelmakrahy.pwncore.fragments.HostsFragment;
 import com.anwarelmakrahy.pwncore.fragments.JobsFragment;
 import com.anwarelmakrahy.pwncore.structures.HostItem;
 
@@ -64,7 +65,7 @@ public class SessionManager {
 			controlSessions.put(id, newSession);
 			controlSessionsList.add(newSession);
 
-			ControlSessionsFragment.UpdateSessionsRecords();
+			ControlSessionsFragment.updateSessionsRecords();
 
 		} catch (Exception e) {
 		}
@@ -283,16 +284,14 @@ public class SessionManager {
 
 	public void destroySession(String id) {
 		if (controlSessions.containsKey(id)) {
+			HostItem hostItem = MainService.hostsList.get(controlSessions.get(id).getLinkedHostId());
 			
-			for (HostItem item: MainService.hostsList) {
-				if (item.getActiveSessions().containsKey(controlSessions.get(id).getType().toLowerCase()) &&
-						item.getActiveSessions().get(controlSessions.get(id).getType().toLowerCase()).contains(id)) {
-					item.getActiveSessions().get(controlSessions.get(id).getType().toLowerCase()).remove(id);
-					item.setPwned(item.getActiveSessions().get("shell").size() +
-							item.getActiveSessions().get("meterpreter").size() > 0 ? true: false);
-					break;
-				}
-			}
+			if (hostItem.getActiveSessions().containsKey(controlSessions.get(id).getType().toLowerCase()) &&
+					hostItem.getActiveSessions().get(controlSessions.get(id).getType().toLowerCase()).contains(id))
+				hostItem.getActiveSessions().get(controlSessions.get(id).getType().toLowerCase()).remove(id);
+
+			hostItem.setPwned(hostItem.getActiveSessions().get("shell").size() +
+					hostItem.getActiveSessions().get("meterpreter").size() > 0 ? true: false);
 			
 			controlSessions.get(id).destroy();
 			if (currentControlWindowId == id)
@@ -305,7 +304,8 @@ public class SessionManager {
 					break;
 				}
 
-			ControlSessionsFragment.UpdateSessionsRecords();
+			ControlSessionsFragment.updateSessionsRecords();
+			HostsFragment.updateHostsRecords();
 		}
 	}
 
@@ -322,6 +322,7 @@ public class SessionManager {
 	
 	public void getPreControlSession() {
 		controlSessions.clear();
+		controlSessionsList.clear();
 		updateSessionsRemoteInfo();
 		
 		Converter mapCon;
@@ -346,7 +347,8 @@ public class SessionManager {
 						if (item.getHost().equals(host)) {
 							item.setPwned(true);
 							if (info.containsKey("type")
-									&& item.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
+									&& item.getActiveSessions().containsKey(info.get("type").asRawValue().getString())
+									&& !item.getActiveSessions().get(info.get("type").asRawValue().getString()).contains(entry.getKey()))
 								item.getActiveSessions().get(info.get("type").asRawValue().getString()).add(entry.getKey());
 							hostItem = item;
 							wasFound = true;
@@ -359,7 +361,8 @@ public class SessionManager {
 						hostItem.setPwned(true);
 
 						if (info.containsKey("type")
-								&& hostItem.getActiveSessions().containsKey(info.get("type").asRawValue().getString()))
+								&& hostItem.getActiveSessions().containsKey(info.get("type").asRawValue().getString())
+								&& !hostItem.getActiveSessions().get(info.get("type").asRawValue().getString()).contains(entry.getKey()))
 							hostItem.getActiveSessions().get(info.get("type").asRawValue().getString()).add(entry.getKey());
 
 						hostItem.scanPorts();

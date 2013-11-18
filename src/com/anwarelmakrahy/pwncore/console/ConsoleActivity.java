@@ -4,7 +4,9 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.activities.AttackWizardActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
+import com.anwarelmakrahy.pwncore.fragments.HostsFragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -15,10 +17,14 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.MenuItem.OnActionExpandListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ScrollView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
@@ -44,6 +50,11 @@ public class ConsoleActivity extends Activity {
 			return;
 		}
 
+		
+		if (intent.hasExtra("precmd"))
+			((EditText) findViewById(R.id.consoleWrite))
+			.setText(intent.getStringExtra("precmd") + " ");
+		
 		String type = intent.getStringExtra("type");
 
 		if (type.startsWith("current")) {
@@ -73,6 +84,15 @@ public class ConsoleActivity extends Activity {
 		setTitle("Meterpreter Session");
 		MainService.sessionMgr.switchWindow("session", session.getId(), this);
 		setupWindowTrigger();
+		
+		if (intent.hasExtra("cmd"))
+			new Thread(new Runnable() {
+				public void run() {
+					String cmd = intent.getStringExtra("cmd");
+					session.waitForReady();
+					session.write(cmd);
+				}
+			}).start();
 	}
 
 	private void getCurrentConsole(String id) {
@@ -199,46 +219,97 @@ public class ConsoleActivity extends Activity {
 
 	@Override
 	public void onBackPressed() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(
-				"Terminate "
-						+ (console != null ? "Console" : WordUtils
-								.capitalize(session.getType())))
-				.setMessage(
-						"Do you want to terminate "
-								+ (console != null ? "console" : session
-										.getType()) + " ?")
-				.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
-				.setPositiveButton("Yes",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								if (console != null && console.isReady())
-									MainService.sessionMgr
-											.destroyConsole(console);
-								else if (session != null && session.isReady())
-									MainService.sessionMgr
-											.destroySession(session.getId());
-								finish();
-							}
-						})
-				.setNegativeButton("Run in Background",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								if (console != null)
-									MainService.sessionMgr
-											.closeConsoleWindow(console.getId());
-								else if (session != null)
-									MainService.sessionMgr
-											.closeSessionWindow(session.getId());
-								finish();
-							}
-						}).setCancelable(true).show();
+		if (intent.hasExtra("sessionCmd") && 
+				intent.getBooleanExtra("sessionCmd", true)) {
+			if (session != null)
+				MainService.sessionMgr
+						.closeSessionWindow(session.getId());
+			finish();
+		}
+		else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(
+					"Terminate "
+							+ (console != null ? "Console" : WordUtils
+									.capitalize(session.getType())))
+					.setMessage(
+							"Do you want to terminate "
+									+ (console != null ? "console" : session
+											.getType()) + " ?")
+					.setIcon(android.R.drawable.ic_menu_close_clear_cancel)
+					.setPositiveButton("Yes",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									if (console != null && console.isReady())
+										MainService.sessionMgr
+												.destroyConsole(console);
+									else if (session != null && session.isReady())
+										MainService.sessionMgr
+												.destroySession(session.getId());
+									finish();
+								}
+							})
+					.setNegativeButton("Run in Background",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									if (console != null)
+										MainService.sessionMgr
+												.closeConsoleWindow(console.getId());
+									else if (session != null)
+										MainService.sessionMgr
+												.closeSessionWindow(session.getId());
+									finish();
+								}
+							}).setCancelable(true).show();
+		}
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.console_activity, menu);
+		return true;
+	}
+	
 	private static Activity activity;
 	public static Activity getActivity() {
 		return activity;
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case R.id.mnuClearHistory:
+			if (console != null)
+				console.clearHistory();
+			else if (session != null)
+				session.clearHistory();
+			return true;
+			
+		case R.id.mnuTerminate:
+			if (console != null && console.isReady())
+				MainService.sessionMgr
+						.destroyConsole(console);
+			else if (session != null && session.isReady())
+				MainService.sessionMgr
+						.destroySession(session.getId());
+			finish();
+			return true;
+			
+		case R.id.mnuConsoleBG:
+			if (console != null)
+				MainService.sessionMgr
+						.closeConsoleWindow(console.getId());
+			else if (session != null)
+				MainService.sessionMgr
+						.closeSessionWindow(session.getId());
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
 }

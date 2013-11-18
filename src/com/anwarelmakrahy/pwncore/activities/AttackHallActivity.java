@@ -27,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -106,6 +107,18 @@ public class AttackHallActivity extends FragmentActivity {
 		}
 	}
 
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+
+		if (MainService.hostsList.size() > 0)
+			menu.findItem(R.id.mnuRemoveDeadHosts).setVisible(true);
+		else
+			menu.findItem(R.id.mnuRemoveDeadHosts).setVisible(false);
+
+
+		return super.onPrepareOptionsMenu(menu);
+	}
+	
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		getMenuInflater().inflate(R.menu.context_attackhall, menu);
@@ -119,13 +132,14 @@ public class AttackHallActivity extends FragmentActivity {
 			menu.findItem(R.id.mnuHostRemove).setVisible(true);
 			menu.findItem(R.id.mnuHostOS).setVisible(true);
 			menu.findItem(R.id.mnuHostDetails).setVisible(true);
-
 			menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
+			//menu.setGroupVisible(R.id.mnuHostFindAttacks, true);
 
 			if (MainService.hostsList.get(position).isUp()) {
 				menu.findItem(R.id.mnuHostScanServices).setVisible(true);
 				// menu.findItem(R.id.mnuHostLogin).setVisible(true);
 				menu.findItem(R.id.mnuHostFindAttacks).setVisible(true);
+				//menu.setGroupVisible(R.id.mnuHostFindAttacks, true);
 
 				if (MainService.hostsList.get(position).getActiveSessions()
 						.get("shell").size() > 0

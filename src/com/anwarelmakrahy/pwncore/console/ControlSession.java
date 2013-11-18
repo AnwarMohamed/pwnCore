@@ -11,6 +11,7 @@ import org.msgpack.type.Value;
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.MeterpreterCommander;
 import com.anwarelmakrahy.pwncore.StaticClass;
+import com.anwarelmakrahy.pwncore.activities.HostSessionsActivity;
 import com.anwarelmakrahy.pwncore.console.ConsoleSession.ConsoleSessionParams;
 import com.anwarelmakrahy.pwncore.plugins.Downloader;
 import com.anwarelmakrahy.pwncore.plugins.ImageViewerActivity;
@@ -46,7 +47,7 @@ public class ControlSession {
 	private ArrayList<String> cmdQueryPool = new ArrayList<String>();
 	
 	private ArrayList<String> stringCommands = new ArrayList<String>();
-	private ArrayList<String> implCommands = new ArrayList<String>();
+
 	private Map<String, SessionCommand> structCommands = new HashMap<String, SessionCommand>();
 
 	private MeterpreterCommander metCmd;
@@ -61,9 +62,9 @@ public class ControlSession {
 		
 		if (type.equals("meterpreter")) {
 			metCmd = new MeterpreterCommander(MainService.client, this);
+			getAvailableCommands();
 		}
-		
-		getAvailableCommands();
+				
 	}
 
 	public ControlSession(Context context, String type, String id,
@@ -78,11 +79,16 @@ public class ControlSession {
 
 		if (type.equals("meterpreter")) {
 			metCmd = new MeterpreterCommander(MainService.client, this);
+			getAvailableCommands();
 		}
 		
-		getAvailableCommands();
 	}
 
+	public void clearHistory() {
+		conversation.clear();
+		params.getCmdView().setText("");
+	}
+	
 	public void setLinkedHostId(int i) {
 		this.linkedHostId = i;
 	}
@@ -91,9 +97,9 @@ public class ControlSession {
 		return linkedHostId;
 	}
 	
-	private void getAvailableCommands() {
+	public void getAvailableCommands() {
 		startReadListener();
-		write("help");
+		write("help", false);
 		addToQuery(
 				StaticClass.PWNCORE_SESSION_GET_AVAILABLE_COMMANDS);
 	}
@@ -178,7 +184,7 @@ public class ControlSession {
 	}
 
 	public void processVisualCommand(String cmd, Activity activity) {
-		this.activity = activity;
+		/*this.activity = activity;
 		if (cmd.equals("screenshot")) {
 			write(cmd);
 			addToQuery(StaticClass.PWNCORE_SESSION_SCREENSHOT);
@@ -234,7 +240,7 @@ public class ControlSession {
 		else if (cmd.startsWith("kill")) {
 			write("kill " + ProcessesActivity.processes.get(Integer.parseInt(cmd.split(" ")[2])).getId());
 			addToQuery(StaticClass.PWNCORE_SESSION_KILL_PROCESS);
-		}
+		}*/
 	}
 	
 	private void addToQuery(String req) {
@@ -245,22 +251,6 @@ public class ControlSession {
 	private void removeFromQuery(String req) {
 		while (cmdQueryPool.contains(req))
 			cmdQueryPool.remove(req);
-	}
-	
-	private void showMessageDialog(final String title, final String content) {
-		 if (activity != null)
-         	activity.runOnUiThread(new Runnable(){
-					@Override
-					public void run() {
-						AlertDialog msgDialog;
-		                AlertDialog.Builder builder = new AlertDialog.Builder(activity != null ? activity: context);
-		                builder.setTitle(title);
-		                builder.setMessage("\n" + content);
-		                builder.setNeutralButton("Done", null);
-		                msgDialog = builder.create();
-		                msgDialog.show();
-					}
-				});
 	}
 	
 	private void processIncomingData(String data) {
@@ -394,14 +384,15 @@ public class ControlSession {
 			}
 			else if (lines[i].trim().length() > 0) {
 				codename = lines[i].trim().split(" ")[0];			
-				if (StaticClass.getSessionImplCmds().contains(codename)) {		
-					cmd = new SessionCommand(codename);
-					cmd.setDescription(lines[i].trim().substring(codename.length()).trim());
-					cmd.setImplemented(true);
-					structCommands.put(codename, cmd);
-				}
+				
+				cmd = new SessionCommand(codename);
+				cmd.setDescription(lines[i].trim().substring(codename.length()).trim());
+				cmd.setImplemented(true);
+				structCommands.put(codename, cmd);
 			}
 		}
+		
+		HostSessionsActivity.notifyCommandsUpdate();
 	}
 	
 	private void startReadListener() {
@@ -434,10 +425,16 @@ public class ControlSession {
 		}).start();
 	}
 
-	public void write(final String data) {
+	public void write(String data) {
+		write(data, true);
+	}
+	
+	public void write(final String data, boolean log) {
 		notifyQueryPool(data);
-		conversation.add(prompt + data + "\n");
-		appendToLog(prompt + data);
+		if (log) {
+			conversation.add(prompt + data + "\n");
+			appendToLog(prompt + data);
+		}
 	}
 
 	private void appendToLog(final String data) {
@@ -557,17 +554,5 @@ public class ControlSession {
 
 	public Map<String, SessionCommand> getAllCommands() {
 		return structCommands;
-	}
-
-	public void updateImplementedCommands() {
-		implCommands.clear();
-		for (Map.Entry<String, SessionCommand> entry : structCommands
-				.entrySet())
-			if (entry.getValue().isImplemented())
-				implCommands.add(entry.getKey());
-	}
-
-	public List<String> getImplementedCommands() {
-		return implCommands;
 	}
 }

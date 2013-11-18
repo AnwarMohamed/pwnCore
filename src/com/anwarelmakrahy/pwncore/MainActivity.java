@@ -63,7 +63,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	private String con_txtUsername, con_txtPassword, con_txtHost, con_txtPort;
 
 	private SidebarSessionsAdapter sessionsAdapter;
-	public static boolean debug_mode = false;
+	//public static boolean debug_mode = false;
 	private ListView sidebarList;
 	private SidebarAdapter sidebarAdapter;
 	private ArrayList<SidebarItem> sidebarItems = new ArrayList<SidebarItem>();
@@ -88,15 +88,45 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 		sessionsList = (ListView)findViewById(R.id.sidebarSessionsListview);
 		sessionsList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)  {
+			public void onItemClick(AdapterView<?> parent, View view, final int position, long id)  {
 				if (isConnected
 						&& MainService.checkConnection(MainActivity.this)) {
-					ControlSession session = (ControlSession)(sessionsList.getItemAtPosition(position));
-					startActivity(new Intent(getApplicationContext(), HostSessionsActivity.class)
-					.putExtra("hostId", session.getLinkedHostId())
-					.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));	
+					
+					final ControlSession session = (ControlSession)(sessionsList.getItemAtPosition(position));
+					AlertDialog.Builder sessionDlg = new AlertDialog.Builder(activity);
+					sessionDlg.setTitle("How to interact with session ?")
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setCancelable(true)					
+					.setPositiveButton("VisualCommander",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int which) {
+									
+									startActivity(
+											new Intent(getApplicationContext(), 
+													HostSessionsActivity.class)
+									.putExtra("hostId", session.getLinkedHostId())
+									.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));	
+								}
+							})
+					.setNegativeButton("Console",
+							new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
+							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							intent.putExtra("type", "current." + session.getType());
+							String id = session.getId();
+							intent.putExtra("id", id);
+							startActivity(intent);
+						}
+					})
+					.show();
+					
 					sidebarLayout.closeDrawers();
 				}
+				else
+					Toast.makeText(getApplicationContext(),
+							R.string.pwncore_notconnected,
+							Toast.LENGTH_SHORT).show();
 			}
 		});
 		
@@ -844,7 +874,7 @@ public class MainActivity extends Activity implements OnQueryTextListener {
 	}
 
 	private void loadSharedPreferences() {
-		debug_mode = prefs.getBoolean("debug_mode", false);
+		//debug_mode = prefs.getBoolean("debug_mode", false);
 		con_txtUsername = prefs.getString("connection_Username", "");
 		con_txtPassword = prefs.getString("connection_Password", "");
 		con_txtHost = prefs.getString("connection_Host", "");

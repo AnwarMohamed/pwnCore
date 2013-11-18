@@ -70,4 +70,17 @@ public class HostsFragment extends Fragment {
 		if (isVisibleToUser && listAdapter != null)
 			listAdapter.notifyDataSetChanged();
 	}
+
+	public static void updateHostsRecords() {
+		if (listAdapter != null && AttackHallActivity.getActivity() != null) {
+			
+			AttackHallActivity.getActivity().runOnUiThread(new Runnable() {  
+                @Override
+                public void run() {
+    				listAdapter.notifyDataSetChanged();
+                }
+            });
+		}
+		
+	}
 }

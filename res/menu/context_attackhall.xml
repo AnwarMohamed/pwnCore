@@ -10,15 +10,15 @@
             <item android:id="@+id/mnuHostLogin23" android:visible="false" android:title="Telnet"/>
             <item android:id="@+id/mnuHostLogin80" android:visible="false" android:title="Http"/>
             <item android:id="@+id/mnuHostLogin445" android:visible="false" android:title="Psexec"/>
-        </menu>
+ 		</menu>
     </item>  
     
     <item android:id="@+id/mnuHostFindAttacks" android:visible="false" android:title="Find Attacks">
-        <menu>
+		<menu>
             <item android:id="@+id/mnuFindAttacksOS" android:title="Based on OS"/>
             <item android:id="@+id/mnuFindAttacksServices" android:title="Based on Services"/>
             <item android:id="@+id/mnuFindAttacksPorts" android:title="Based on Open Ports"/>
-        </menu>
+		</menu>
     </item>
     
      <item android:id="@+id/mnuHostScanServices" android:visible="false" android:title="Scan Services"/>

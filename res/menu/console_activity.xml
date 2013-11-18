@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >   
+
+    <item android:id="@+id/mnuClearHistory" android:title="Clear History"></item>
+    <item android:id="@+id/mnuConsoleBG" android:title="Send to Background"></item>
+    <item android:id="@+id/mnuTerminate" android:title="Terminate"></item>
+
+</menu>

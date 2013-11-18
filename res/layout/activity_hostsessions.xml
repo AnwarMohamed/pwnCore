@@ -54,4 +54,19 @@
 
     </ListView>
 
+    <TextView
+      	android:id="@+id/emptyView"
+      	android:layout_below="@+id/sessionList"
+      	android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+      	android:text="No Available Commands, Reload Commands List."
+      	android:gravity="center"
+
+      	android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#777777"
+ 	    android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </TextView>
+    
 </RelativeLayout>

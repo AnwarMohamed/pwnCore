@@ -23,7 +23,7 @@ public class ControlSessionsFragment extends Fragment {
 	private ListView listview;
 	public static SessionsListAdapter listAdapter;
 
-	public static void UpdateSessionsRecords() {
+	public static void updateSessionsRecords() {
 
 		if (listAdapter != null && AttackHallActivity.getActivity() != null) {
 			

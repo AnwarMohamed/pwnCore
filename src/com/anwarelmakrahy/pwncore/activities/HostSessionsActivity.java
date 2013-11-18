@@ -8,6 +8,7 @@ import org.apache.commons.lang3.text.WordUtils;
 
 import com.anwarelmakrahy.pwncore.MainService;
 import com.anwarelmakrahy.pwncore.R;
+import com.anwarelmakrahy.pwncore.console.ConsoleActivity;
 import com.anwarelmakrahy.pwncore.console.ControlSession;
 import com.anwarelmakrahy.pwncore.structures.HostItem;
 import com.anwarelmakrahy.pwncore.structures.SessionCommand;
@@ -33,23 +34,38 @@ import android.widget.TextView;
 public class HostSessionsActivity extends Activity implements OnQueryTextListener {
 
 	private HostItem host;
-	private String currentSessionId;
-	private ControlSession session;
+
+	private static ControlSession session;
 	private ListView sessionsListview, sessionCmdsListview;
 	private ArrayAdapter<String> sessionsAdapter;
-	private SessionCommandsAdapter commandsAdapter;
+	
+	public static SessionCommandsAdapter commandsAdapter;
 
 	private ArrayList<String> sessions = new ArrayList<String>();
-	private Map<String, SessionCommand> commands = new HashMap<String, SessionCommand>();
+	private static Map<String, SessionCommand> commands = new HashMap<String, SessionCommand>();
 
 	private static final int BAD_ID = 9999;
 	private int currentPosition = 0;
 	private Menu optionsMenu;
 
+	public static Activity activity;
+	public static void notifyCommandsUpdate() {
+		if (activity != null && commandsAdapter != null && session != null) {
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					commands.clear();
+					commands.putAll(session.getAllCommands());
+					commandsAdapter.notifyDataSetChanged();
+				}});
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		activity = this;
+		
 		Intent intent = getIntent();
 		int hostId;
 
@@ -83,20 +99,45 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 		setupSessionsList();
 
 		sessionCmdsListview = (ListView) findViewById(R.id.sessionCommandsList);
+		sessionCmdsListview.setEmptyView(findViewById(R.id.emptyView));
 		commandsAdapter = new SessionCommandsAdapter(getApplicationContext(), commands);
 		sessionCmdsListview.setAdapter(commandsAdapter);
 		sessionCmdsListview.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view,
 					int position, long itemId) {
-				session.processVisualCommand(
-						((SessionCommand)(commands.values().toArray()[position])).getCodename(),
-						HostSessionsActivity.this);
+				//session.processVisualCommand(
+				//		((SessionCommand)(commands.values().toArray()[position])).getCodename(),
+				//		HostSessionsActivity.this);
+				if (session != null) {
+					Intent intent = new Intent(getApplicationContext(), ConsoleActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra("type", "current." + session.getType());
+					intent.putExtra("id", session.getId());
+					intent.putExtra("sessionCmd", true);
+					intent.putExtra("cmd", ((SessionCommand)(commands.values().toArray()[position])).getCodename());
+					startActivity(intent);
+				}
 			}
 		});
 	}
 
+	@Override
+	public void onDestroy() {
+		sessions.clear();
+		commands.clear();
+		session = null;
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
+	
+	
 	private void setupOptionsMenu(boolean check) {
+		optionsMenu.findItem(R.id.mnuSessionPlugins).setVisible(check);
 		optionsMenu.findItem(R.id.mnuSessionTerminate).setVisible(check);
 		optionsMenu.findItem(R.id.mnuSessionReloadCmds).setVisible(check);
 		optionsMenu.findItem(R.id.mnuSessionDetails).setVisible(check);
@@ -163,7 +204,7 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 			if (session != null) {
 				MainService.sessionMgr.destroySession(session.getId());
 				setupSessionsList();
-				currentSessionId = null;
+
 				commands.clear();
 				commandsAdapter.notifyDataSetChanged();
 				
@@ -177,6 +218,10 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 		case R.id.mnuSessionDetails:
 			return true;
 			
+		case R.id.mnuSessionReloadCmds:
+			if (session != null)
+				session.getAvailableCommands();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -200,10 +245,8 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 			setSessionCheckbox(currentPosition, false);
 			setSessionCheckbox(id, true);
 			currentPosition = id;
-			currentSessionId = sessionId;
 
 			commands.clear();
-			session.updateImplementedCommands();
 			commands.putAll(session.getAllCommands());
 			commandsAdapter.notifyDataSetChanged();
 		}
@@ -233,4 +276,6 @@ public class HostSessionsActivity extends Activity implements OnQueryTextListene
 			commandsAdapter.getFilter().filter(text);
 		return true;
 	}
+	
+	
 }

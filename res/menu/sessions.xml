@@ -8,5 +8,10 @@
    	
    	<item android:id="@+id/mnuSessionDetails" android:title="Session Details"></item>
     <item android:id="@+id/mnuSessionReloadCmds" android:title="Reload Commands"></item>
+    <item android:id="@+id/mnuSessionPlugins" android:title="Plugins">
+        <menu>
+           <item android:id="@+id/mnuPluginBrowser" android:title="File Browser"></item>
+        </menu>
+    </item>
     <item android:id="@+id/mnuSessionTerminate" android:title="Terminate Session"></item>
 </menu>

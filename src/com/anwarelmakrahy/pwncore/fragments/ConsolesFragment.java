@@ -56,9 +56,12 @@ public class ConsolesFragment extends Fragment {
 
 		listview = (ListView) view.findViewById(R.id.targetsConsolesListView);
 		listview.setEmptyView(view.findViewById(R.id.noConsoles));
-		consoleArray = MainService.sessionMgr.getConsoleListArray();
+		
+		if (MainService.sessionMgr != null)
+			consoleArray = MainService.sessionMgr.getConsoleListArray();
+		
 		listAdapter = new ArrayAdapter<String>(getActivity(),
-				R.layout.payload_item, consoleArray);
+				R.layout.payload_item, consoleArray != null ? consoleArray : new ArrayList<String>());
 		listview.setAdapter(listAdapter);
 
 		setupListViewListener();
